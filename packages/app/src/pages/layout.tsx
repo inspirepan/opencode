@@ -593,9 +593,11 @@ export default function Layout(props: ParentProps) {
     await layout.ready.promise
     if (!untrack(() => state.autoselect)) return
 
-    // Dandelion: always open the fixed workspace
-    if (platform.defaultWorkspace) {
-      await openProject(platform.defaultWorkspace, true)
+    // Dandelion: open both workspaces, navigate to agent by default
+    if (platform.dandelion) {
+      const { chat, agent } = platform.dandelion.workspaces
+      layout.projects.open(chat)
+      await openProject(agent, true)
       return
     }
 
@@ -1804,8 +1806,9 @@ export default function Layout(props: ParentProps) {
     document.documentElement.style.setProperty("--dialog-left-margin", `${sidebarWidth}px`)
   })
 
-  const side = createMemo(() => Math.max(layout.sidebar.width(), 244))
-  const panel = createMemo(() => Math.max(side() - 64, 0))
+  const railWidth = platform.dandelion ? 0 : 64
+  const side = createMemo(() => Math.max(layout.sidebar.width(), 244) - (platform.dandelion ? 64 : 0))
+  const panel = createMemo(() => Math.max(side() - railWidth, 0))
 
   const loadedSessionDirs = new Set<string>()
 
@@ -2107,7 +2110,7 @@ export default function Layout(props: ParentProps) {
           }
         >
           <>
-            <Show when={!platform.defaultWorkspace}>
+            <Show when={!platform.dandelion}>
             <div class="shrink-0 pl-1 py-1">
               <div class="group/project flex items-start justify-between gap-2 py-2 pl-2 pr-0">
                 <div class="flex flex-col min-w-0">
@@ -2336,32 +2339,38 @@ export default function Layout(props: ParentProps) {
 
   const projects = () => layout.projects.list()
   const projectOverlay = () => <ProjectDragOverlay projects={projects} activeProject={() => store.activeProject} />
-  const sidebarContent = (mobile?: boolean) => (
-    <SidebarContent
-      mobile={mobile}
-      opened={() => layout.sidebar.opened()}
-      aimMove={aim.move}
-      projects={projects}
-      renderProject={(project) => (
-        <SortableProject ctx={projectSidebarCtx} project={project} sortNow={sortNow} mobile={mobile} />
-      )}
-      handleDragStart={handleDragStart}
-      handleDragEnd={handleDragEnd}
-      handleDragOver={handleDragOver}
-      openProjectLabel={language.t("command.project.open")}
-      openProjectKeybind={() => command.keybind("project.open")}
-      onOpenProject={chooseProject}
-      renderProjectOverlay={projectOverlay}
-      settingsLabel={() => language.t("sidebar.settings")}
-      settingsKeybind={() => command.keybind("settings.open")}
-      onOpenSettings={openSettings}
-      helpLabel={() => language.t("sidebar.help")}
-      onOpenHelp={() => platform.openLink("https://opencode.ai/desktop-feedback")}
-      renderPanel={() =>
-        mobile ? <SidebarPanel project={currentProject} mobile /> : <SidebarPanel project={currentProject} merged />
-      }
-    />
-  )
+  const sidebarContent = (mobile?: boolean) => {
+    // Dandelion: skip the rail, render session panel directly
+    if (platform.dandelion) {
+      return mobile ? <SidebarPanel project={currentProject} mobile /> : <SidebarPanel project={currentProject} merged />
+    }
+    return (
+      <SidebarContent
+        mobile={mobile}
+        opened={() => layout.sidebar.opened()}
+        aimMove={aim.move}
+        projects={projects}
+        renderProject={(project) => (
+          <SortableProject ctx={projectSidebarCtx} project={project} sortNow={sortNow} mobile={mobile} />
+        )}
+        handleDragStart={handleDragStart}
+        handleDragEnd={handleDragEnd}
+        handleDragOver={handleDragOver}
+        openProjectLabel={language.t("command.project.open")}
+        openProjectKeybind={() => command.keybind("project.open")}
+        onOpenProject={chooseProject}
+        renderProjectOverlay={projectOverlay}
+        settingsLabel={() => language.t("sidebar.settings")}
+        settingsKeybind={() => command.keybind("settings.open")}
+        onOpenSettings={openSettings}
+        helpLabel={() => language.t("sidebar.help")}
+        onOpenHelp={() => platform.openLink("https://opencode.ai/desktop-feedback")}
+        renderPanel={() =>
+          mobile ? <SidebarPanel project={currentProject} mobile /> : <SidebarPanel project={currentProject} merged />
+        }
+      />
+    )
+  }
 
   return (
     <div class="relative bg-background-base flex-1 min-h-0 min-w-0 flex flex-col select-none [&_input]:select-text [&_textarea]:select-text [&_[contenteditable]]:select-text">
@@ -2417,7 +2426,7 @@ export default function Layout(props: ParentProps) {
 
             <div
               class="hidden xl:block pointer-events-none absolute top-0 right-0 z-0 border-t border-border-weaker-base"
-              style={{ left: "calc(4rem + 12px)" }}
+              style={{ left: platform.dandelion ? "12px" : "calc(4rem + 12px)" }}
             />
 
             <div class="xl:hidden">
@@ -2454,7 +2463,7 @@ export default function Layout(props: ParentProps) {
                   !state.sizing,
               }}
               style={{
-                "--main-left": layout.sidebar.opened() ? `${side()}px` : "4rem",
+                "--main-left": layout.sidebar.opened() ? `${side()}px` : platform.dandelion ? "0px" : "4rem",
               }}
             >
               <main

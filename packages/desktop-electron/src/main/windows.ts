@@ -7,7 +7,7 @@ import type { TitlebarTheme } from "../preload/types"
 type Globals = {
   updaterEnabled: boolean
   deepLinks?: string[]
-  dandelionWorkspace?: string
+  dandelionWorkspaces?: { chat: string; agent: string }
 }
 
 const root = dirname(fileURLToPath(import.meta.url))
@@ -144,7 +144,7 @@ function injectGlobals(win: BrowserWindow, globals: Globals) {
     const data = {
       updaterEnabled: globals.updaterEnabled,
       deepLinks: Array.isArray(deepLinks) ? deepLinks.splice(0) : deepLinks,
-      dandelionWorkspace: globals.dandelionWorkspace,
+      dandelionWorkspaces: globals.dandelionWorkspaces,
     }
     void win.webContents.executeJavaScript(
       `window.__OPENCODE__ = Object.assign(window.__OPENCODE__ ?? {}, ${JSON.stringify(data)})`,

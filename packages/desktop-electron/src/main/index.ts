@@ -34,11 +34,14 @@ import { createMenu } from "./menu"
 import { getDefaultServerUrl, getWslConfig, setDefaultServerUrl, setWslConfig, spawnLocalServer } from "./server"
 import { createLoadingWindow, createMainWindow, setBackgroundColor, setDockIcon } from "./windows"
 
-const DANDELION_WORKSPACE = join(homedir(), ".dandelion", "workspace")
+const DANDELION_WORKSPACES = {
+  chat: join(homedir(), ".dandelion", "spaces", "chat"),
+  agent: join(homedir(), ".dandelion", "spaces", "agent"),
+}
 
-function ensureDandelionWorkspace() {
-  mkdirSync(DANDELION_WORKSPACE, { recursive: true })
-  return DANDELION_WORKSPACE
+function ensureDandelionWorkspaces() {
+  mkdirSync(DANDELION_WORKSPACES.chat, { recursive: true })
+  mkdirSync(DANDELION_WORKSPACES.agent, { recursive: true })
 }
 
 const initEmitter = new EventEmitter()
@@ -105,7 +108,7 @@ function setupApp() {
     setDockIcon()
     setupAutoUpdater()
     syncCli()
-    ensureDandelionWorkspace()
+    ensureDandelionWorkspaces()
     await initialize()
   })
 }
@@ -176,7 +179,7 @@ async function initialize() {
   const globals = {
     updaterEnabled: UPDATER_ENABLED,
     deepLinks: pendingDeepLinks,
-    dandelionWorkspace: DANDELION_WORKSPACE,
+    dandelionWorkspaces: DANDELION_WORKSPACES,
   }
 
   if (needsMigration) {
@@ -250,7 +253,7 @@ registerIpcHandlers({
   checkUpdate: async () => checkUpdate(),
   installUpdate: async () => installUpdate(),
   setBackgroundColor: (color) => setBackgroundColor(color),
-  getDandelionWorkspace: () => ensureDandelionWorkspace(),
+  getDandelionWorkspace: () => { ensureDandelionWorkspaces(); return DANDELION_WORKSPACES },
 })
 
 function killSidecar() {

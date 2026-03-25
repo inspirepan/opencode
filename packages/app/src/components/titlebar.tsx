@@ -7,10 +7,12 @@ import { Button } from "@opencode-ai/ui/button"
 import { Tooltip, TooltipKeybind } from "@opencode-ai/ui/tooltip"
 import { useTheme } from "@opencode-ai/ui/theme"
 
+import { base64Encode } from "@opencode-ai/util/encode"
 import { useLayout } from "@/context/layout"
 import { usePlatform } from "@/context/platform"
 import { useCommand } from "@/context/command"
 import { useLanguage } from "@/context/language"
+import { decode64 } from "@/utils/base64"
 import { applyPath, backPath, forwardPath } from "./titlebar-history"
 
 type TauriDesktopWindow = {
@@ -287,10 +289,52 @@ export function Titlebar() {
           </div>
         </div>
         <div id="opencode-titlebar-left" class="flex items-center gap-3 min-w-0 px-2" />
+        <Show when={platform.dandelion}>
+          {(dandelion) => {
+            const currentDir = createMemo(() => {
+              const dir = params.dir
+              return dir ? decode64(dir) : undefined
+            })
+            const isChat = createMemo(() => currentDir() === dandelion().workspaces.chat)
+            const isAgent = createMemo(() => currentDir() === dandelion().workspaces.agent)
+            return (
+              <div class="flex items-center gap-1 shrink-0">
+                <Button
+                  variant="secondary"
+                  size="small"
+                  icon="bubble-5"
+                  class="h-6 px-2 text-12-medium"
+                  classList={{
+                    "opacity-100": isChat(),
+                    "opacity-50": !isChat(),
+                  }}
+                  onClick={() => navigate(`/${base64Encode(dandelion().workspaces.chat)}/session`)}
+                >
+                  {language.t("dandelion.mode.chat")}
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  icon="window-cursor"
+                  class="h-6 px-2 text-12-medium"
+                  classList={{
+                    "opacity-100": isAgent(),
+                    "opacity-50": !isAgent(),
+                  }}
+                  onClick={() => navigate(`/${base64Encode(dandelion().workspaces.agent)}/session`)}
+                >
+                  {language.t("dandelion.mode.agent")}
+                </Button>
+              </div>
+            )
+          }}
+        </Show>
       </div>
 
       <div class="min-w-0 flex items-center justify-center pointer-events-none">
-        <div id="opencode-titlebar-center" class="pointer-events-auto min-w-0 flex justify-center w-fit max-w-full" />
+        <Show when={!platform.dandelion}>
+          <div id="opencode-titlebar-center" class="pointer-events-auto min-w-0 flex justify-center w-fit max-w-full" />
+        </Show>
       </div>
 
       <div
@@ -302,6 +346,22 @@ export function Titlebar() {
         onMouseDown={drag}
       >
         <div id="opencode-titlebar-right" class="flex items-center gap-1 shrink-0 justify-end" />
+        <Show when={platform.dandelion}>
+          <div class="w-px h-4 bg-border-weak-base mx-1" />
+          <TooltipKeybind
+            placement="bottom"
+            title={language.t("sidebar.settings")}
+            keybind={command.keybind("settings.open")}
+          >
+            <Button
+              variant="ghost"
+              icon="settings-gear"
+              class="titlebar-icon w-8 h-6 p-0 box-border"
+              onClick={() => command.trigger("settings.open")}
+              aria-label={language.t("sidebar.settings")}
+            />
+          </TooltipKeybind>
+        </Show>
         <Show when={windows()}>
           {!tauriApi() && <div class="w-36 shrink-0" />}
           <div data-tauri-decorum-tb class="flex flex-row" />

@@ -98,7 +98,7 @@ const createPlatform = (): Platform => {
     platform: "desktop",
     os,
     version: pkg.version,
-    defaultWorkspace: window.__DANDELION__?.workspace,
+    dandelion: window.__DANDELION__ ? { workspaces: window.__DANDELION__.workspaces } : undefined,
 
     async openDirectoryPickerDialog(opts) {
       const defaultPath = await wslHome()

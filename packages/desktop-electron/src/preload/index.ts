@@ -3,7 +3,10 @@ import { join } from "node:path"
 import { contextBridge, ipcRenderer } from "electron"
 import type { ElectronAPI, InitStep, SqliteMigrationProgress } from "./types"
 
-const DANDELION_WORKSPACE = join(homedir(), ".dandelion", "workspace")
+const DANDELION_WORKSPACES = {
+  chat: join(homedir(), ".dandelion", "spaces", "chat"),
+  agent: join(homedir(), ".dandelion", "spaces", "agent"),
+}
 
 const api: ElectronAPI = {
   killSidecar: () => ipcRenderer.invoke("kill-sidecar"),
@@ -72,4 +75,4 @@ const api: ElectronAPI = {
 }
 
 contextBridge.exposeInMainWorld("api", api)
-contextBridge.exposeInMainWorld("__DANDELION__", { workspace: DANDELION_WORKSPACE })
+contextBridge.exposeInMainWorld("__DANDELION__", { workspaces: DANDELION_WORKSPACES })

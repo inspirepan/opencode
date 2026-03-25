@@ -9,6 +9,7 @@ import { Auth } from "../auth"
 import { ProviderTransform } from "../provider/transform"
 
 import PROMPT_GENERATE from "./generate.txt"
+import PROMPT_CHAT from "./prompt/chat.txt"
 import PROMPT_COMPACTION from "./prompt/compaction.txt"
 import PROMPT_EXPLORE from "./prompt/explore.txt"
 import PROMPT_SUMMARY from "./prompt/summary.txt"
@@ -103,6 +104,20 @@ export namespace Agent {
           const user = Permission.fromConfig(cfg.permission ?? {})
 
           const agents: Record<string, Info> = {
+            chat: {
+              name: "chat",
+              description: "Pure conversation mode. No tool access.",
+              prompt: PROMPT_CHAT,
+              options: {},
+              permission: Permission.merge(
+                defaults,
+                Permission.fromConfig({
+                  "*": "deny",
+                }),
+              ),
+              mode: "primary",
+              native: true,
+            },
             build: {
               name: "build",
               description: "The default agent. Executes tools based on configured permissions.",

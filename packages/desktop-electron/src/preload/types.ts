@@ -70,5 +70,5 @@ export type ElectronAPI = {
   checkUpdate: () => Promise<{ updateAvailable: boolean; version?: string }>
   installUpdate: () => Promise<void>
   setBackgroundColor: (color: string) => Promise<void>
-  getDandelionWorkspace: () => Promise<string>
+  getDandelionWorkspace: () => Promise<{ chat: string; agent: string }>
 }

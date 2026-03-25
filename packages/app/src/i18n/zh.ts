@@ -927,4 +927,7 @@ export const dict = {
   "error.childStore.persistedProjectIconCreateFailed": "创建持久化项目图标失败",
   "error.childStore.storeCreateFailed": "创建存储失败",
   "terminal.connectionLost.abnormalClose": "WebSocket 异常关闭：{{code}}",
+
+  "dandelion.mode.chat": "聊天",
+  "dandelion.mode.agent": "智能体",
 } satisfies Partial<Record<Keys, string>>

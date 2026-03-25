@@ -23,9 +23,9 @@ export default function Home() {
   const server = useServer()
   const language = useLanguage()
 
-  // Dandelion: auto-redirect to fixed workspace
-  if (platform.defaultWorkspace) {
-    const workspace = platform.defaultWorkspace
+  // Dandelion: auto-redirect to agent workspace
+  if (platform.dandelion) {
+    const workspace = platform.dandelion.workspaces.agent
     layout.projects.open(workspace)
     server.projects.touch(workspace)
     navigate(`/${base64Encode(workspace)}`, { replace: true })

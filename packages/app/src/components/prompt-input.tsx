@@ -114,6 +114,15 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   const permission = usePermission()
   const language = useLanguage()
   const platform = usePlatform()
+  const dandelionChatMode = createMemo(() => platform.dandelion?.workspaces.chat === sdk.directory)
+
+  // Dandelion: auto-select chat agent in chat mode
+  createEffect(() => {
+    if (!dandelionChatMode()) return
+    if (local.agent.current()?.name === "chat") return
+    local.agent.set("chat")
+  })
+
   const { params, tabs, view } = useSessionLayout()
   let editorRef!: HTMLDivElement
   let fileInputRef: HTMLInputElement | undefined
@@ -1456,26 +1465,28 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                 <div class="size-4 shrink-0" />
               </div>
               <div class="flex items-center gap-1.5 min-w-0 flex-1">
-                <div data-component="prompt-agent-control">
-                  <TooltipKeybind
-                    placement="top"
-                    gutter={4}
-                    title={language.t("command.agent.cycle")}
-                    keybind={command.keybind("agent.cycle")}
-                  >
-                    <Select
-                      size="normal"
-                      options={agentNames()}
-                      current={local.agent.current()?.name ?? ""}
-                      onSelect={local.agent.set}
-                      class="capitalize max-w-[160px] text-text-base"
-                      valueClass="truncate text-13-regular text-text-base"
-                      triggerStyle={control()}
-                      triggerProps={{ "data-action": "prompt-agent" }}
-                      variant="ghost"
-                    />
-                  </TooltipKeybind>
-                </div>
+                <Show when={!dandelionChatMode()}>
+                  <div data-component="prompt-agent-control">
+                    <TooltipKeybind
+                      placement="top"
+                      gutter={4}
+                      title={language.t("command.agent.cycle")}
+                      keybind={command.keybind("agent.cycle")}
+                    >
+                      <Select
+                        size="normal"
+                        options={agentNames()}
+                        current={local.agent.current()?.name ?? ""}
+                        onSelect={local.agent.set}
+                        class="capitalize max-w-[160px] text-text-base"
+                        valueClass="truncate text-13-regular text-text-base"
+                        triggerStyle={control()}
+                        triggerProps={{ "data-action": "prompt-agent" }}
+                        variant="ghost"
+                      />
+                    </TooltipKeybind>
+                  </div>
+                </Show>
                 <div data-component="prompt-model-control">
                   <Show
                     when={providers.paid().length > 0}

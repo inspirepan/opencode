@@ -30,7 +30,7 @@ type Deps = {
   checkUpdate: () => Promise<{ updateAvailable: boolean; version?: string }>
   installUpdate: () => Promise<void> | void
   setBackgroundColor: (color: string) => void
-  getDandelionWorkspace: () => string
+  getDandelionWorkspace: () => { chat: string; agent: string }
 }
 
 export function registerIpcHandlers(deps: Deps) {
