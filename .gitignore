@@ -28,3 +28,6 @@ opencode-dev
 logs/
 *.bun-build
 tsconfig.tsbuildinfo
+
+# Build artifacts
+packages/opencode/src/provider/models-snapshot.js
