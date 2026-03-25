@@ -593,6 +593,12 @@ export default function Layout(props: ParentProps) {
     await layout.ready.promise
     if (!untrack(() => state.autoselect)) return
 
+    // Dandelion: always open the fixed workspace
+    if (platform.defaultWorkspace) {
+      await openProject(platform.defaultWorkspace, true)
+      return
+    }
+
     const list = layout.projects.list()
     const last = server.projects.last()
 
@@ -2101,6 +2107,7 @@ export default function Layout(props: ParentProps) {
           }
         >
           <>
+            <Show when={!platform.defaultWorkspace}>
             <div class="shrink-0 pl-1 py-1">
               <div class="group/project flex items-start justify-between gap-2 py-2 pl-2 pr-0">
                 <div class="flex flex-col min-w-0">
@@ -2202,6 +2209,7 @@ export default function Layout(props: ParentProps) {
                 </DropdownMenu>
               </div>
             </div>
+            </Show>
 
             <div class="flex-1 min-h-0 flex flex-col">
               <Show

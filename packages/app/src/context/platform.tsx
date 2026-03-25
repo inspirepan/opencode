@@ -87,6 +87,9 @@ export type Platform = {
 
   /** Read image from clipboard (desktop only) */
   readClipboardImage?(): Promise<File | null>
+
+  /** Fixed workspace directory for simplified desktop mode (dandelion) */
+  defaultWorkspace?: string
 }
 
 export type DisplayBackend = "auto" | "wayland"

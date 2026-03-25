@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import { EventEmitter } from "node:events"
-import { existsSync } from "node:fs"
+import { existsSync, mkdirSync } from "node:fs"
 import { createServer } from "node:net"
 import { homedir } from "node:os"
 import { join } from "node:path"
@@ -33,6 +33,13 @@ import { parseMarkdown } from "./markdown"
 import { createMenu } from "./menu"
 import { getDefaultServerUrl, getWslConfig, setDefaultServerUrl, setWslConfig, spawnLocalServer } from "./server"
 import { createLoadingWindow, createMainWindow, setBackgroundColor, setDockIcon } from "./windows"
+
+const DANDELION_WORKSPACE = join(homedir(), ".dandelion", "workspace")
+
+function ensureDandelionWorkspace() {
+  mkdirSync(DANDELION_WORKSPACE, { recursive: true })
+  return DANDELION_WORKSPACE
+}
 
 const initEmitter = new EventEmitter()
 let initStep: InitStep = { phase: "server_waiting" }
@@ -98,6 +105,7 @@ function setupApp() {
     setDockIcon()
     setupAutoUpdater()
     syncCli()
+    ensureDandelionWorkspace()
     await initialize()
   })
 }
@@ -168,6 +176,7 @@ async function initialize() {
   const globals = {
     updaterEnabled: UPDATER_ENABLED,
     deepLinks: pendingDeepLinks,
+    dandelionWorkspace: DANDELION_WORKSPACE,
   }
 
   if (needsMigration) {
@@ -241,6 +250,7 @@ registerIpcHandlers({
   checkUpdate: async () => checkUpdate(),
   installUpdate: async () => installUpdate(),
   setBackgroundColor: (color) => setBackgroundColor(color),
+  getDandelionWorkspace: () => ensureDandelionWorkspace(),
 })
 
 function killSidecar() {

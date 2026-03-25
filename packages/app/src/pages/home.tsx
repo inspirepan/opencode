@@ -22,6 +22,16 @@ export default function Home() {
   const navigate = useNavigate()
   const server = useServer()
   const language = useLanguage()
+
+  // Dandelion: auto-redirect to fixed workspace
+  if (platform.defaultWorkspace) {
+    const workspace = platform.defaultWorkspace
+    layout.projects.open(workspace)
+    server.projects.touch(workspace)
+    navigate(`/${base64Encode(workspace)}`, { replace: true })
+    return <div class="size-full" />
+  }
+
   const homedir = createMemo(() => sync.data.path.home)
   const recent = createMemo(() => {
     return sync.data.project

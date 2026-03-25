@@ -7,6 +7,10 @@ declare global {
       updaterEnabled?: boolean
       wsl?: boolean
       deepLinks?: string[]
+      dandelionWorkspace?: string
+    }
+    __DANDELION__?: {
+      workspace: string
     }
   }
 }

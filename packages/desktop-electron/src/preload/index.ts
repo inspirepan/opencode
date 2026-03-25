@@ -1,5 +1,9 @@
+import { homedir } from "node:os"
+import { join } from "node:path"
 import { contextBridge, ipcRenderer } from "electron"
 import type { ElectronAPI, InitStep, SqliteMigrationProgress } from "./types"
+
+const DANDELION_WORKSPACE = join(homedir(), ".dandelion", "workspace")
 
 const api: ElectronAPI = {
   killSidecar: () => ipcRenderer.invoke("kill-sidecar"),
@@ -64,6 +68,8 @@ const api: ElectronAPI = {
   checkUpdate: () => ipcRenderer.invoke("check-update"),
   installUpdate: () => ipcRenderer.invoke("install-update"),
   setBackgroundColor: (color: string) => ipcRenderer.invoke("set-background-color", color),
+  getDandelionWorkspace: () => ipcRenderer.invoke("get-dandelion-workspace"),
 }
 
 contextBridge.exposeInMainWorld("api", api)
+contextBridge.exposeInMainWorld("__DANDELION__", { workspace: DANDELION_WORKSPACE })
