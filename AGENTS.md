@@ -1,6 +1,26 @@
+## Dandelion Fork
+
+This is a fork of [opencode](https://github.com/nicepkg/opencode) (codename **Dandelion**), aimed at transforming it into a simple AI desktop app for non-technical users.
+
+### Vision
+
+- **Three modes**: Chat (pure conversation), Agent (with tools), Image (AI image generation, planned)
+- **No developer-specific UI**: file tree, terminal, diff panel are secondary; the primary experience is conversational
+- **Fixed workspaces**: `~/.dandelion/spaces/chat/` and `~/.dandelion/spaces/agent/`, no manual project management
+- **Guided experience**: prompt templates, first-launch onboarding (planned), mode switching via titlebar tabs
+- **Upstream sync**: regularly rebase on upstream `dev` branch. See `docs/CHANGELOG.md` for all modifications
+
+### Rules for this fork
+
+- **Always update `docs/CHANGELOG.md`** when modifying files that diverge from upstream — record the commit, intent, and per-file changes
+- All dandelion-specific UI logic is gated behind `platform.dandelion` (falsy in non-Electron / upstream builds)
+- The full implementation plan is at `docs/plans/2026-03-25-simple-ai-desktop.md`
+
+---
+
 - To regenerate the JavaScript SDK, run `./packages/sdk/js/script/build.ts`.
 - ALWAYS USE PARALLEL TOOLS WHEN APPLICABLE.
-- The default branch in this repo is `dev`.
+- The default branch in this repo is `dev`. Upstream remote is `upstream`.
 - Local `main` ref may not exist; use `dev` or `origin/dev` for diffs.
 - Prefer automation: execute requested actions without confirmation unless blocked by missing info or safety/irreversibility.
 
