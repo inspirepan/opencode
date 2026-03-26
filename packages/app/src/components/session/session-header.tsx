@@ -301,7 +301,7 @@ export function SessionHeader() {
         {(mount) => (
           <Portal mount={mount()}>
             <div class="flex items-center gap-2">
-              <Show when={projectDirectory()}>
+              <Show when={!platform.dandelion && projectDirectory()}>
                 <div class="hidden xl:flex items-center">
                   <Show
                     when={canOpen()}
