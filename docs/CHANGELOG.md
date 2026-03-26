@@ -65,16 +65,29 @@ Base: upstream `dev` @ `9a64bdb5` (fix: beta resolver typecheck + build smoke ch
 Quick reference of all files modified from upstream, grouped by package:
 
 ### `packages/app/`
-- `src/app.tsx` — `window.__OPENCODE__` type extension
+- `src/app.tsx` — `window.__OPENCODE__` type extension; `PreviewProvider`
 - `src/context/platform.tsx` — `Platform.dandelion` type
 - `src/context/preview.tsx` — preview data store; `previewTab()`/`previewPath()` helpers
-- `src/components/titlebar.tsx` — dandelion tabs, hide portals, settings button
-- `src/components/session-context-usage.tsx` — unified context tab toggle
-- `src/components/prompt-input.tsx` — chat mode detection, agent auto-switch, hide agent selector
+- `src/components/titlebar.tsx` — dandelion tabs with sliding segmented control, hide portals, settings button
+- `src/components/session-context-usage.tsx` — unified context tab toggle (no dandelion branch)
+- `src/components/prompt-input.tsx` — chat mode detection, agent auto-switch, hide agent selector, variant descriptions
+- `src/components/dialog-select-model.tsx` — enlarged popover, provider icons
 - `src/pages/home.tsx` — auto-redirect to dandelion workspace
 - `src/pages/layout.tsx` — autoselect, sidebar rail skip, width adjustments, project header hide
-- `src/i18n/en.ts` — dandelion i18n keys
-- `src/i18n/zh.ts` — dandelion i18n keys (Chinese)
+- `src/pages/session.tsx` — present_file detection, preview+tab sync, mobile preview fallback, external file handling
+- `src/pages/session/session-side-panel.tsx` — unified tab system for preview/context/review; open-in-new-window for PDF
+- `src/pages/session/preview-tab.tsx` — iframe preview with PDF (pdf.js), Markdown, SVG, Mermaid support
+- `src/pages/session/helpers.ts` — `activeTab` supports `preview://` tabs
+- `src/i18n/en.ts` — dandelion + variant i18n keys
+- `src/i18n/zh.ts` — dandelion + variant i18n keys (Chinese)
+
+### `packages/ui/`
+- `src/components/logo.tsx` — dandelion seed SVG
+- `src/components/message-part.tsx` — `present_file` tool renderer with clickable filename
+- `src/components/list.css` — sticky group header gradient fix
+- `src/components/select.css` — dropdown max-height increase
+- `src/i18n/en.ts` — `ui.tool.present` translation
+- `src/i18n/zh.ts` — `ui.tool.present` translation (Chinese)
 
 ### `packages/desktop-electron/`
 - `src/main/index.ts` — workspace creation, globals, IPC
@@ -88,9 +101,14 @@ Quick reference of all files modified from upstream, grouped by package:
 ### `packages/opencode/`
 - `src/agent/agent.ts` — chat agent definition
 - `src/agent/prompt/chat.txt` — chat agent system prompt
+- `src/tool/present.ts` — present_file tool (HTML, SVG, PDF, PPTX)
+- `src/tool/present.txt` — tool description
+- `src/tool/registry.ts` — register PresentTool
 
 ### Root
 - `.gitignore` — models-snapshot.js
+- `Makefile` — test orchestration targets
+- `CLAUDE.md` — testing commands, dandelion mode notes
 - `docs/plans/2026-03-25-simple-ai-desktop.md` — transformation plan
 
 ---
@@ -186,3 +204,62 @@ Quick reference of all files modified from upstream, grouped by package:
 |------|--------|
 | `Makefile` | **Added:** targets `check`, `test`, `test-e2e`, `test-all` |
 | `CLAUDE.md` | **Added:** testing commands, dandelion mode notes for agent context |
+
+### Commit `2b8915fe` — feat(ui): replace logo with dandelion seed SVG
+
+**Intent:** Replace the default opencode logo with a dandelion seed icon across Mark, Splash, and Logo exports.
+
+| File | Change |
+|------|--------|
+| `packages/ui/src/components/logo.tsx` | Replace all three SVG exports with dandelion seed paths; extract shared `Seed` component |
+
+### Commit `b62cddb5` — feat(dandelion): replace mode switch buttons with sliding segmented control
+
+**Intent:** Improve the Chat/Agent mode switcher in the titlebar from plain buttons to a polished segmented control with a sliding indicator.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/titlebar.tsx` | Segmented control with sliding indicator via refs; `bg-background-stronger` container; 200ms position transition |
+
+### Commit `ce6ae225` — fix(dandelion): hide empty preview panel and use PreviewTab on mobile
+
+**Intent:** Desktop: don't show the preview side panel when there are no items. Mobile: replace git review content with PreviewTab in dandelion mode.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/pages/session/session-side-panel.tsx` | Auto-close review panel when no preview items (dandelion desktop) |
+| `packages/app/src/pages/session.tsx` | Mobile: rename "changes" to "preview" tab; swap review content for `<PreviewTab />` |
+
+### Commit `3a3aea28` — fix(dandelion): decode base64 PDF before opening in new window
+
+**Intent:** Fix "open in new window" for PDF previews — base64 content needs to be decoded to a binary Blob before creating an object URL.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/pages/session/session-side-panel.tsx` | Detect binary PDF; decode base64 to `Uint8Array`; create Blob with `application/pdf` mime |
+
+### Commit `85537da0` — feat(dandelion): polish model selector and variant dropdown UI
+
+**Intent:** Improve model/variant selection UX: hide agent selector in all dandelion modes, add descriptive variant options, enlarge model selector popover, add provider icons.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/dialog-select-model.tsx` | Double popover height (h-80 -> h-160, capped at 70vh); add provider icons to model list items |
+| `packages/app/src/components/prompt-input.tsx` | Hide agent selector in all dandelion modes; two-line variant options with i18n descriptions |
+| `packages/app/src/i18n/en.ts` | Add variant description i18n keys |
+| `packages/app/src/i18n/zh.ts` | Add variant description i18n keys (Chinese) |
+| `packages/ui/src/components/list.css` | Fix sticky group header gradient overlap (16px -> 6px) |
+| `packages/ui/src/components/select.css` | Increase dropdown max-height (12rem -> 20rem) |
+
+### Commit `e2a5c091` — refactor(dandelion): unify right panel tab system
+
+**Intent:** Dandelion mode had a separate tab system (`preview.active()` / `preview.setActive()`) that conflicted with the upstream `layout.tabs`. Unify both modes under a single `layout.tabs` system so the titlebar toggle, context usage button, and tab switching all work correctly.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/context/preview.tsx` | Remove `active`/`setActive`/`current`; add `get(path)` lookup; export `previewTab()`/`previewPath()` helpers |
+| `packages/app/src/pages/session/helpers.ts` | `activeTab`: support non-file tabs in `openedTabs` (e.g. `preview://`) |
+| `packages/app/src/pages/session/session-side-panel.tsx` | Remove dandelion effect and forked Tabs value; unified `activeTab()` for both modes |
+| `packages/app/src/components/session-context-usage.tsx` | Remove dandelion-specific branch; both modes use same `openSessionContext` path |
+| `packages/app/src/pages/session/preview-tab.tsx` | Accept `path` prop; look up item via `preview.get(path)` |
+| `packages/app/src/pages/session.tsx` | After `preview.present()`, sync with `tabs().open(previewTab(...))` + `tabs().setActive(...)` |
