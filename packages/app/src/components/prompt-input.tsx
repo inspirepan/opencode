@@ -1465,7 +1465,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                 <div class="size-4 shrink-0" />
               </div>
               <div class="flex items-center gap-1.5 min-w-0 flex-1">
-                <Show when={!dandelionChatMode()}>
+                <Show when={!platform.dandelion}>
                   <div data-component="prompt-agent-control">
                     <TooltipKeybind
                       placement="top"
@@ -1571,7 +1571,17 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                       triggerStyle={control()}
                       triggerProps={{ "data-action": "prompt-model-variant" }}
                       variant="ghost"
-                    />
+                    >
+                      {(x) => {
+                        const key = `variant.${x ?? "default"}.description` as Parameters<typeof language.t>[0]
+                        return (
+                          <div class="flex flex-col gap-0.5 py-0.5">
+                            <span class="capitalize">{x === "default" ? language.t("common.default") : x}</span>
+                            <span class="text-[11px] leading-tight text-text-weak font-normal normal-case">{language.t(key)}</span>
+                          </div>
+                        )
+                      }}
+                    </Select>
                   </TooltipKeybind>
                 </div>
                 <TooltipKeybind

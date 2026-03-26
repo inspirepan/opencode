@@ -92,6 +92,14 @@ export const dict = {
 
   "command.model.variant.cycle": "切换思考强度",
   "command.model.variant.cycle.description": "切换到下一个强度等级",
+  "variant.default.description": "使用模型默认值",
+  "variant.none.description": "不进行推理",
+  "variant.minimal.description": "最少推理",
+  "variant.low.description": "轻度推理，更快响应",
+  "variant.medium.description": "平衡速度与推理",
+  "variant.high.description": "深度推理，适合复杂任务",
+  "variant.max.description": "最大强度推理",
+  "variant.xhigh.description": "超高强度推理",
 
   "command.prompt.mode.shell": "Shell",
   "command.prompt.mode.normal": "Prompt",

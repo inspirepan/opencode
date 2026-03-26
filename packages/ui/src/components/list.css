@@ -211,7 +211,7 @@
           top: 100%;
           left: 0;
           right: 0;
-          height: 16px;
+          height: 6px;
           background: linear-gradient(to bottom, var(--surface-raised-stronger-non-alpha), transparent);
           pointer-events: none;
           opacity: 0;
