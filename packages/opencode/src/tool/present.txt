@@ -8,6 +8,7 @@ When to use the present_file tool:
 - Presenting Markdown files (rendered as a formatted document)
 - Presenting Mermaid diagram files (.mmd/.mermaid) (rendered as diagrams)
 - Presenting PDF files (rendered as paginated document)
+- Presenting PowerPoint files (.pptx/.ppt) (opened with system default application)
 
 When NOT to use the present_file tool:
 - When you only need to read file contents for your own processing
@@ -22,8 +23,9 @@ How it works:
 - For PDF files, the binary content is base64-encoded and rendered client-side via the built-in PDF viewer
 
 Supported file types:
-- .html, .htm — rendered as a live web page
-- .svg — rendered as inline scalable vector graphics
-- .md, .markdown — parsed and rendered as a formatted document with GitHub-style styling
-- .mmd, .mermaid — rendered as diagrams (flowcharts, sequence, state, class, ER, XY charts)
-- .pdf — rendered via the built-in PDF viewer with zoom, page navigation and search
+- .html, .htm — rendered as a live web page in the preview panel
+- .svg — rendered as inline scalable vector graphics in the preview panel
+- .md, .markdown — parsed and rendered as a formatted document with GitHub-style styling in the preview panel
+- .mmd, .mermaid — rendered as diagrams (flowcharts, sequence, state, class, ER, XY charts) in the preview panel
+- .pdf — rendered via the built-in PDF viewer with zoom, page navigation and search in the preview panel
+- .pptx, .ppt — opened with the system default application (e.g., Keynote, PowerPoint, LibreOffice Impress)

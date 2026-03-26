@@ -1189,8 +1189,16 @@ export default function Page() {
           if (seen.has(part.id)) continue
           seen.add(part.id)
 
-          const meta = part.state.metadata as { filepath?: string; content?: string; ext?: string; binary?: boolean } | undefined
-          if (!meta?.filepath || !meta?.content) continue
+          const meta = part.state.metadata as { filepath?: string; content?: string; ext?: string; binary?: boolean; external?: boolean } | undefined
+          if (!meta?.filepath) continue
+
+          // External files: open with system default app
+          if (meta.external && platform.openPath) {
+            void platform.openPath(meta.filepath)
+            continue
+          }
+
+          if (!meta.content) continue
           preview.present({ path: meta.filepath, content: meta.content, ext: meta.ext ?? "", binary: meta.binary })
           if (!view().reviewPanel.opened()) view().reviewPanel.open()
         }

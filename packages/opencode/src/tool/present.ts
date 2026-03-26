@@ -5,9 +5,10 @@ import { Instance } from "../project/instance"
 import { Filesystem } from "../util/filesystem"
 import DESCRIPTION from "./present.txt"
 
-const SUPPORTED = new Set([".html", ".htm", ".svg", ".md", ".markdown", ".mmd", ".mermaid", ".pdf"])
+const SUPPORTED = new Set([".html", ".htm", ".svg", ".md", ".markdown", ".mmd", ".mermaid", ".pdf", ".pptx", ".ppt"])
 const MD_EXTS = new Set([".md", ".markdown"])
 const BINARY_EXTS = new Set([".pdf"])
+const EXTERNAL_EXTS = new Set([".pptx", ".ppt"])
 const MAX_SIZE = 2 * 1024 * 1024
 const MAX_BINARY_SIZE = 20 * 1024 * 1024
 
@@ -68,6 +69,22 @@ export const PresentTool = Tool.define("present_file", {
 
     const title = path.relative(Instance.worktree, filepath)
 
+    // External files (PPTX, PPT): open with system default app
+    if (EXTERNAL_EXTS.has(ext)) {
+      return {
+        title,
+        output: `Presenting file: ${title} (opening with system application)`,
+        metadata: {
+          filepath,
+          content: "",
+          ext,
+          binary: false,
+          external: true,
+          truncated: false,
+        },
+      }
+    }
+
     // Binary files (PDF): read as base64
     if (BINARY_EXTS.has(ext)) {
       if (stat.size > MAX_BINARY_SIZE) throw new Error(`File too large (${stat.size} bytes). Maximum: ${MAX_BINARY_SIZE} bytes`)
@@ -81,6 +98,7 @@ export const PresentTool = Tool.define("present_file", {
           content: base64,
           ext,
           binary: true,
+          external: false,
           truncated: false,
         },
       }
@@ -103,6 +121,7 @@ export const PresentTool = Tool.define("present_file", {
         content,
         ext,
         binary: false,
+        external: false,
         truncated: false,
       },
     }
