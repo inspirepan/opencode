@@ -53,6 +53,8 @@ import { type DiffStyle, SessionReviewTab, type SessionReviewTabProps } from "@/
 import { useSessionLayout } from "@/pages/session/session-layout"
 import { syncSessionModel } from "@/pages/session/session-model-helpers"
 import { SessionSidePanel } from "@/pages/session/session-side-panel"
+import { usePlatform } from "@/context/platform"
+import { usePreview } from "@/context/preview"
 import { TerminalPanel } from "@/pages/session/terminal-panel"
 import { useSessionCommands } from "@/pages/session/use-session-commands"
 import { useSessionHashScroll } from "@/pages/session/use-session-hash-scroll"
@@ -323,6 +325,8 @@ export default function Page() {
   const prompt = usePrompt()
   const comments = useComments()
   const terminal = useTerminal()
+  const platform = usePlatform()
+  const preview = usePreview()
   const [searchParams, setSearchParams] = useSearchParams<{ prompt?: string }>()
   const { params, sessionKey, tabs, view } = useSessionLayout()
 
@@ -392,7 +396,7 @@ export default function Page() {
   const isDesktop = createMediaQuery("(min-width: 768px)")
   const size = createSizing()
   const desktopReviewOpen = createMemo(() => isDesktop() && view().reviewPanel.opened())
-  const desktopFileTreeOpen = createMemo(() => isDesktop() && layout.fileTree.opened())
+  const desktopFileTreeOpen = createMemo(() => !platform.dandelion && isDesktop() && layout.fileTree.opened())
   const desktopSidePanelOpen = createMemo(() => desktopReviewOpen() || desktopFileTreeOpen())
   const sessionPanelWidth = createMemo(() => {
     if (!desktopSidePanelOpen()) return "100%"
@@ -1167,6 +1171,33 @@ export default function Page() {
     ),
   )
 
+  // In dandelion mode, watch for completed `present` tool parts and push to preview
+  if (platform.dandelion) {
+    let seen = new Set<string>()
+    createEffect(() => {
+      const id = params.id
+      if (!id) return
+      const msgs = sync.data.message[id]
+      if (!msgs) return
+
+      for (const msg of msgs) {
+        const parts = sync.data.part[msg.id]
+        if (!parts) continue
+        for (const part of parts) {
+          if (part.type !== "tool" || part.tool !== "present_file") continue
+          if (part.state.status !== "completed") continue
+          if (seen.has(part.id)) continue
+          seen.add(part.id)
+
+          const meta = part.state.metadata as { filepath?: string; content?: string; ext?: string } | undefined
+          if (!meta?.filepath || !meta?.content) continue
+          preview.present({ path: meta.filepath, content: meta.content, ext: meta.ext ?? "" })
+          if (!view().reviewPanel.opened()) view().reviewPanel.open()
+        }
+      }
+    })
+  }
+
   let treeDir: string | undefined
   createEffect(() => {
     const dir = sdk.directory
@@ -1835,7 +1866,9 @@ export default function Page() {
         />
       </div>
 
-      <TerminalPanel />
+      <Show when={!platform.dandelion}>
+        <TerminalPanel />
+      </Show>
     </div>
   )
 }

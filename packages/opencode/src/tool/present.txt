@@ -1,0 +1,21 @@
+The present_file tool makes a file visible to the user by rendering it in the preview panel.
+
+When to use the present_file tool:
+- After creating or modifying a file that should be presented to the user
+- When the user would benefit from seeing the visual output of a file
+- Presenting HTML files (rendered as a live web page)
+- Presenting SVG files (rendered as inline graphics)
+- Presenting Markdown files (rendered as a formatted document)
+- Presenting Mermaid diagram files (.mmd/.mermaid) (rendered as diagrams)
+
+When NOT to use the present_file tool:
+- When you only need to read file contents for your own processing
+- For temporary or intermediate files not meant for user viewing
+- For plain text or source code files that have no visual rendering
+
+How it works:
+- Accepts a single file path (absolute or relative to the workspace)
+- The file must already exist on disk (use the Write tool first if needed)
+- The preview panel will open automatically and render the file content
+- Supported file types: .html, .htm, .svg, .md, .markdown, .mmd, .mermaid
+- For Markdown files, local image references are automatically inlined for preview

@@ -2219,3 +2219,21 @@ ToolRegistry.register({
     return <BasicTool icon="brain" status={props.status} trigger={trigger()} hideDetails />
   },
 })
+
+ToolRegistry.register({
+  name: "present_file",
+  render(props) {
+    const i18n = useI18n()
+    return (
+      <BasicTool
+        {...props}
+        icon="open-file"
+        trigger={{
+          title: i18n.t("ui.tool.present"),
+          subtitle: props.input.filePath ? getFilename(props.input.filePath) : "",
+        }}
+        hideDetails
+      />
+    )
+  },
+})

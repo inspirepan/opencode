@@ -930,4 +930,9 @@ export const dict = {
 
   "dandelion.mode.chat": "聊天",
   "dandelion.mode.agent": "智能体",
+
+  "dandelion.preview.tab": "预览",
+  "dandelion.preview.empty": "暂无预览内容。AI 生成 HTML 等可视化文件时会在此展示。",
+  "dandelion.preview.open": "在新窗口打开",
+  "dandelion.preview.toggle": "切换预览面板",
 } satisfies Partial<Record<Keys, string>>

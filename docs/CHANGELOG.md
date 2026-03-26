@@ -90,3 +90,42 @@ Quick reference of all files modified from upstream, grouped by package:
 ### Root
 - `.gitignore` — models-snapshot.js
 - `docs/plans/2026-03-25-simple-ai-desktop.md` — transformation plan
+
+---
+
+## 2026-03-26 — Preview panel and present tool
+
+### feat(dandelion): preview panel replaces review tab; new `present` tool
+
+**Intent:** Transform the right-side panel from a code review/diff viewer into a visual preview panel for office assistant mode. AI can now present HTML files to the user via a `present` tool, rendered live in an iframe.
+
+#### Changes
+
+### `packages/opencode/`
+- `src/tool/present.ts` — **Added:** `present` tool definition (reads file, returns content for preview; supports `.html`, `.htm`, `.svg`)
+- `src/tool/present.txt` — **Added:** tool description/prompt
+- `src/tool/registry.ts` — Register `PresentTool` in the tool list
+
+### `packages/app/`
+- `src/context/preview.tsx` — **Added:** preview context (stores multiple presented items with close support, tracks active preview)
+- `src/pages/session/preview-tab.tsx` — **Added:** preview tab component (iframe with srcdoc, open-in-new-window)
+- `src/pages/session/session-side-panel.tsx` — In dandelion mode: multi-tab preview (each presented file gets its own closable tab), hide file tree, hide file/context tabs
+- `src/pages/session/session-header.tsx` — In dandelion mode: hide terminal toggle, hide file tree toggle, repurpose review toggle as preview toggle
+- `src/pages/session.tsx` — In dandelion mode: hide terminal panel; add effect to detect `present` tool completions and push to preview context
+- `src/app.tsx` — Add `PreviewProvider` to `SessionProviders`
+- `src/i18n/en.ts` — Add dandelion preview i18n keys
+- `src/i18n/zh.ts` — Add dandelion preview i18n keys (Chinese)
+
+### `packages/ui/`
+- `src/components/message-part.tsx` — Register `present` tool renderer (BasicTool with open-file icon)
+- `src/i18n/en.ts` — Add `ui.tool.present` translation
+- `src/i18n/zh.ts` — Add `ui.tool.present` translation (Chinese)
+
+### chore: add Makefile and CLAUDE.md for test orchestration
+
+**Intent:** Provide a single `make test` entry point so agents and developers can run all checks (typecheck, unit, e2e) without remembering per-package commands. Document testing workflow and dandelion mode in CLAUDE.md.
+
+| File | Change |
+|------|--------|
+| `Makefile` | **Added:** targets `check`, `test`, `test-e2e`, `test-all` |
+| `CLAUDE.md` | **Added:** testing commands, dandelion mode notes for agent context |

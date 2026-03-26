@@ -3,7 +3,7 @@ import { createStore } from "solid-js/store"
 import { createMediaQuery } from "@solid-primitives/media"
 import { Tabs } from "@opencode-ai/ui/tabs"
 import { IconButton } from "@opencode-ai/ui/icon-button"
-import { TooltipKeybind } from "@opencode-ai/ui/tooltip"
+import { Tooltip, TooltipKeybind } from "@opencode-ai/ui/tooltip"
 import { ResizeHandle } from "@opencode-ai/ui/resize-handle"
 import { Mark } from "@opencode-ai/ui/logo"
 import { DragDropProvider, DragDropSensors, DragOverlay, SortableProvider, closestCenter } from "@thisbeyond/solid-dnd"
@@ -19,10 +19,13 @@ import { useCommand } from "@/context/command"
 import { useFile, type SelectedLineRange } from "@/context/file"
 import { useLanguage } from "@/context/language"
 import { useLayout } from "@/context/layout"
+import { usePlatform } from "@/context/platform"
+import { usePreview } from "@/context/preview"
 import { useSync } from "@/context/sync"
 import { createFileTabListSync } from "@/pages/session/file-tab-scroll"
 import { FileTabContent } from "@/pages/session/file-tabs"
 import { createOpenSessionFileTab, createSessionTabs, getTabReorderIndex, type Sizing } from "@/pages/session/helpers"
+import { PreviewTab } from "@/pages/session/preview-tab"
 import { setSessionHandoff } from "@/pages/session/handoff"
 import { useSessionLayout } from "@/pages/session/session-layout"
 
@@ -34,17 +37,20 @@ export function SessionSidePanel(props: {
   size: Sizing
 }) {
   const layout = useLayout()
+  const platform = usePlatform()
+  const preview = usePreview()
   const sync = useSync()
   const file = useFile()
   const language = useLanguage()
   const command = useCommand()
   const dialog = useDialog()
   const { params, sessionKey, tabs, view } = useSessionLayout()
+  const dandelion = () => !!platform.dandelion
 
   const isDesktop = createMediaQuery("(min-width: 768px)")
 
   const reviewOpen = createMemo(() => isDesktop() && view().reviewPanel.opened())
-  const fileOpen = createMemo(() => isDesktop() && layout.fileTree.opened())
+  const fileOpen = createMemo(() => !dandelion() && isDesktop() && layout.fileTree.opened())
   const open = createMemo(() => reviewOpen() || fileOpen())
   const reviewTab = createMemo(() => isDesktop())
   const panelWidth = createMemo(() => {
@@ -215,7 +221,7 @@ export function SessionSidePanel(props: {
         }}
         style={{ width: panelWidth() }}
       >
-        <div class="size-full flex border-l border-border-weaker-base">
+        <div class="size-full flex" classList={{ "border-l border-border-weaker-base": open() }}>
           <div
             aria-hidden={!reviewOpen()}
             inert={!reviewOpen()}
@@ -233,7 +239,10 @@ export function SessionSidePanel(props: {
               >
                 <DragDropSensors />
                 <ConstrainDragYAxis />
-                <Tabs value={activeTab()} onChange={openTab}>
+                <Tabs
+                  value={dandelion() ? (preview.active() ?? "preview-empty") : activeTab()}
+                  onChange={dandelion() ? (v: string) => { if (v !== "preview-empty") preview.setActive(v) } : openTab}
+                >
                   <div class="sticky top-0 shrink-0 flex">
                     <Tabs.List
                       ref={(el: HTMLDivElement) => {
@@ -241,7 +250,37 @@ export function SessionSidePanel(props: {
                         onCleanup(stop)
                       }}
                     >
-                      <Show when={reviewTab()}>
+                      <Show when={dandelion()}>
+                        <Show
+                          when={preview.items().length > 0}
+                          fallback={
+                            <Tabs.Trigger value="preview-empty">
+                              <div>{language.t("dandelion.preview.tab")}</div>
+                            </Tabs.Trigger>
+                          }
+                        >
+                          <For each={preview.items()}>
+                            {(item) => (
+                              <Tabs.Trigger
+                                value={item.path}
+                                closeButton={
+                                  <IconButton
+                                    icon="close-small"
+                                    variant="ghost"
+                                    class="h-5 w-5"
+                                    onClick={() => preview.close(item.path)}
+                                  />
+                                }
+                                hideCloseButton
+                                onMiddleClick={() => preview.close(item.path)}
+                              >
+                                <div class="truncate max-w-32">{item.path.split("/").pop()}</div>
+                              </Tabs.Trigger>
+                            )}
+                          </For>
+                        </Show>
+                      </Show>
+                      <Show when={!dandelion() && reviewTab()}>
                         <Tabs.Trigger value="review">
                           <div class="flex items-center gap-1.5">
                             <div>{language.t("session.tab.review")}</div>
@@ -251,7 +290,7 @@ export function SessionSidePanel(props: {
                           </div>
                         </Tabs.Trigger>
                       </Show>
-                      <Show when={contextOpen()}>
+                      <Show when={!dandelion() && contextOpen()}>
                         <Tabs.Trigger
                           value="context"
                           closeButton={
@@ -279,61 +318,98 @@ export function SessionSidePanel(props: {
                           </div>
                         </Tabs.Trigger>
                       </Show>
-                      <SortableProvider ids={openedTabs()}>
-                        <For each={openedTabs()}>{(tab) => <SortableTab tab={tab} onTabClose={tabs().close} />}</For>
-                      </SortableProvider>
-                      <div class="bg-background-stronger h-full shrink-0 sticky right-0 z-10 flex items-center justify-center pr-3">
-                        <TooltipKeybind
-                          title={language.t("command.file.open")}
-                          keybind={command.keybind("file.open")}
-                          class="flex items-center"
-                        >
-                          <IconButton
-                            icon="plus-small"
-                            variant="ghost"
-                            iconSize="large"
-                            class="!rounded-md"
-                            onClick={() =>
-                              dialog.show(() => <DialogSelectFile mode="files" onOpenFile={showAllFiles} />)
-                            }
-                            aria-label={language.t("command.file.open")}
-                          />
-                        </TooltipKeybind>
-                      </div>
+                      <Show when={!dandelion()}>
+                        <SortableProvider ids={openedTabs()}>
+                          <For each={openedTabs()}>{(tab) => <SortableTab tab={tab} onTabClose={tabs().close} />}</For>
+                        </SortableProvider>
+                        <div class="bg-background-stronger h-full shrink-0 sticky right-0 z-10 flex items-center justify-center pr-3">
+                          <TooltipKeybind
+                            title={language.t("command.file.open")}
+                            keybind={command.keybind("file.open")}
+                            class="flex items-center"
+                          >
+                            <IconButton
+                              icon="plus-small"
+                              variant="ghost"
+                              iconSize="large"
+                              class="!rounded-md"
+                              onClick={() =>
+                                dialog.show(() => <DialogSelectFile mode="files" onOpenFile={showAllFiles} />)
+                              }
+                              aria-label={language.t("command.file.open")}
+                            />
+                          </TooltipKeybind>
+                        </div>
+                      </Show>
                     </Tabs.List>
+                    <Show when={dandelion() && preview.current()}>
+                      <div class="shrink-0 flex items-center justify-center px-2">
+                        <Tooltip value={language.t("dandelion.preview.open")} placement="bottom">
+                          <IconButton
+                            icon="square-arrow-top-right"
+                            variant="ghost"
+                            size="small"
+                            onClick={() => {
+                              const current = preview.current()
+                              if (!current) return
+                              const mime = current.ext === ".svg" ? "image/svg+xml" : "text/html"
+                              const blob = new Blob([current.content], { type: mime })
+                              const url = URL.createObjectURL(blob)
+                              window.open(url, "_blank")
+                              setTimeout(() => URL.revokeObjectURL(url), 1000)
+                            }}
+                          />
+                        </Tooltip>
+                      </div>
+                    </Show>
                   </div>
 
-                  <Show when={reviewTab()}>
+                  <Show when={dandelion()}>
+                    <Tabs.Content value="preview-empty" class="flex flex-col h-full overflow-hidden contain-strict">
+                      <PreviewTab resizing={props.size.active} />
+                    </Tabs.Content>
+                    <For each={preview.items()}>
+                      {(item) => (
+                        <Tabs.Content value={item.path} class="flex flex-col h-full overflow-hidden contain-strict">
+                          <PreviewTab resizing={props.size.active} />
+                        </Tabs.Content>
+                      )}
+                    </For>
+                  </Show>
+
+                  <Show when={!dandelion() && reviewTab()}>
                     <Tabs.Content value="review" class="flex flex-col h-full overflow-hidden contain-strict">
                       <Show when={activeTab() === "review"}>{props.reviewPanel()}</Show>
                     </Tabs.Content>
                   </Show>
 
-                  <Tabs.Content value="empty" class="flex flex-col h-full overflow-hidden contain-strict">
-                    <Show when={activeTab() === "empty"}>
-                      <div class="relative pt-2 flex-1 min-h-0 overflow-hidden">
-                        <div class="h-full px-6 pb-42 -mt-4 flex flex-col items-center justify-center text-center gap-6">
-                          <Mark class="w-14 opacity-10" />
-                          <div class="text-14-regular text-text-weak max-w-56">
-                            {language.t("session.files.selectToOpen")}
-                          </div>
-                        </div>
-                      </div>
-                    </Show>
-                  </Tabs.Content>
-
-                  <Show when={contextOpen()}>
-                    <Tabs.Content value="context" class="flex flex-col h-full overflow-hidden contain-strict">
-                      <Show when={activeTab() === "context"}>
+                  <Show when={!dandelion()}>
+                    <Tabs.Content value="empty" class="flex flex-col h-full overflow-hidden contain-strict">
+                      <Show when={activeTab() === "empty"}>
                         <div class="relative pt-2 flex-1 min-h-0 overflow-hidden">
-                          <SessionContextTab />
+                          <div class="h-full px-6 pb-42 -mt-4 flex flex-col items-center justify-center text-center gap-6">
+                            <Mark class="w-14 opacity-10" />
+                            <div class="text-14-regular text-text-weak max-w-56">
+                              {language.t("session.files.selectToOpen")}
+                            </div>
+                          </div>
                         </div>
                       </Show>
                     </Tabs.Content>
-                  </Show>
 
-                  <Show when={activeFileTab()} keyed>
-                    {(tab) => <FileTabContent tab={tab} />}
+                    <Show when={contextOpen()}>
+                      <Tabs.Content value="context" class="flex flex-col h-full overflow-hidden contain-strict">
+                        <Show when={activeTab() === "context"}>
+                          <div class="relative pt-2 flex-1 min-h-0 overflow-hidden">
+                            <SessionContextTab />
+                          </div>
+                        </Show>
+                      </Tabs.Content>
+                    </Show>
+
+                    <Show when={activeFileTab()} keyed>
+                      {(tab) => <FileTabContent tab={tab} />}
+                    </Show>
                   </Show>
                 </Tabs>
                 <DragOverlay>
@@ -352,6 +428,7 @@ export function SessionSidePanel(props: {
             </div>
           </div>
 
+          <Show when={!dandelion()}>
           <div
             id="file-tree-panel"
             aria-hidden={!fileOpen()}
@@ -446,6 +523,7 @@ export function SessionSidePanel(props: {
               </div>
             </Show>
           </div>
+          </Show>
         </div>
       </aside>
     </Show>

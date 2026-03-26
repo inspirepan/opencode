@@ -948,4 +948,9 @@ export const dict = {
 
   "dandelion.mode.chat": "Chat",
   "dandelion.mode.agent": "Agent",
+
+  "dandelion.preview.tab": "Preview",
+  "dandelion.preview.empty": "No preview available. AI will show content here when it generates HTML or other visual files.",
+  "dandelion.preview.open": "Open in new window",
+  "dandelion.preview.toggle": "Toggle preview",
 }

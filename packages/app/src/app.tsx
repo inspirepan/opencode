@@ -41,6 +41,7 @@ import { usePlatform } from "@/context/platform"
 import { PromptProvider } from "@/context/prompt"
 import { ServerConnection, ServerProvider, serverName, useServer } from "@/context/server"
 import { SettingsProvider } from "@/context/settings"
+import { PreviewProvider } from "@/context/preview"
 import { TerminalProvider } from "@/context/terminal"
 import DirectoryLayout from "@/pages/directory-layout"
 import Layout from "@/pages/layout"
@@ -113,7 +114,9 @@ function SessionProviders(props: ParentProps) {
     <TerminalProvider>
       <FileProvider>
         <PromptProvider>
-          <CommentsProvider>{props.children}</CommentsProvider>
+          <PreviewProvider>
+            <CommentsProvider>{props.children}</CommentsProvider>
+          </PreviewProvider>
         </PromptProvider>
       </FileProvider>
     </TerminalProvider>
