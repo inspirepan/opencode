@@ -359,8 +359,14 @@ export function SessionSidePanel(props: {
                             onClick={() => {
                               const current = preview.current()
                               if (!current) return
-                              const mime = current.ext === ".svg" ? "image/svg+xml" : "text/html"
-                              const blob = new Blob([current.content], { type: mime })
+                              let blob: Blob
+                              if (current.binary && current.ext === ".pdf") {
+                                const bytes = Uint8Array.from(atob(current.content), (c) => c.charCodeAt(0))
+                                blob = new Blob([bytes], { type: "application/pdf" })
+                              } else {
+                                const mime = current.ext === ".svg" ? "image/svg+xml" : "text/html"
+                                blob = new Blob([current.content], { type: mime })
+                              }
                               const url = URL.createObjectURL(blob)
                               window.open(url, "_blank")
                               setTimeout(() => URL.revokeObjectURL(url), 1000)
