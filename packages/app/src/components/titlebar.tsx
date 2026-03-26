@@ -297,34 +297,50 @@ export function Titlebar() {
             })
             const isChat = createMemo(() => currentDir() === dandelion().workspaces.chat)
             const isAgent = createMemo(() => currentDir() === dandelion().workspaces.agent)
+            let chatRef: HTMLButtonElement | undefined
+            let agentRef: HTMLButtonElement | undefined
+            const [slider, setSlider] = createStore({ left: 0, width: 0 })
+            const sync = () => {
+              const el = isChat() ? chatRef : agentRef
+              if (!el) return
+              const parent = el.offsetParent as HTMLElement | null
+              if (!parent) return
+              setSlider({ left: el.offsetLeft, width: el.offsetWidth })
+            }
+            createEffect(() => {
+              isChat()
+              requestAnimationFrame(sync)
+            })
             return (
-              <div class="flex items-center gap-1 shrink-0">
-                <Button
-                  variant="secondary"
-                  size="small"
-                  icon="bubble-5"
-                  class="h-6 px-2 text-12-medium"
+              <div class="relative flex items-center h-7 rounded-lg bg-background-stronger p-0.5 shrink-0">
+                <div
+                  class="absolute top-0.5 h-[calc(100%-4px)] rounded-md bg-background-base shadow-sm border border-border-weak-base transition-all duration-200 ease-out"
+                  style={{ left: `${slider.left}px`, width: `${slider.width}px` }}
+                />
+                <button
+                  ref={chatRef}
+                  class="relative z-[1] flex items-center gap-1.5 h-full px-3 rounded-md text-12-medium whitespace-nowrap transition-colors duration-150 cursor-default"
                   classList={{
-                    "opacity-100": isChat(),
-                    "opacity-50": !isChat(),
+                    "text-text-strong": isChat(),
+                    "text-text-weak hover:text-text-base": !isChat(),
                   }}
                   onClick={() => navigate(`/${base64Encode(dandelion().workspaces.chat)}/session`)}
                 >
+                  <Icon name="bubble-5" size="small" />
                   {language.t("dandelion.mode.chat")}
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="small"
-                  icon="window-cursor"
-                  class="h-6 px-2 text-12-medium"
+                </button>
+                <button
+                  ref={agentRef}
+                  class="relative z-[1] flex items-center gap-1.5 h-full px-3 rounded-md text-12-medium whitespace-nowrap transition-colors duration-150 cursor-default"
                   classList={{
-                    "opacity-100": isAgent(),
-                    "opacity-50": !isAgent(),
+                    "text-text-strong": isAgent(),
+                    "text-text-weak hover:text-text-base": !isAgent(),
                   }}
                   onClick={() => navigate(`/${base64Encode(dandelion().workspaces.agent)}/session`)}
                 >
+                  <Icon name="window-cursor" size="small" />
                   {language.t("dandelion.mode.agent")}
-                </Button>
+                </button>
               </div>
             )
           }}
