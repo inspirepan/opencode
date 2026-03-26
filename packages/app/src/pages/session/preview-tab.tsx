@@ -70,12 +70,12 @@ function slidesHtml(pages: string[]): string {
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;background:#f5f5f5;font-family:${SANS}}body{padding:16px;display:flex;flex-direction:column;align-items:center;gap:16px}</style></head><body>${imgs}</body></html>`
 }
 
-export function PreviewTab(props: { resizing?: Accessor<boolean> }) {
+export function PreviewTab(props: { path?: string; resizing?: Accessor<boolean> }) {
   const preview = usePreview()
   const language = useLanguage()
   const settings = useSettings()
 
-  const item = createMemo(() => preview.current())
+  const item = createMemo(() => (props.path ? preview.get(props.path) : undefined))
   const mono = createMemo(() => monoFontFamily(settings.appearance.font()))
   const isPdf = createMemo(() => item()?.ext === ".pdf" && item()?.binary)
 

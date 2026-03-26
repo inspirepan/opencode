@@ -8,18 +8,21 @@ export type PreviewItem = {
   binary?: boolean
 }
 
+const PREFIX = "preview://"
+
+export const previewTab = (path: string) => `${PREFIX}${path}`
+export const previewPath = (tab: string) => (tab.startsWith(PREFIX) ? tab.slice(PREFIX.length) : undefined)
+
 export const { use: usePreview, provider: PreviewProvider } = createSimpleContext({
   name: "Preview",
   init: () => {
     const [store, set] = createStore({
       items: [] as PreviewItem[],
-      active: undefined as string | undefined,
     })
 
     return {
       items: () => store.items,
-      active: () => store.active,
-      current: () => store.items.find((i) => i.path === store.active),
+      get: (path: string) => store.items.find((i) => i.path === path),
       present(item: PreviewItem) {
         const idx = store.items.findIndex((i) => i.path === item.path)
         if (idx >= 0) {
@@ -27,21 +30,12 @@ export const { use: usePreview, provider: PreviewProvider } = createSimpleContex
         } else {
           set("items", [...store.items, item])
         }
-        set("active", item.path)
-      },
-      setActive(path: string) {
-        set("active", path)
       },
       close(path: string) {
-        const next = store.items.filter((i) => i.path !== path)
-        set("items", next)
-        if (store.active === path) {
-          set("active", next.length > 0 ? next[next.length - 1]!.path : undefined)
-        }
+        set("items", store.items.filter((i) => i.path !== path))
       },
       clear() {
         set("items", [])
-        set("active", undefined)
       },
     }
   },

@@ -67,7 +67,9 @@ Quick reference of all files modified from upstream, grouped by package:
 ### `packages/app/`
 - `src/app.tsx` — `window.__OPENCODE__` type extension
 - `src/context/platform.tsx` — `Platform.dandelion` type
+- `src/context/preview.tsx` — preview data store; `previewTab()`/`previewPath()` helpers
 - `src/components/titlebar.tsx` — dandelion tabs, hide portals, settings button
+- `src/components/session-context-usage.tsx` — unified context tab toggle
 - `src/components/prompt-input.tsx` — chat mode detection, agent auto-switch, hide agent selector
 - `src/pages/home.tsx` — auto-redirect to dandelion workspace
 - `src/pages/layout.tsx` — autoselect, sidebar rail skip, width adjustments, project header hide
@@ -160,6 +162,21 @@ Quick reference of all files modified from upstream, grouped by package:
 |------|--------|
 | `packages/ui/src/components/message-part.tsx` | Custom trigger JSX for `present_file` (like `task` tool); subtitle as `<span class="clickable">` with `onClick`; dispatches `present-file-click` CustomEvent |
 | `packages/app/src/pages/session.tsx` | Listen for `present-file-click` event; open preview panel or call `platform.openPath()` for external files; cleanup on unmount |
+
+### refactor(dandelion): unify right panel tab system
+
+**Intent:** Dandelion mode had a separate tab system (`preview.active()` / `preview.setActive()`) that conflicted with the upstream `layout.tabs`. This caused the titlebar toggle button, context usage button, and tab switching to all break. Unify both modes under a single `layout.tabs` system.
+
+**Architecture change:** Preview items now use `preview://path` tab keys (like `file://path` for file tabs). The preview context only stores data (content/ext); all tab state (open/close/active) is managed by `layout.tabs`. The dandelion-specific `createEffect` that forced panel open/close is removed.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/context/preview.tsx` | Remove `active`/`setActive`/`current`; add `get(path)` lookup; export `previewTab()` and `previewPath()` helpers for `preview://` prefix |
+| `packages/app/src/pages/session/helpers.ts` | `createSessionTabs.activeTab`: support non-file tabs in `openedTabs` (e.g. `preview://`) |
+| `packages/app/src/pages/session/session-side-panel.tsx` | Remove dandelion effect and forked `Tabs value/onChange`; unified `activeTab()` for both modes; preview tabs rendered from `openedTabs()` with `previewPath()` |
+| `packages/app/src/components/session-context-usage.tsx` | Remove dandelion-specific branch; both modes use same `openSessionContext` path |
+| `packages/app/src/pages/session/preview-tab.tsx` | Accept `path` prop; look up item via `preview.get(path)` instead of `preview.current()` |
+| `packages/app/src/pages/session.tsx` | After `preview.present()`, also call `tabs().open(previewTab(...))` + `tabs().setActive(...)` |
 
 ### chore: add Makefile and CLAUDE.md for test orchestration
 

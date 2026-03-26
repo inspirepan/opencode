@@ -55,7 +55,7 @@ import { syncSessionModel } from "@/pages/session/session-model-helpers"
 import { SessionSidePanel } from "@/pages/session/session-side-panel"
 import { PreviewTab } from "@/pages/session/preview-tab"
 import { usePlatform } from "@/context/platform"
-import { usePreview } from "@/context/preview"
+import { usePreview, previewTab } from "@/context/preview"
 import { TerminalPanel } from "@/pages/session/terminal-panel"
 import { useSessionCommands } from "@/pages/session/use-session-commands"
 import { useSessionHashScroll } from "@/pages/session/use-session-hash-scroll"
@@ -1201,6 +1201,9 @@ export default function Page() {
 
           if (!meta.content) continue
           preview.present({ path: meta.filepath, content: meta.content, ext: meta.ext ?? "", binary: meta.binary })
+          const tab = previewTab(meta.filepath)
+          tabs().open(tab)
+          tabs().setActive(tab)
           if (!view().reviewPanel.opened()) view().reviewPanel.open()
         }
       }
@@ -1216,6 +1219,9 @@ export default function Page() {
       }
       if (!detail.content) return
       preview.present({ path: detail.filepath, content: detail.content, ext: detail.ext ?? "", binary: detail.binary })
+      const tab = previewTab(detail.filepath)
+      tabs().open(tab)
+      tabs().setActive(tab)
       if (!view().reviewPanel.opened()) view().reviewPanel.open()
     }
     window.addEventListener("present-file-click", handlePresentClick)

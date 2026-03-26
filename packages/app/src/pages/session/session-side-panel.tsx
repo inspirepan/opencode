@@ -20,7 +20,7 @@ import { useFile, type SelectedLineRange } from "@/context/file"
 import { useLanguage } from "@/context/language"
 import { useLayout } from "@/context/layout"
 import { usePlatform } from "@/context/platform"
-import { usePreview } from "@/context/preview"
+import { usePreview, previewPath, previewTab } from "@/context/preview"
 import { useSync } from "@/context/sync"
 import { createFileTabListSync } from "@/pages/session/file-tab-scroll"
 import { FileTabContent } from "@/pages/session/file-tabs"
@@ -50,13 +50,6 @@ export function SessionSidePanel(props: {
   const isDesktop = createMediaQuery("(min-width: 768px)")
 
   const reviewOpen = createMemo(() => isDesktop() && view().reviewPanel.opened())
-
-  createEffect(() => {
-    if (!dandelion()) return
-    const has = preview.items().length > 0
-    if (has) view().reviewPanel.open()
-    else view().reviewPanel.close()
-  })
   const fileOpen = createMemo(() => !dandelion() && isDesktop() && layout.fileTree.opened())
   const open = createMemo(() => reviewOpen() || fileOpen())
   const reviewTab = createMemo(() => isDesktop())
@@ -135,14 +128,20 @@ export function SessionSidePanel(props: {
     if (!view().reviewPanel.opened()) view().reviewPanel.open()
   }
 
-  const openTab = createOpenSessionFileTab({
-    normalizeTab,
-    openTab: tabs().open,
-    pathFromTab: file.pathFromTab,
-    loadFile: file.load,
-    openReviewPanel,
-    setActive: tabs().setActive,
-  })
+  const openTab = dandelion()
+    ? (value: string) => {
+        tabs().open(value)
+        tabs().setActive(value)
+        openReviewPanel()
+      }
+    : createOpenSessionFileTab({
+        normalizeTab,
+        openTab: tabs().open,
+        pathFromTab: file.pathFromTab,
+        loadFile: file.load,
+        openReviewPanel,
+        setActive: tabs().setActive,
+      })
 
   const tabState = createSessionTabs({
     tabs,
@@ -155,6 +154,11 @@ export function SessionSidePanel(props: {
   const openedTabs = tabState.openedTabs
   const activeTab = tabState.activeTab
   const activeFileTab = tabState.activeFileTab
+
+  const activePreviewItem = createMemo(() => {
+    const path = previewPath(activeTab())
+    return path ? preview.get(path) : undefined
+  })
 
   const fileTreeTab = () => layout.fileTree.tab()
 
@@ -247,8 +251,8 @@ export function SessionSidePanel(props: {
                 <DragDropSensors />
                 <ConstrainDragYAxis />
                 <Tabs
-                  value={dandelion() ? (preview.active() ?? "preview-empty") : activeTab()}
-                  onChange={dandelion() ? (v: string) => { if (v !== "preview-empty") preview.setActive(v) } : openTab}
+                  value={activeTab()}
+                  onChange={openTab}
                 >
                   <div class="sticky top-0 shrink-0 flex">
                     <Tabs.List
@@ -257,36 +261,6 @@ export function SessionSidePanel(props: {
                         onCleanup(stop)
                       }}
                     >
-                      <Show when={dandelion()}>
-                        <Show
-                          when={preview.items().length > 0}
-                          fallback={
-                            <Tabs.Trigger value="preview-empty">
-                              <div>{language.t("dandelion.preview.tab")}</div>
-                            </Tabs.Trigger>
-                          }
-                        >
-                          <For each={preview.items()}>
-                            {(item) => (
-                              <Tabs.Trigger
-                                value={item.path}
-                                closeButton={
-                                  <IconButton
-                                    icon="close-small"
-                                    variant="ghost"
-                                    class="h-5 w-5"
-                                    onClick={() => preview.close(item.path)}
-                                  />
-                                }
-                                hideCloseButton
-                                onMiddleClick={() => preview.close(item.path)}
-                              >
-                                <div class="truncate max-w-32">{item.path.split("/").pop()}</div>
-                              </Tabs.Trigger>
-                            )}
-                          </For>
-                        </Show>
-                      </Show>
                       <Show when={!dandelion() && reviewTab()}>
                         <Tabs.Trigger value="review">
                           <div class="flex items-center gap-1.5">
@@ -297,7 +271,7 @@ export function SessionSidePanel(props: {
                           </div>
                         </Tabs.Trigger>
                       </Show>
-                      <Show when={!dandelion() && contextOpen()}>
+                      <Show when={contextOpen()}>
                         <Tabs.Trigger
                           value="context"
                           closeButton={
@@ -325,6 +299,30 @@ export function SessionSidePanel(props: {
                           </div>
                         </Tabs.Trigger>
                       </Show>
+                      <Show when={dandelion()}>
+                        <For each={openedTabs()}>
+                          {(tab) => {
+                            const path = previewPath(tab)
+                            if (!path) return null
+                            const close = () => {
+                              preview.close(path)
+                              tabs().close(tab)
+                            }
+                            return (
+                              <Tabs.Trigger
+                                value={tab}
+                                closeButton={
+                                  <IconButton icon="close-small" variant="ghost" class="h-5 w-5" onClick={close} />
+                                }
+                                hideCloseButton
+                                onMiddleClick={close}
+                              >
+                                <div class="truncate max-w-32">{path.split("/").pop()}</div>
+                              </Tabs.Trigger>
+                            )
+                          }}
+                        </For>
+                      </Show>
                       <Show when={!dandelion()}>
                         <SortableProvider ids={openedTabs()}>
                           <For each={openedTabs()}>{(tab) => <SortableTab tab={tab} onTabClose={tabs().close} />}</For>
@@ -349,7 +347,7 @@ export function SessionSidePanel(props: {
                         </div>
                       </Show>
                     </Tabs.List>
-                    <Show when={dandelion() && preview.current()}>
+                    <Show when={dandelion() && activePreviewItem()}>
                       <div class="shrink-0 flex items-center justify-center px-2">
                         <Tooltip value={language.t("dandelion.preview.open")} placement="bottom">
                           <IconButton
@@ -357,15 +355,15 @@ export function SessionSidePanel(props: {
                             variant="ghost"
                             size="small"
                             onClick={() => {
-                              const current = preview.current()
-                              if (!current) return
+                              const item = activePreviewItem()
+                              if (!item) return
                               let blob: Blob
-                              if (current.binary && current.ext === ".pdf") {
-                                const bytes = Uint8Array.from(atob(current.content), (c) => c.charCodeAt(0))
+                              if (item.binary && item.ext === ".pdf") {
+                                const bytes = Uint8Array.from(atob(item.content), (c) => c.charCodeAt(0))
                                 blob = new Blob([bytes], { type: "application/pdf" })
                               } else {
-                                const mime = current.ext === ".svg" ? "image/svg+xml" : "text/html"
-                                blob = new Blob([current.content], { type: mime })
+                                const mime = item.ext === ".svg" ? "image/svg+xml" : "text/html"
+                                blob = new Blob([item.content], { type: mime })
                               }
                               const url = URL.createObjectURL(blob)
                               window.open(url, "_blank")
@@ -378,15 +376,19 @@ export function SessionSidePanel(props: {
                   </div>
 
                   <Show when={dandelion()}>
-                    <Tabs.Content value="preview-empty" class="flex flex-col h-full overflow-hidden contain-strict">
+                    <Tabs.Content value="empty" class="flex flex-col h-full overflow-hidden contain-strict">
                       <PreviewTab resizing={props.size.active} />
                     </Tabs.Content>
-                    <For each={preview.items()}>
-                      {(item) => (
-                        <Tabs.Content value={item.path} class="flex flex-col h-full overflow-hidden contain-strict">
-                          <PreviewTab resizing={props.size.active} />
-                        </Tabs.Content>
-                      )}
+                    <For each={openedTabs()}>
+                      {(tab) => {
+                        const path = previewPath(tab)
+                        if (!path) return null
+                        return (
+                          <Tabs.Content value={tab} class="flex flex-col h-full overflow-hidden contain-strict">
+                            <PreviewTab path={path} resizing={props.size.active} />
+                          </Tabs.Content>
+                        )
+                      }}
                     </For>
                   </Show>
 
@@ -410,19 +412,19 @@ export function SessionSidePanel(props: {
                       </Show>
                     </Tabs.Content>
 
-                    <Show when={contextOpen()}>
-                      <Tabs.Content value="context" class="flex flex-col h-full overflow-hidden contain-strict">
-                        <Show when={activeTab() === "context"}>
-                          <div class="relative pt-2 flex-1 min-h-0 overflow-hidden">
-                            <SessionContextTab />
-                          </div>
-                        </Show>
-                      </Tabs.Content>
-                    </Show>
-
                     <Show when={activeFileTab()} keyed>
                       {(tab) => <FileTabContent tab={tab} />}
                     </Show>
+                  </Show>
+
+                  <Show when={contextOpen()}>
+                    <Tabs.Content value="context" class="flex flex-col h-full overflow-hidden contain-strict">
+                      <Show when={activeTab() === "context"}>
+                        <div class="relative pt-2 flex-1 min-h-0 overflow-hidden">
+                          <SessionContextTab />
+                        </div>
+                      </Show>
+                    </Tabs.Content>
                   </Show>
                 </Tabs>
                 <DragOverlay>
