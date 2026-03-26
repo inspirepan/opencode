@@ -121,6 +121,46 @@ Quick reference of all files modified from upstream, grouped by package:
 - `src/i18n/en.ts` — Add `ui.tool.present` translation
 - `src/i18n/zh.ts` — Add `ui.tool.present` translation (Chinese)
 
+### feat(dandelion): add PDF support to present_file and clean up
+
+**Intent:** Extend `present_file` to handle PDF files. PDFs are read as binary, base64-encoded in metadata, and rendered client-side. Mermaid diagram background set to transparent.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/tool/present.ts` | Add `.pdf` to supported types; binary reading path with base64 encoding; 20MB limit for binary files; `binary` flag in metadata |
+| `packages/opencode/src/tool/present.txt` | Document PDF support and all supported file types |
+| `packages/app/src/context/preview.tsx` | Add `binary?: boolean` to `PreviewItem` type |
+| `packages/app/src/pages/session/preview-tab.tsx` | PDF rendering via blob URL; Mermaid `transparent: true`; conditional iframe for PDF vs srcdoc |
+| `packages/app/src/pages/session.tsx` | Pass `binary` flag through present_file detection |
+
+### feat(dandelion): support PPTX/PPT via system default application
+
+**Intent:** PPTX/PPT files cannot be rendered in-browser. Instead, `present_file` marks them as `external` and the frontend calls `platform.openPath()` to open with the system default app (Keynote, PowerPoint, etc.).
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/tool/present.ts` | Add `.pptx`/`.ppt` to supported types; `EXTERNAL_EXTS` set; return `external: true` in metadata; `external` field on all branches |
+| `packages/opencode/src/tool/present.txt` | Document PPTX/PPT support |
+| `packages/app/src/pages/session.tsx` | Detect `external` flag and call `platform.openPath()` instead of pushing to preview |
+
+### feat(dandelion): use pdf.js for modern PDF preview rendering
+
+**Intent:** Replace Chromium's built-in PDF viewer (gray toolbar, non-customizable) with pdf.js canvas rendering for a modern page-by-page viewer (white cards, soft shadows, page numbers on light gray background).
+
+| File | Change |
+|------|--------|
+| `packages/app/package.json` | Add `pdfjs-dist@4.10.38` (v4.x for Electron Chromium compatibility) |
+| `packages/app/src/pages/session/preview-tab.tsx` | `renderPdfPages()`: pdf.js renders each page to canvas at 2x scale, exports as PNG data URI; `slidesHtml()`: assembles claude.ai-style page viewer; load worker via Vite `?url` import |
+
+### feat(dandelion): make present_file filename clickable to open preview
+
+**Intent:** The filename shown in the `present_file` tool call display should be clickable to open/switch the preview panel, matching the pattern used by the `task` tool for session links.
+
+| File | Change |
+|------|--------|
+| `packages/ui/src/components/message-part.tsx` | Custom trigger JSX for `present_file` (like `task` tool); subtitle as `<span class="clickable">` with `onClick`; dispatches `present-file-click` CustomEvent |
+| `packages/app/src/pages/session.tsx` | Listen for `present-file-click` event; open preview panel or call `platform.openPath()` for external files; cleanup on unmount |
+
 ### chore: add Makefile and CLAUDE.md for test orchestration
 
 **Intent:** Provide a single `make test` entry point so agents and developers can run all checks (typecheck, unit, e2e) without remembering per-package commands. Document testing workflow and dandelion mode in CLAUDE.md.
