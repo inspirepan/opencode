@@ -50,6 +50,13 @@ export function SessionSidePanel(props: {
   const isDesktop = createMediaQuery("(min-width: 768px)")
 
   const reviewOpen = createMemo(() => isDesktop() && view().reviewPanel.opened())
+
+  createEffect(() => {
+    if (!dandelion()) return
+    const has = preview.items().length > 0
+    if (has) view().reviewPanel.open()
+    else view().reviewPanel.close()
+  })
   const fileOpen = createMemo(() => !dandelion() && isDesktop() && layout.fileTree.opened())
   const open = createMemo(() => reviewOpen() || fileOpen())
   const reviewTab = createMemo(() => isDesktop())

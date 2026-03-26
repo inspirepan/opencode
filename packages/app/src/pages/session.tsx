@@ -53,6 +53,7 @@ import { type DiffStyle, SessionReviewTab, type SessionReviewTabProps } from "@/
 import { useSessionLayout } from "@/pages/session/session-layout"
 import { syncSessionModel } from "@/pages/session/session-model-helpers"
 import { SessionSidePanel } from "@/pages/session/session-side-panel"
+import { PreviewTab } from "@/pages/session/preview-tab"
 import { usePlatform } from "@/context/platform"
 import { usePreview } from "@/context/preview"
 import { TerminalPanel } from "@/pages/session/terminal-panel"
@@ -1743,9 +1744,11 @@ export default function Page() {
                 classes={{ button: "w-full" }}
                 onClick={() => setStore("mobileTab", "changes")}
               >
-                {hasReview()
-                  ? language.t("session.review.filesChanged", { count: reviewCount() })
-                  : language.t("session.review.change.other")}
+                {platform.dandelion
+                  ? language.t("dandelion.preview.tab")
+                  : hasReview()
+                    ? language.t("session.review.filesChanged", { count: reviewCount() })
+                    : language.t("session.review.change.other")}
               </Tabs.Trigger>
             </Tabs.List>
           </Tabs>
@@ -1768,16 +1771,18 @@ export default function Page() {
                 <Show when={lastUserMessage()}>
                   <MessageTimeline
                     mobileChanges={mobileChanges()}
-                    mobileFallback={reviewContent({
-                      diffStyle: "unified",
-                      classes: {
-                        root: "pb-8",
-                        header: "px-4",
-                        container: "px-4",
-                      },
-                      loadingClass: "px-4 py-4 text-text-weak",
-                      emptyClass: "h-full pb-64 -mt-4 flex flex-col items-center justify-center text-center gap-6",
-                    })}
+                    mobileFallback={platform.dandelion
+                      ? <PreviewTab />
+                      : reviewContent({
+                        diffStyle: "unified",
+                        classes: {
+                          root: "pb-8",
+                          header: "px-4",
+                          container: "px-4",
+                        },
+                        loadingClass: "px-4 py-4 text-text-weak",
+                        emptyClass: "h-full pb-64 -mt-4 flex flex-col items-center justify-center text-center gap-6",
+                      })}
                     actions={actions}
                     scroll={ui.scroll}
                     onResumeScroll={resumeScroll}
