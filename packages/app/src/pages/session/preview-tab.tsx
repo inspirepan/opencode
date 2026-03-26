@@ -1,13 +1,16 @@
 import { createEffect, createMemo, createSignal, onCleanup, Show, type Accessor } from "solid-js"
 import { Marked } from "marked"
 import { renderMermaidSVG } from "beautiful-mermaid"
+import * as pdfjsLib from "pdfjs-dist"
+import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url"
 import { usePreview } from "@/context/preview"
 import { useLanguage } from "@/context/language"
 import { monoFontFamily, useSettings } from "@/context/settings"
 
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker
+
 const MD_EXTS = new Set([".md", ".markdown"])
 const MERMAID_EXTS = new Set([".mmd", ".mermaid"])
-const PDF_EXTS = new Set([".pdf"])
 
 const SANS = '"Inter","Inter Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'
 
@@ -37,6 +40,36 @@ function md(src: string): string {
   return parser.parse(src, { async: false }) as string
 }
 
+async function renderPdfPages(base64: string, scale = 2): Promise<string[]> {
+  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))
+  const pdf = await pdfjsLib.getDocument({ data: bytes }).promise
+  const pages: string[] = []
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i)
+    const viewport = page.getViewport({ scale })
+    const canvas = document.createElement("canvas")
+    canvas.width = viewport.width
+    canvas.height = viewport.height
+    const ctx = canvas.getContext("2d")!
+    await page.render({ canvasContext: ctx, viewport }).promise
+    pages.push(canvas.toDataURL("image/png"))
+    page.cleanup()
+  }
+  pdf.destroy()
+  return pages
+}
+
+function slidesHtml(pages: string[]): string {
+  const total = pages.length
+  const imgs = pages.map((uri, i) =>
+    `<div style="position:relative;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.06);border-radius:4px;overflow:hidden;width:100%;max-width:100%">` +
+    `<img src="${uri}" style="width:100%;display:block" alt="Page ${i + 1}" />` +
+    `<div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.45);color:#fff;padding:2px 10px;font-size:12px;border-radius:4px;font-family:${SANS}">Page ${i + 1} / ${total}</div>` +
+    `</div>`
+  ).join("")
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;background:#f5f5f5;font-family:${SANS}}body{padding:16px;display:flex;flex-direction:column;align-items:center;gap:16px}</style></head><body>${imgs}</body></html>`
+}
+
 export function PreviewTab(props: { resizing?: Accessor<boolean> }) {
   const preview = usePreview()
   const language = useLanguage()
@@ -46,19 +79,20 @@ export function PreviewTab(props: { resizing?: Accessor<boolean> }) {
   const mono = createMemo(() => monoFontFamily(settings.appearance.font()))
   const isPdf = createMemo(() => item()?.ext === ".pdf" && item()?.binary)
 
-  // PDF: create blob URL from base64
-  const [pdfUrl, setPdfUrl] = createSignal("")
+  // PDF: render pages as images via pdf.js
+  const [pdfSrcdoc, setPdfSrcdoc] = createSignal("")
   createEffect(() => {
     const current = item()
     if (!current || !isPdf()) {
-      setPdfUrl("")
+      setPdfSrcdoc("")
       return
     }
-    const bytes = Uint8Array.from(atob(current.content), (c) => c.charCodeAt(0))
-    const blob = new Blob([bytes], { type: "application/pdf" })
-    const url = URL.createObjectURL(blob)
-    setPdfUrl(url)
-    onCleanup(() => URL.revokeObjectURL(url))
+    void renderPdfPages(current.content).then((pages) => {
+      setPdfSrcdoc(slidesHtml(pages))
+    }).catch((err) => {
+      const msg = err instanceof Error ? err.message : String(err)
+      setPdfSrcdoc(`<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:${SANS};color:#c00;padding:24px}</style></head><body><h3>PDF render error</h3><pre>${msg}</pre></body></html>`)
+    })
   })
 
   const srcdoc = createMemo(() => {
@@ -101,23 +135,12 @@ export function PreviewTab(props: { resizing?: Accessor<boolean> }) {
           </div>
         }
       >
-        <Show
-          when={isPdf()}
-          fallback={
-            <iframe
-              class="flex-1 w-full border-none bg-white"
-              classList={{ "pointer-events-none": !!props.resizing?.() }}
-              sandbox="allow-scripts allow-same-origin"
-              srcdoc={srcdoc()}
-            />
-          }
-        >
-          <iframe
-            class="flex-1 w-full border-none"
-            classList={{ "pointer-events-none": !!props.resizing?.() }}
-            src={pdfUrl()}
-          />
-        </Show>
+        <iframe
+          class="flex-1 w-full border-none bg-white"
+          classList={{ "pointer-events-none": !!props.resizing?.() }}
+          sandbox="allow-scripts allow-same-origin"
+          srcdoc={isPdf() ? pdfSrcdoc() : srcdoc()}
+        />
       </Show>
     </div>
   )
