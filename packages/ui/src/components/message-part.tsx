@@ -2224,16 +2224,35 @@ ToolRegistry.register({
   name: "present_file",
   render(props) {
     const i18n = useI18n()
-    return (
-      <BasicTool
-        {...props}
-        icon="open-file"
-        trigger={{
-          title: i18n.t("ui.tool.present"),
-          subtitle: props.input.filePath ? getFilename(props.input.filePath) : "",
-        }}
-        hideDetails
-      />
+    const filename = () => (props.input.filePath ? getFilename(props.input.filePath as string) : "")
+    const handleClick = (e: MouseEvent) => {
+      e.stopPropagation()
+      window.dispatchEvent(
+        new CustomEvent("present-file-click", {
+          detail: {
+            filepath: props.input.filePath,
+            content: props.metadata.content,
+            ext: props.metadata.ext,
+            binary: props.metadata.binary,
+            external: props.metadata.external,
+          },
+        }),
+      )
+    }
+    const trigger = () => (
+      <div data-slot="basic-tool-tool-info-structured">
+        <div data-slot="basic-tool-tool-info-main">
+          <span data-slot="basic-tool-tool-title">
+            <TextShimmer text={i18n.t("ui.tool.present")} active={props.status === "pending" || props.status === "running"} />
+          </span>
+          <Show when={filename() && props.status !== "pending" && props.status !== "running"}>
+            <span data-slot="basic-tool-tool-subtitle" class="clickable" onClick={handleClick}>
+              {filename()}
+            </span>
+          </Show>
+        </div>
+      </div>
     )
+    return <BasicTool {...props} icon="open-file" trigger={trigger()} hideDetails />
   },
 })

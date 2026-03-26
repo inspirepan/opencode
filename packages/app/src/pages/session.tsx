@@ -1204,6 +1204,21 @@ export default function Page() {
         }
       }
     })
+
+    // Listen for clicks on present_file subtitle in tool display
+    const handlePresentClick = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { filepath?: string; content?: string; ext?: string; binary?: boolean; external?: boolean } | undefined
+      if (!detail?.filepath) return
+      if (detail.external && platform.openPath) {
+        void platform.openPath(detail.filepath)
+        return
+      }
+      if (!detail.content) return
+      preview.present({ path: detail.filepath, content: detail.content, ext: detail.ext ?? "", binary: detail.binary })
+      if (!view().reviewPanel.opened()) view().reviewPanel.open()
+    }
+    window.addEventListener("present-file-click", handlePresentClick)
+    onCleanup(() => window.removeEventListener("present-file-click", handlePresentClick))
   }
 
   let treeDir: string | undefined
