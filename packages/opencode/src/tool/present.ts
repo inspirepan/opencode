@@ -5,9 +5,11 @@ import { Instance } from "../project/instance"
 import { Filesystem } from "../util/filesystem"
 import DESCRIPTION from "./present.txt"
 
-const SUPPORTED = new Set([".html", ".htm", ".svg", ".md", ".markdown", ".mmd", ".mermaid"])
+const SUPPORTED = new Set([".html", ".htm", ".svg", ".md", ".markdown", ".mmd", ".mermaid", ".pdf"])
 const MD_EXTS = new Set([".md", ".markdown"])
+const BINARY_EXTS = new Set([".pdf"])
 const MAX_SIZE = 2 * 1024 * 1024
+const MAX_BINARY_SIZE = 20 * 1024 * 1024
 
 const MIME: Record<string, string> = {
   ".svg": "image/svg+xml",
@@ -63,10 +65,31 @@ export const PresentTool = Tool.define("present_file", {
     const stat = Filesystem.stat(filepath)
     if (!stat) throw new Error(`File not found: ${filepath}`)
     if (stat.isDirectory()) throw new Error(`Path is a directory, not a file: ${filepath}`)
+
+    const title = path.relative(Instance.worktree, filepath)
+
+    // Binary files (PDF): read as base64
+    if (BINARY_EXTS.has(ext)) {
+      if (stat.size > MAX_BINARY_SIZE) throw new Error(`File too large (${stat.size} bytes). Maximum: ${MAX_BINARY_SIZE} bytes`)
+      const bytes = await Filesystem.readBytes(filepath)
+      const base64 = bytes.toString("base64")
+      return {
+        title,
+        output: `Presenting file: ${title}`,
+        metadata: {
+          filepath,
+          content: base64,
+          ext,
+          binary: true,
+          truncated: false,
+        },
+      }
+    }
+
+    // Text files
     if (stat.size > MAX_SIZE) throw new Error(`File too large (${stat.size} bytes). Maximum: ${MAX_SIZE} bytes`)
 
     let content = await Filesystem.readText(filepath)
-    const title = path.relative(Instance.worktree, filepath)
 
     if (MD_EXTS.has(ext)) {
       content = await inlineImages(content, path.dirname(filepath))
@@ -79,6 +102,7 @@ export const PresentTool = Tool.define("present_file", {
         filepath,
         content,
         ext,
+        binary: false,
         truncated: false,
       },
     }

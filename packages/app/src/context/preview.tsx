@@ -5,6 +5,7 @@ export type PreviewItem = {
   path: string
   content: string
   ext: string
+  binary?: boolean
 }
 
 export const { use: usePreview, provider: PreviewProvider } = createSimpleContext({

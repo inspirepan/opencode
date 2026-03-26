@@ -7,6 +7,7 @@ When to use the present_file tool:
 - Presenting SVG files (rendered as inline graphics)
 - Presenting Markdown files (rendered as a formatted document)
 - Presenting Mermaid diagram files (.mmd/.mermaid) (rendered as diagrams)
+- Presenting PDF files (rendered as paginated document)
 
 When NOT to use the present_file tool:
 - When you only need to read file contents for your own processing
@@ -17,5 +18,12 @@ How it works:
 - Accepts a single file path (absolute or relative to the workspace)
 - The file must already exist on disk (use the Write tool first if needed)
 - The preview panel will open automatically and render the file content
-- Supported file types: .html, .htm, .svg, .md, .markdown, .mmd, .mermaid
-- For Markdown files, local image references are automatically inlined for preview
+- For Markdown files, local image references (png, jpg, svg, gif, etc.) are automatically inlined for preview
+- For PDF files, the binary content is base64-encoded and rendered client-side via the built-in PDF viewer
+
+Supported file types:
+- .html, .htm — rendered as a live web page
+- .svg — rendered as inline scalable vector graphics
+- .md, .markdown — parsed and rendered as a formatted document with GitHub-style styling
+- .mmd, .mermaid — rendered as diagrams (flowcharts, sequence, state, class, ER, XY charts)
+- .pdf — rendered via the built-in PDF viewer with zoom, page navigation and search

@@ -1,4 +1,4 @@
-import { createMemo, Show, type Accessor } from "solid-js"
+import { createEffect, createMemo, createSignal, onCleanup, Show, type Accessor } from "solid-js"
 import { Marked } from "marked"
 import { renderMermaidSVG } from "beautiful-mermaid"
 import { usePreview } from "@/context/preview"
@@ -7,6 +7,7 @@ import { monoFontFamily, useSettings } from "@/context/settings"
 
 const MD_EXTS = new Set([".md", ".markdown"])
 const MERMAID_EXTS = new Set([".mmd", ".mermaid"])
+const PDF_EXTS = new Set([".pdf"])
 
 const SANS = '"Inter","Inter Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'
 
@@ -43,10 +44,26 @@ export function PreviewTab(props: { resizing?: Accessor<boolean> }) {
 
   const item = createMemo(() => preview.current())
   const mono = createMemo(() => monoFontFamily(settings.appearance.font()))
+  const isPdf = createMemo(() => item()?.ext === ".pdf" && item()?.binary)
+
+  // PDF: create blob URL from base64
+  const [pdfUrl, setPdfUrl] = createSignal("")
+  createEffect(() => {
+    const current = item()
+    if (!current || !isPdf()) {
+      setPdfUrl("")
+      return
+    }
+    const bytes = Uint8Array.from(atob(current.content), (c) => c.charCodeAt(0))
+    const blob = new Blob([bytes], { type: "application/pdf" })
+    const url = URL.createObjectURL(blob)
+    setPdfUrl(url)
+    onCleanup(() => URL.revokeObjectURL(url))
+  })
 
   const srcdoc = createMemo(() => {
     const current = item()
-    if (!current) return ""
+    if (!current || isPdf()) return ""
     if (current.ext === ".svg") {
       return `<!DOCTYPE html><html><head><style>html,body{margin:0;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}svg{max-width:100%;max-height:100%;height:auto;width:auto}</style></head><body>${current.content}</body></html>`
     }
@@ -60,7 +77,7 @@ export function PreviewTab(props: { resizing?: Accessor<boolean> }) {
           bg: "#ffffff",
           fg: "#1a1a1a",
           font: "Inter",
-          transparent: false,
+          transparent: true,
           padding: 40,
         })
         return `<!DOCTYPE html><html><head><style>html,body{margin:0;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}svg{max-width:100%;max-height:100%;height:auto;width:auto}</style></head><body>${svg}</body></html>`
@@ -84,12 +101,23 @@ export function PreviewTab(props: { resizing?: Accessor<boolean> }) {
           </div>
         }
       >
-        <iframe
-          class="flex-1 w-full border-none bg-white"
-          classList={{ "pointer-events-none": !!props.resizing?.() }}
-          sandbox="allow-scripts allow-same-origin"
-          srcdoc={srcdoc()}
-        />
+        <Show
+          when={isPdf()}
+          fallback={
+            <iframe
+              class="flex-1 w-full border-none bg-white"
+              classList={{ "pointer-events-none": !!props.resizing?.() }}
+              sandbox="allow-scripts allow-same-origin"
+              srcdoc={srcdoc()}
+            />
+          }
+        >
+          <iframe
+            class="flex-1 w-full border-none"
+            classList={{ "pointer-events-none": !!props.resizing?.() }}
+            src={pdfUrl()}
+          />
+        </Show>
       </Show>
     </div>
   )

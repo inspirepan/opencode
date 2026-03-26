@@ -1189,9 +1189,9 @@ export default function Page() {
           if (seen.has(part.id)) continue
           seen.add(part.id)
 
-          const meta = part.state.metadata as { filepath?: string; content?: string; ext?: string } | undefined
+          const meta = part.state.metadata as { filepath?: string; content?: string; ext?: string; binary?: boolean } | undefined
           if (!meta?.filepath || !meta?.content) continue
-          preview.present({ path: meta.filepath, content: meta.content, ext: meta.ext ?? "" })
+          preview.present({ path: meta.filepath, content: meta.content, ext: meta.ext ?? "", binary: meta.binary })
           if (!view().reviewPanel.opened()) view().reviewPanel.open()
         }
       }
