@@ -914,11 +914,45 @@ export namespace Provider {
     }
   }
 
+  // Models pending addition to models.dev — remove entries once merged upstream
+  const PENDING_MODELS = [
+    {
+      providerID: "google",
+      id: "gemini-3-pro-image-preview",
+      data: {
+        id: "gemini-3-pro-image-preview",
+        name: "Gemini 3 Pro Image (Preview)",
+        family: "gemini-pro",
+        attachment: true,
+        reasoning: true,
+        tool_call: false,
+        temperature: true,
+        release_date: "2026-02-26",
+        modalities: {
+          input: ["text", "image", "pdf"],
+          output: ["text", "image"],
+        },
+        cost: { input: 2, output: 120 },
+        limit: { context: 65536, output: 32768 },
+        options: {},
+      },
+    },
+  ] as Array<{ providerID: string; id: string; data: ModelsDev.Model }>
+
   const state = Instance.state(async () => {
     using _ = log.time("state")
     const config = await Config.get()
     const modelsDev = await ModelsDev.get()
     const database = mapValues(modelsDev, fromModelsDevProvider)
+
+    // Inject models missing from models.dev (pending upstream PRs)
+    for (const pending of PENDING_MODELS) {
+      const provider = database[pending.providerID as ProviderID]
+      const source = modelsDev[pending.providerID]
+      if (provider && source && !provider.models[pending.id as ModelID]) {
+        provider.models[pending.id as ModelID] = fromModelsDevModel(source, pending.data)
+      }
+    }
 
     const disabled = new Set(config.disabled_providers ?? [])
     const enabled = config.enabled_providers ? new Set(config.enabled_providers) : null

@@ -319,3 +319,14 @@ Quick reference of all files modified from upstream, grouped by package:
 | `packages/ui/src/components/message-part.css` | Add `[data-component="file-part"]` styles (max-width, border-radius, cursor) |
 | `packages/ui/src/components/image-preview.tsx` | Add `download` prop; when set, shows download button in header |
 | `packages/app/src/pages/directory-layout.tsx` | Pass `serverUrl` from `useServer()` into `DataProvider` |
+
+### feat(app): image generation tag on model selector + inject missing model
+
+**Intent:** Show a "Image Gen" / "图片生成" tag on image-capable models in the model selector list. Also inject `gemini-3-pro-image-preview` which is missing from models.dev (pending upstream PR).
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/dialog-select-model.tsx` | Show `<Tag>` for models with `capabilities.output.image`; widen popover from `w-72` to `w-96`; add `min-w-0` on name span for proper truncation |
+| `packages/app/src/i18n/en.ts` | Add `model.tag.image: "Image Gen"` |
+| `packages/app/src/i18n/zh.ts` | Add `model.tag.image: "图片生成"` |
+| `packages/opencode/src/provider/provider.ts` | Add `PENDING_MODELS` array to inject models missing from models.dev; inject `gemini-3-pro-image-preview` with correct specs |
