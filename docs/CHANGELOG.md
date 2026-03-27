@@ -277,3 +277,20 @@ Quick reference of all files modified from upstream, grouped by package:
 | File | Change |
 |------|--------|
 | `packages/app/src/components/prompt-input.tsx` | Add `event.stopPropagation()` to Tab, at-popover Enter, and slash-popover Enter branches inside the `if (store.popover)` block |
+
+### Commit `7a9b28b0` — feat(dandelion): auto-close right panel when last tab is closed
+
+**Intent:** In dandelion mode, closing the last tab (preview or context) in the right panel should auto-close the panel itself. Three close paths needed to be covered: X button click, middle-click, and Cmd+W keyboard shortcut.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/pages/session/session-side-panel.tsx` | Preview tab close: add `view().reviewPanel.close()` when `openedTabs` is empty and context not open; Context tab close (onClick + onMiddleClick): add same check gated behind `dandelion()` |
+| `packages/app/src/pages/session/use-session-commands.tsx` | `tab.close` command (Cmd+W): add auto-close panel check gated behind `platform.dandelion` |
+
+### style(ui): remove redundant underline from active review panel tabs
+
+**Intent:** Active tabs in the right panel had both a pill background and a bottom underline indicator, which is visually redundant. Remove the underline to keep only the pill background, consistent with the file tree panel's pill tab style.
+
+| File | Change |
+|------|--------|
+| `packages/ui/src/components/tabs.css` | Remove `&::after { opacity: 1; transform: scaleX(1) }` from `#review-panel` selected tab; remove `::after` underline from drag preview |

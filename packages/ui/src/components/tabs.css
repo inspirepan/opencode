@@ -222,11 +222,6 @@
         color: var(--text-strong);
         background-color: var(--surface-base-active);
         border-color: var(--border-weak-base);
-
-        &::after {
-          opacity: 1;
-          transform: scaleX(1);
-        }
       }
 
       &:hover:not(:disabled):not(:has([data-selected])) {
@@ -620,15 +615,7 @@
   background-color: var(--surface-base-active);
 }
 
-[data-component="tabs-drag-preview"]::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background-color: var(--text-strong);
-}
+
 
 [data-component="tabs-drag-preview"] > * {
   position: relative;
