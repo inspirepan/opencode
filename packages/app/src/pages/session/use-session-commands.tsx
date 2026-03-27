@@ -10,6 +10,7 @@ import { usePermission } from "@/context/permission"
 import { usePrompt } from "@/context/prompt"
 import { useSDK } from "@/context/sdk"
 import { useSync } from "@/context/sync"
+import { usePlatform } from "@/context/platform"
 import { useTerminal } from "@/context/terminal"
 import { DialogSelectFile } from "@/components/dialog-select-file"
 import { DialogSelectModel } from "@/components/dialog-select-model"
@@ -74,6 +75,9 @@ export const useSessionCommands = (actions: SessionCommandContext) => {
   })
   const activeFileTab = tabState.activeFileTab
   const closableTab = tabState.closableTab
+  const openedTabs = tabState.openedTabs
+  const contextOpen = tabState.contextOpen
+  const platform = usePlatform()
 
   const idle = { type: "idle" as const }
   const status = () => sync.data.session_status[params.id ?? ""] ?? idle
@@ -268,6 +272,9 @@ export const useSessionCommands = (actions: SessionCommandContext) => {
           const tab = closableTab()
           if (!tab) return
           tabs().close(tab)
+          if (platform.dandelion && openedTabs().length === 0 && !contextOpen()) {
+            view().reviewPanel.close()
+          }
         },
       }),
       contextCommand({

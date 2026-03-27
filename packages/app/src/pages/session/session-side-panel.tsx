@@ -285,13 +285,19 @@ export function SessionSidePanel(props: {
                                 icon="close-small"
                                 variant="ghost"
                                 class="h-5 w-5"
-                                onClick={() => tabs().close("context")}
+                                onClick={() => {
+                                  tabs().close("context")
+                                  if (dandelion() && openedTabs().length === 0) view().reviewPanel.close()
+                                }}
                                 aria-label={language.t("common.closeTab")}
                               />
                             </TooltipKeybind>
                           }
                           hideCloseButton
-                          onMiddleClick={() => tabs().close("context")}
+                          onMiddleClick={() => {
+                            tabs().close("context")
+                            if (dandelion() && openedTabs().length === 0) view().reviewPanel.close()
+                          }}
                         >
                           <div class="flex items-center gap-2">
                             <SessionContextUsage variant="indicator" />
@@ -307,6 +313,9 @@ export function SessionSidePanel(props: {
                             const close = () => {
                               preview.close(path)
                               tabs().close(tab)
+                              if (openedTabs().length === 0 && !contextOpen()) {
+                                view().reviewPanel.close()
+                              }
                             }
                             return (
                               <Tabs.Trigger
