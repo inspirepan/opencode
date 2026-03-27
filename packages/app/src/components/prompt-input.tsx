@@ -1199,6 +1199,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       if (event.key === "Tab") {
         selectPopoverActive()
         event.preventDefault()
+        event.stopPropagation()
         return
       }
       const nav = event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "Enter"
@@ -1207,12 +1208,14 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
         if (store.popover === "at") {
           atOnKeyDown(event)
           event.preventDefault()
+          event.stopPropagation()
           return
         }
         if (store.popover === "slash") {
           slashOnKeyDown(event)
         }
         event.preventDefault()
+        event.stopPropagation()
         return
       }
     }

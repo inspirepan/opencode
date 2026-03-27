@@ -263,3 +263,17 @@ Quick reference of all files modified from upstream, grouped by package:
 | `packages/app/src/components/session-context-usage.tsx` | Remove dandelion-specific branch; both modes use same `openSessionContext` path |
 | `packages/app/src/pages/session/preview-tab.tsx` | Accept `path` prop; look up item via `preview.get(path)` |
 | `packages/app/src/pages/session.tsx` | After `preview.present()`, sync with `tabs().open(previewTab(...))` + `tabs().setActive(...)` |
+
+---
+
+## 2026-03-27 — Bug fixes
+
+### fix(app): stop slash popover Enter from falling through to submit
+
+**Intent:** Fix blank-page crash when selecting a custom slash command (skill/mcp) by pressing Enter. This is an upstream bug — the popover keydown handler calls `closePopover()` which synchronously sets `store.popover = null` via SolidJS reactive updates. SolidJS's event delegation then re-enters `handleKeyDown` where the popover guard no longer protects, so the Enter falls through to `handleSubmit`, creating an unintended session/command send.
+
+**Note:** Upstream `dev` has the same bug (the Escape handler already uses `stopPropagation` but the nav/Enter branches do not). This fix adds `stopPropagation()` to all popover keydown exit paths, matching the Escape pattern.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/prompt-input.tsx` | Add `event.stopPropagation()` to Tab, at-popover Enter, and slash-popover Enter branches inside the `if (store.popover)` block |
