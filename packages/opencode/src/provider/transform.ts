@@ -603,6 +603,8 @@ export namespace ProviderTransform {
       // https://v5.ai-sdk.dev/providers/ai-sdk-providers/google-vertex
       case "@ai-sdk/google":
         // https://v5.ai-sdk.dev/providers/ai-sdk-providers/google-generative-ai
+        // Image models don't support reasoning intensity controls
+        if (model.capabilities.output.image) return {}
         if (id.includes("2.5")) {
           return {
             high: {
@@ -759,14 +761,14 @@ export namespace ProviderTransform {
 
     if (input.model.api.npm === "@ai-sdk/google" || input.model.api.npm === "@ai-sdk/google-vertex") {
       if (input.model.capabilities.output.image) {
-        // Image output and thinkingConfig are mutually exclusive on Gemini:
-        // enabling both causes the model to only emit thinking without producing images.
         result["responseModalities"] = ["TEXT", "IMAGE"]
-      } else if (input.model.capabilities.reasoning) {
+      }
+      if (input.model.capabilities.reasoning) {
         result["thinkingConfig"] = {
           includeThoughts: true,
         }
-        if (input.model.api.id.includes("gemini-3")) {
+        // Image models don't support reasoning intensity controls
+        if (!input.model.capabilities.output.image && input.model.api.id.includes("gemini-3")) {
           result["thinkingConfig"]["thinkingLevel"] = "high"
         }
       }
@@ -853,6 +855,8 @@ export namespace ProviderTransform {
       return { store: false }
     }
     if (model.providerID === "google") {
+      // Image models don't support reasoning intensity controls
+      if (model.capabilities.output.image) return {}
       // gemini-3 uses thinkingLevel, gemini-2.5 uses thinkingBudget
       if (model.api.id.includes("gemini-3")) {
         return { thinkingConfig: { thinkingLevel: "minimal" } }

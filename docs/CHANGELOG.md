@@ -309,9 +309,9 @@ Quick reference of all files modified from upstream, grouped by package:
 
 | File | Change |
 |------|--------|
-| `packages/opencode/src/provider/transform.ts` | In `options()`: add `responseModalities: ["TEXT", "IMAGE"]` for Google/Vertex models with `capabilities.output.image`; make image output and `thinkingConfig` mutually exclusive (enabling both causes Gemini to only emit thinking without images, finishReason=`other`) |
+| `packages/opencode/src/provider/transform.ts` | In `options()`: add `responseModalities: ["TEXT", "IMAGE"]` for Google/Vertex models with `capabilities.output.image`; set `includeThoughts: true` but skip `thinkingLevel`/`thinkingBudget` for image models (not supported). In `variants()` and `smallOptions()`: return empty for image models |
 | `packages/opencode/src/session/media.ts` | **Added:** `Media` module — writes image files to `Global.Path.data/media/<sessionID>/`, returns relative HTTP URL |
-| `packages/opencode/src/session/processor.ts` | Add `case "file":` handler in `fullStream` switch — saves via `Media.save()`, persists `FilePart` with relative URL; skip thought/sketch images (`providerMetadata.google.thought === true`) |
+| `packages/opencode/src/session/processor.ts` | Add `case "file":` handler in `fullStream` switch — saves via `Media.save()`, persists `FilePart` with relative URL; skip thought/sketch images by stream position (reasoning phase before content) |
 | `packages/opencode/src/server/routes/session.ts` | Add `GET /:sessionID/media/:filename` endpoint — serves image files with proper Content-Type and immutable caching |
 | `packages/opencode/src/server/server.ts` | Exempt `/media/` paths from basic auth — `<img src>` cannot send Authorization headers |
 | `packages/ui/src/context/data.tsx` | Add optional `serverUrl` prop to `DataProvider` for constructing media URLs |
@@ -319,6 +319,17 @@ Quick reference of all files modified from upstream, grouped by package:
 | `packages/ui/src/components/message-part.css` | Add `[data-component="file-part"]` styles (max-width, border-radius, cursor) |
 | `packages/ui/src/components/image-preview.tsx` | Add `download` prop; when set, shows download button in header |
 | `packages/app/src/pages/directory-layout.tsx` | Pass `serverUrl` from `useServer()` into `DataProvider` |
+
+### fix: Gemini thought image filtering and image model reasoning controls
+
+**Intent:** Two fixes for Gemini image generation:
+1. **Thought image filter was broken** — the `file` stream event from AI SDK has no `providerMetadata`, so the old check `providerMetadata?.google?.thought === true` never fired. Replace with stream-position heuristic: skip `file` events that arrive during the reasoning phase (after `reasoning-start`, before any `text-start`/`tool-call`).
+2. **Image models don't support reasoning intensity** — Gemini image models (e.g. `gemini-3-pro-image-preview`) accept `includeThoughts: true` but reject `thinkingLevel`/`thinkingBudget`. Remove intensity controls from `options()`, `variants()`, and `smallOptions()` for image-capable models.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/session/processor.ts` | Replace broken `providerMetadata` check with `thinking && !content` state tracking; add `thinking`/`content` flags set by `reasoning-start`, `text-start`, `tool-call`, reset on `start-step` |
+| `packages/opencode/src/provider/transform.ts` | `options()`: keep `includeThoughts: true` but skip `thinkingLevel` for image models; `variants()`: return `{}` for image models; `smallOptions()`: return `{}` for image models |
 
 ### feat(app): image generation tag on model selector + inject missing model
 
