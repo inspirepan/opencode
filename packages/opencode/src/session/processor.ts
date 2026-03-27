@@ -16,6 +16,7 @@ import { Permission } from "@/permission"
 import { Question } from "@/question"
 import { PartID } from "./schema"
 import type { SessionID, MessageID } from "./schema"
+import { Media } from "./media"
 
 export namespace SessionProcessor {
   const DOOM_LOOP_THRESHOLD = 3
@@ -338,6 +339,25 @@ export namespace SessionProcessor {
                     await Session.updatePart(currentText)
                   }
                   currentText = undefined
+                  break
+
+                case "file":
+                  // Skip thought/sketch images from Gemini thinking process
+                  if ((value as any).providerMetadata?.google?.thought === true) break
+                  const filePart = await Media.save({
+                    sessionID: input.assistantMessage.sessionID,
+                    base64: value.file.base64,
+                    mime: value.file.mediaType,
+                  })
+                  await Session.updatePart({
+                    id: PartID.ascending(),
+                    messageID: input.assistantMessage.id,
+                    sessionID: input.assistantMessage.sessionID,
+                    type: "file",
+                    mime: filePart.mime,
+                    filename: filePart.filename,
+                    url: filePart.url,
+                  })
                   break
 
                 case "finish":

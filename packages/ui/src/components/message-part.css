@@ -1255,6 +1255,18 @@
   }
 }
 
+[data-component="file-part"] {
+  max-width: 384px;
+  cursor: pointer;
+
+  [data-slot="file-part-image"] {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+  }
+}
+
 [data-component="tool-loaded-file"] {
   display: flex;
   align-items: center;

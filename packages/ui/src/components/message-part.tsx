@@ -1427,6 +1427,46 @@ PART_MAPPING["reasoning"] = function ReasoningPartDisplay(props) {
   )
 }
 
+PART_MAPPING["file"] = function FilePartDisplay(props) {
+  const data = useData()
+  const dialog = useDialog()
+  const i18n = useI18n()
+  const part = () => props.part as FilePart
+  const isImage = () => part().mime.startsWith("image/")
+  const src = () => {
+    const url = part().url
+    if (url.startsWith("data:")) return url
+    return (data.serverUrl ?? "") + url
+  }
+  const ext = () => part().filename?.match(/\.\w+$/)?.[0] ?? ".jpg"
+  const downloadName = () => {
+    const sid = part().sessionID
+    const session = data.store.session?.find((s) => s.id === sid)
+    const title = session?.title || "image"
+    const msgs = data.store.message?.[sid] ?? []
+    let idx = 0
+    for (const msg of msgs) {
+      for (const p of data.store.part?.[msg.id] ?? []) {
+        if (p.type === "file" && p.mime.startsWith("image/")) {
+          idx++
+          if (p.id === part().id) return `${title}-${idx}${ext()}`
+        }
+      }
+    }
+    return `${title}${ext()}`
+  }
+  return (
+    <Show when={isImage()}>
+      <div
+        data-component="file-part"
+        onClick={() => dialog.show(() => <ImagePreview src={src()} alt={downloadName()} download />)}
+      >
+        <img data-slot="file-part-image" src={src()} alt={part().filename ?? i18n.t("ui.imagePreview.alt")} />
+      </div>
+    </Show>
+  )
+}
+
 ToolRegistry.register({
   name: "read",
   render(props) {

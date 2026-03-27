@@ -758,7 +758,11 @@ export namespace ProviderTransform {
     }
 
     if (input.model.api.npm === "@ai-sdk/google" || input.model.api.npm === "@ai-sdk/google-vertex") {
-      if (input.model.capabilities.reasoning) {
+      if (input.model.capabilities.output.image) {
+        // Image output and thinkingConfig are mutually exclusive on Gemini:
+        // enabling both causes the model to only emit thinking without producing images.
+        result["responseModalities"] = ["TEXT", "IMAGE"]
+      } else if (input.model.capabilities.reasoning) {
         result["thinkingConfig"] = {
           includeThoughts: true,
         }

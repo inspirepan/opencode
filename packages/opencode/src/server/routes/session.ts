@@ -3,6 +3,7 @@ import { stream } from "hono/streaming"
 import { describeRoute, validator, resolver } from "hono-openapi"
 import { SessionID, MessageID, PartID } from "@/session/schema"
 import z from "zod"
+import path from "path"
 import { Session } from "../../session"
 import { MessageV2 } from "../../session/message-v2"
 import { SessionPrompt } from "../../session/prompt"
@@ -21,11 +22,22 @@ import { errors } from "../error"
 import { lazy } from "../../util/lazy"
 import { Bus } from "../../bus"
 import { NamedError } from "@opencode-ai/util/error"
+import { Media } from "../../session/media"
+import { Filesystem } from "../../util/filesystem"
 
 const log = Log.create({ service: "server" })
 
 export const SessionRoutes = lazy(() =>
   new Hono()
+    .get("/:sessionID/media/:filename", async (c) => {
+      const sessionID = c.req.param("sessionID") as SessionID
+      const filename = c.req.param("filename")
+      const file = path.join(Media.dir(sessionID), filename)
+      if (!(await Filesystem.exists(file))) return c.notFound()
+      const mime = Filesystem.mimeType(file)
+      const body = await Filesystem.readArrayBuffer(file)
+      return c.body(body, { headers: { "Content-Type": mime, "Cache-Control": "public, max-age=31536000, immutable" } })
+    })
     .get(
       "/",
       describeRoute({

@@ -9,16 +9,19 @@ import { LocalProvider } from "@/context/local"
 import { SDKProvider } from "@/context/sdk"
 import { SyncProvider, useSync } from "@/context/sync"
 import { decode64 } from "@/utils/base64"
+import { useServer } from "@/context/server"
 
 function DirectoryDataProvider(props: ParentProps<{ directory: string }>) {
   const navigate = useNavigate()
   const sync = useSync()
+  const server = useServer()
   const slug = createMemo(() => base64Encode(props.directory))
 
   return (
     <DataProvider
       data={sync.data}
       directory={props.directory}
+      serverUrl={server.current?.http.url}
       onNavigateToSession={(sessionID: string) => navigate(`/${slug()}/session/${sessionID}`)}
       onSessionHref={(sessionID: string) => `/${slug()}/session/${sessionID}`}
     >
