@@ -76,7 +76,10 @@ const ModelList: Component<{
       {(i) => (
         <div class="w-full flex items-center gap-x-2 text-13-regular">
           <ProviderIcon id={i.provider.id} class="size-4 shrink-0" />
-          <span class="truncate">{i.name}</span>
+          <span class="truncate min-w-0">{i.name}</span>
+          <Show when={(i as any).capabilities?.output?.image}>
+            <Tag class="shrink-0 whitespace-nowrap">{language.t("model.tag.image")}</Tag>
+          </Show>
           <Show when={isFree(i.provider.id, i.cost)}>
             <Tag>{language.t("model.tag.free")}</Tag>
           </Show>
@@ -134,7 +137,7 @@ export function ModelSelectorPopover(props: {
       </Kobalte.Trigger>
       <Kobalte.Portal>
         <Kobalte.Content
-          class="w-72 h-160 max-h-[min(640px,70vh)] flex flex-col p-2 rounded-md border border-border-base bg-surface-raised-stronger-non-alpha shadow-md z-50 outline-none overflow-hidden"
+          class="w-96 h-160 max-h-[min(640px,70vh)] flex flex-col p-2 rounded-md border border-border-base bg-surface-raised-stronger-non-alpha shadow-md z-50 outline-none overflow-hidden"
           onEscapeKeyDown={(event) => {
             setStore("dismiss", "escape")
             setStore("open", false)
