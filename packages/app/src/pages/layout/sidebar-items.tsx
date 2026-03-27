@@ -15,6 +15,7 @@ import { useLanguage } from "@/context/language"
 import { getAvatarColors, type LocalProject, useLayout } from "@/context/layout"
 import { useNotification } from "@/context/notification"
 import { usePermission } from "@/context/permission"
+import { usePlatform } from "@/context/platform"
 import { messageAgentColor } from "@/utils/agent"
 import { sessionPermissionRequest } from "../session/composer/session-request-tree"
 import { hasProjectPermissions } from "./helpers"
@@ -89,6 +90,7 @@ const SessionRow = (props: {
   slug: string
   mobile?: boolean
   dense?: boolean
+  dandelion?: boolean
   tint: Accessor<string | undefined>
   isWorking: Accessor<boolean>
   hasPermissions: Accessor<boolean>
@@ -119,7 +121,7 @@ const SessionRow = (props: {
       class="shrink-0 size-6 flex items-center justify-center"
       style={{ color: props.tint() ?? "var(--icon-interactive-base)" }}
     >
-      <Switch fallback={<Icon name="dash" size="small" class="text-icon-weak" />}>
+      <Switch fallback={<Icon name={props.dandelion ? "circle-check" : "dash"} size="small" class="text-icon-weak" />}>
         <Match when={props.isWorking()}>
           <Spinner class="size-[15px]" />
         </Match>
@@ -202,6 +204,7 @@ export const SessionItem = (props: SessionItemProps): JSX.Element => {
   const navigate = useNavigate()
   const layout = useLayout()
   const language = useLanguage()
+  const platform = usePlatform()
   const notification = useNotification()
   const permission = usePermission()
   const globalSync = useGlobalSync()
@@ -291,6 +294,7 @@ export const SessionItem = (props: SessionItemProps): JSX.Element => {
       slug={props.slug}
       mobile={props.mobile}
       dense={props.dense}
+      dandelion={!!platform.dandelion}
       tint={tint}
       isWorking={isWorking}
       hasPermissions={hasPermissions}

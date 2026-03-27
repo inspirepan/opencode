@@ -84,6 +84,7 @@ import {
 } from "./layout/deep-links"
 import { createInlineEditorController } from "./layout/inline-editor"
 import {
+  ArchivedSection,
   LocalWorkspace,
   SortableWorkspace,
   WorkspaceDragOverlay,
@@ -2077,7 +2078,7 @@ export default function Layout(props: ParentProps) {
     return (
       <div
         classList={{
-          "flex flex-col min-h-0 min-w-0 box-border rounded-tl-[12px] px-3": true,
+          "flex flex-col h-full min-h-0 min-w-0 box-border rounded-tl-[12px] px-3": true,
           "border border-b-0 border-border-weak-base": !merged(),
           "border-l border-t border-border-weaker-base": merged(),
           "bg-background-base": merged() || hover(),
@@ -2304,6 +2305,8 @@ export default function Layout(props: ParentProps) {
             </div>
           </>
         </Show>
+
+        <ArchivedSection directory={worktree()} />
 
         <div
           class="shrink-0 px-3 py-3"

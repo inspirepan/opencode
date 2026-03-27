@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "@solidjs/router"
-import { createEffect, createMemo, For, Show, type Accessor, type JSX } from "solid-js"
+import { createEffect, createMemo, createSignal, For, Show, type Accessor, type JSX } from "solid-js"
 import { createStore } from "solid-js/store"
 import { createSortable } from "@thisbeyond/solid-dnd"
 import { createMediaQuery } from "@solid-primitives/media"
@@ -14,6 +14,7 @@ import { Spinner } from "@opencode-ai/ui/spinner"
 import { Tooltip } from "@opencode-ai/ui/tooltip"
 import { type Session } from "@opencode-ai/sdk/v2/client"
 import { type LocalProject } from "@/context/layout"
+import { useGlobalSDK } from "@/context/global-sdk"
 import { useGlobalSync } from "@/context/global-sync"
 import { useLanguage } from "@/context/language"
 import { NewSessionItem, SessionItem, SessionSkeleton } from "./sidebar-items"
@@ -235,6 +236,97 @@ const WorkspaceActions = (props: {
     </Show>
   </div>
 )
+
+export const ArchivedSection = (props: {
+  directory: string
+}): JSX.Element => {
+  const globalSDK = useGlobalSDK()
+  const language = useLanguage()
+  const [open, setOpen] = createSignal(false)
+  const [sessions, setSessions] = createSignal<Session[]>([])
+  const [loading, setLoading] = createSignal(false)
+
+  const load = async () => {
+    setLoading(true)
+    try {
+      const result = await globalSDK.client.experimental.session.list({
+        directory: props.directory,
+        roots: true,
+        archived: true,
+      })
+      setSessions((result.data ?? []).filter((s) => !!s.time?.archived))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  createEffect(() => {
+    if (open()) void load()
+  })
+
+  const unarchive = async (session: Session) => {
+    await globalSDK.client.session.update({
+      directory: session.directory,
+      sessionID: session.id,
+      time: { archived: 0 },
+    })
+    setSessions((prev) => prev.filter((s) => s.id !== session.id))
+  }
+
+  return (
+    <div class="shrink-0 mt-auto pb-3">
+      <div class="relative w-full py-1">
+        <Button
+          variant="ghost"
+          icon="archive"
+          class="flex w-full text-left justify-start text-14-regular text-text-weak pl-3 pr-10"
+          size="large"
+          onClick={() => setOpen((v) => !v)}
+        >
+          {language.t("sidebar.archived")}
+          <Show when={open() && sessions().length > 0}>
+            <span class="ml-1">({sessions().length})</span>
+          </Show>
+        </Button>
+      </div>
+      <Show when={open()}>
+        <Show when={loading()}>
+          <SessionSkeleton count={2} />
+        </Show>
+        <Show when={!loading() && sessions().length === 0}>
+          <div class="pl-9 pr-3 py-1 text-14-regular text-text-weak">{language.t("sidebar.archived.empty")}</div>
+        </Show>
+        <For each={sessions()}>
+          {(session) => (
+            <div class="group/session relative w-full min-w-0 rounded-md cursor-default pl-2 pr-3 transition-colors hover:bg-surface-raised-base-hover">
+              <div class="flex min-w-0 items-center gap-1">
+                <div class="min-w-0 flex-1 py-1">
+                  <div class="flex items-center gap-1">
+                    <div class="shrink-0 size-6 flex items-center justify-center">
+                      <Icon name="archive" size="small" class="text-icon-weak" />
+                    </div>
+                    <span class="text-14-regular text-text-base min-w-0 flex-1 truncate">{session.title}</span>
+                  </div>
+                </div>
+                <div class="shrink-0 overflow-hidden transition-[width,opacity] w-0 opacity-0 pointer-events-none group-hover/session:w-6 group-hover/session:opacity-100 group-hover/session:pointer-events-auto group-focus-within/session:w-6 group-focus-within/session:opacity-100 group-focus-within/session:pointer-events-auto">
+                  <Tooltip value={language.t("common.unarchive")} placement="top">
+                    <IconButton
+                      icon="reset"
+                      variant="ghost"
+                      class="size-6 rounded-md"
+                      aria-label={language.t("common.unarchive")}
+                      onClick={() => void unarchive(session)}
+                    />
+                  </Tooltip>
+                </div>
+              </div>
+            </div>
+          )}
+        </For>
+      </Show>
+    </div>
+  )
+}
 
 const WorkspaceSessionList = (props: {
   slug: Accessor<string>

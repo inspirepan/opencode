@@ -341,3 +341,22 @@ Quick reference of all files modified from upstream, grouped by package:
 | `packages/app/src/i18n/en.ts` | Add `model.tag.image: "Image Gen"` |
 | `packages/app/src/i18n/zh.ts` | Add `model.tag.image: "图片生成"` |
 | `packages/opencode/src/provider/provider.ts` | Add `PENDING_MODELS` array to inject models missing from models.dev; inject `gemini-3-pro-image-preview` with correct specs |
+
+---
+
+## 2026-03-27 — Archived sessions viewer
+
+### feat: view and restore archived sessions in sidebar
+
+**Intent:** Archived conversations were invisible after archiving -- no way to view or restore them. Add an "Archived" button pinned at the bottom of the sidebar panel. Users can click it to see archived sessions and click unarchive to restore them. Also swap the idle session icon to `circle-check` in dandelion mode.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/session/index.ts` | `setArchived`: use `?? null` so `undefined` correctly sets `time_archived = NULL` in DB (enables unarchive) |
+| `packages/opencode/src/server/routes/session.ts` | Session update route: convert `archived: 0` to `undefined` via `\|\| undefined` so sending `0` triggers unarchive |
+| `packages/app/src/pages/layout/sidebar-workspace.tsx` | Add exported `ArchivedSection` component: archive icon + button pinned at sidebar bottom via `mt-auto`, fetches archived sessions via experimental API on expand, renders each with unarchive button |
+| `packages/app/src/pages/layout.tsx` | Import `ArchivedSection`; render at bottom of sidebar panel; add `h-full` to SidebarPanel root for correct flex layout |
+| `packages/app/src/pages/layout/sidebar-items.tsx` | In dandelion mode, swap idle session icon from `dash` to `circle-check` |
+| `packages/app/src/context/global-sync/event-reducer.ts` | Increment `sessionTotal` when a previously-unknown root session appears via `session.updated` (covers unarchive case) |
+| `packages/app/src/i18n/en.ts` | Add `common.unarchive`, `sidebar.archived`, `sidebar.archived.empty` |
+| `packages/app/src/i18n/zh.ts` | Add `common.unarchive`, `sidebar.archived`, `sidebar.archived.empty` (Chinese) |

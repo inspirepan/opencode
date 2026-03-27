@@ -594,6 +594,7 @@ export const dict = {
   "common.rename": "重命名",
   "common.reset": "重置",
   "common.archive": "归档",
+  "common.unarchive": "取消归档",
   "common.delete": "删除",
   "common.close": "关闭",
   "common.edit": "编辑",
@@ -612,6 +613,8 @@ export const dict = {
   "sidebar.project.recentSessions": "最近会话",
   "sidebar.project.viewAllSessions": "查看全部会话",
   "sidebar.project.clearNotifications": "清除通知",
+  "sidebar.archived": "已归档",
+  "sidebar.archived.empty": "没有已归档的会话",
 
   "app.name.desktop": "OpenCode Desktop",
 
