@@ -1217,6 +1217,22 @@ export namespace Provider {
     return state().then((state) => state.providers)
   }
 
+  const KEY_PATTERN = /_(?:API_)?KEY$|_(?:API_)?TOKEN$/
+
+  /** Collect resolved API keys as env vars for child processes. */
+  export async function envKeys(): Promise<Record<string, string>> {
+    const providers = await list()
+    const result: Record<string, string> = {}
+    for (const p of Object.values(providers)) {
+      const key = p.options?.apiKey ?? p.key
+      if (!key || typeof key !== "string") continue
+      for (const name of p.env) {
+        if (KEY_PATTERN.test(name) && !process.env[name]) result[name] = key
+      }
+    }
+    return result
+  }
+
   async function getSDK(model: Model) {
     try {
       using _ = log.time("getSDK", {

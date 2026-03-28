@@ -576,3 +576,12 @@ Fix: (1) Add `workspaceModel` field to per-workspace persisted store, inserted i
 | `packages/app/src/components/session/starters.ts` | Agent mode: add docx, xlsx, pdf, infographic starters; remove data starter; now 6 total |
 | `packages/app/src/i18n/en.ts` | Add starter translations for docx, xlsx, pdf, infographic; remove data starter keys |
 | `packages/app/src/i18n/zh.ts` | Add starter translations for docx, xlsx, pdf, infographic; remove data starter keys |
+
+### feat: inject provider API keys into bash tool environment
+
+**Intent:** Skills like baoyu-infographic depend on external image generation APIs (OpenAI, Gemini, DashScope, Replicate). Users already configure these API keys through the opencode provider system, but bash child processes couldn't access them. Now the bash tool automatically injects resolved provider API keys as environment variables (e.g. `OPENAI_API_KEY`, `GEMINI_API_KEY`) into spawned processes. Only injects vars matching `_KEY` or `_TOKEN` suffix patterns, skips non-key vars (account IDs, project names), and respects existing env vars (no override).
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/provider/provider.ts` | Add `Provider.envKeys()`: collects resolved API keys from all active providers, maps to their env var names, filters to key/token vars only |
+| `packages/opencode/src/tool/bash.ts` | Import `Provider`; call `envKeys()` in parallel with plugin shell.env; merge into spawn environment between `process.env` and `shellEnv.env` |
