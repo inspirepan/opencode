@@ -3,8 +3,10 @@ import { Marked } from "marked"
 import { renderMermaidSVG } from "beautiful-mermaid"
 import * as pdfjsLib from "pdfjs-dist"
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url"
+import { AppIcon } from "@opencode-ai/ui/app-icon"
 import { usePreview } from "@/context/preview"
 import { useLanguage } from "@/context/language"
+import { usePlatform } from "@/context/platform"
 import { monoFontFamily, useSettings } from "@/context/settings"
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker
@@ -70,6 +72,39 @@ function slidesHtml(pages: string[]): string {
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;background:#f5f5f5;font-family:${SANS}}body{padding:16px;display:flex;flex-direction:column;align-items:center;gap:16px}</style></head><body>${imgs}</body></html>`
 }
 
+function ExternalCard(props: { path: string; ext: string }) {
+  const platform = usePlatform()
+  const language = useLanguage()
+  const name = props.path.split("/").pop() ?? props.path
+  const icon = () => platform.os === "macos" ? "keynote" as const : "powerpoint" as const
+
+  return (
+    <div class="flex-1 flex items-center justify-center bg-background-stronger">
+      <button
+        type="button"
+        onClick={() => platform.openPath?.(props.path)}
+        class="flex flex-col items-center gap-4 px-10 py-8 bg-background-base border border-border-weak-base rounded-xl cursor-pointer transition-shadow transition-colors hover:shadow-md hover:border-border-base"
+        style={{ "max-width": "320px" }}
+      >
+        <div class="size-10 [&_[data-component=app-icon]]:size-10">
+          <AppIcon id={icon()} />
+        </div>
+        <div class="text-center">
+          <div
+            class="text-14-medium text-text-strong"
+            style={{ "word-break": "break-all", "max-width": "240px" }}
+          >
+            {name}
+          </div>
+          <div class="text-12-regular text-text-weak mt-1.5">
+            {language.t("dandelion.preview.openExternal")}
+          </div>
+        </div>
+      </button>
+    </div>
+  )
+}
+
 export function PreviewTab(props: { path?: string; resizing?: Accessor<boolean> }) {
   const preview = usePreview()
   const language = useLanguage()
@@ -78,6 +113,7 @@ export function PreviewTab(props: { path?: string; resizing?: Accessor<boolean> 
   const item = createMemo(() => (props.path ? preview.get(props.path) : undefined))
   const mono = createMemo(() => monoFontFamily(settings.appearance.font()))
   const isPdf = createMemo(() => item()?.ext === ".pdf" && item()?.binary)
+  const isExternal = createMemo(() => !!item()?.external)
 
   // PDF: render pages as images via pdf.js
   const [pdfSrcdoc, setPdfSrcdoc] = createSignal("")
@@ -135,12 +171,17 @@ export function PreviewTab(props: { path?: string; resizing?: Accessor<boolean> 
           </div>
         }
       >
-        <iframe
-          class="flex-1 w-full border-none bg-white"
-          classList={{ "pointer-events-none": !!props.resizing?.() }}
-          sandbox="allow-scripts allow-same-origin"
-          srcdoc={isPdf() ? pdfSrcdoc() : srcdoc()}
-        />
+        <Show
+          when={!isExternal()}
+          fallback={<ExternalCard path={item()!.path} ext={item()!.ext} />}
+        >
+          <iframe
+            class="flex-1 w-full border-none bg-white"
+            classList={{ "pointer-events-none": !!props.resizing?.() }}
+            sandbox="allow-scripts allow-same-origin"
+            srcdoc={isPdf() ? pdfSrcdoc() : srcdoc()}
+          />
+        </Show>
       </Show>
     </div>
   )

@@ -1023,6 +1023,8 @@ export const dict = {
 
   "dandelion.preview.tab": "Preview",
   "dandelion.preview.empty": "No preview available. AI will show content here when it generates HTML or other visual files.",
+  "dandelion.preview.openExternal": "Click to open with default app",
   "dandelion.preview.open": "Open in new window",
+  "dandelion.preview.openFolder": "Reveal in Finder",
   "dandelion.preview.toggle": "Toggle preview",
 }

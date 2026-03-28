@@ -18,6 +18,8 @@ import xcode from "../assets/icons/app/xcode.png"
 import zed from "../assets/icons/app/zed.svg"
 import zedDark from "../assets/icons/app/zed-dark.svg"
 import sublimetext from "../assets/icons/app/sublimetext.svg"
+import keynote from "../assets/icons/app/keynote.png"
+import powerpoint from "../assets/icons/app/powerpoint.svg"
 
 const icons = {
   vscode,
@@ -35,6 +37,8 @@ const icons = {
   textmate,
   powershell,
   "sublime-text": sublimetext,
+  keynote,
+  powerpoint,
 } satisfies Record<IconName, string>
 
 const themed: Partial<Record<IconName, { light: string; dark: string }>> = {

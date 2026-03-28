@@ -490,3 +490,20 @@ Fix: (1) Add `workspaceModel` field to per-workspace persisted store, inserted i
 | `packages/app/src/components/session/session-header.tsx` | Dandelion mode: side panel toggle uses `shapes` icon instead of `review` |
 | `packages/app/src/i18n/en.ts` | Add `dandelion.history: "History"` |
 | `packages/app/src/i18n/zh.ts` | Add `dandelion.history: "历史记录"` |
+
+### feat(dandelion): PPTX preview card with app icon and reveal in Finder
+
+**Intent:** Instead of directly opening `.pptx`/`.ppt` files with the system app, show a preview card in the right panel with the associated app icon (Keynote on macOS, PowerPoint elsewhere). User clicks the card to open the file. The panel's top-right button changes to a folder icon that reveals the file in Finder.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/context/preview.tsx` | Add `external?: boolean` to `PreviewItem` type |
+| `packages/app/src/pages/session.tsx` | External files: push to preview context (with `external: true`) instead of calling `platform.openPath()` directly; same change for `present-file-click` event handler |
+| `packages/app/src/pages/session/preview-tab.tsx` | Add `ExternalCard` component: shows `AppIcon` (keynote/powerpoint based on OS), filename, click-to-open; import `AppIcon` and `usePlatform`; add `isExternal` memo; nested `<Show>` renders card or iframe |
+| `packages/app/src/pages/session/session-side-panel.tsx` | Open button: for external items, show `folder` icon with "Reveal in Finder" tooltip; click opens parent directory via `platform.openPath` |
+| `packages/ui/src/assets/icons/app/keynote.png` | **Added:** 256x256 Keynote icon extracted from system `/Applications/Keynote.app` |
+| `packages/ui/src/assets/icons/app/powerpoint.svg` | **Added:** Official PowerPoint icon SVG from Wikimedia Commons |
+| `packages/ui/src/components/app-icon.tsx` | Import and register `keynote` (PNG) and `powerpoint` (SVG) |
+| `packages/ui/src/components/app-icons/types.ts` | Add `"keynote"` and `"powerpoint"` to `iconNames` |
+| `packages/app/src/i18n/en.ts` | Add `dandelion.preview.openExternal`, `dandelion.preview.openFolder` |
+| `packages/app/src/i18n/zh.ts` | Add `dandelion.preview.openExternal` (点击使用默认应用打开), `dandelion.preview.openFolder` (在访达中显示) |

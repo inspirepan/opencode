@@ -1193,9 +1193,13 @@ export default function Page() {
           const meta = part.state.metadata as { filepath?: string; content?: string; ext?: string; binary?: boolean; external?: boolean } | undefined
           if (!meta?.filepath) continue
 
-          // External files: open with system default app
-          if (meta.external && platform.openPath) {
-            void platform.openPath(meta.filepath)
+          // External files: show card in preview panel instead of opening directly
+          if (meta.external) {
+            preview.present({ path: meta.filepath, content: "", ext: meta.ext ?? "", external: true })
+            const tab = previewTab(meta.filepath)
+            tabs().open(tab)
+            tabs().setActive(tab)
+            if (!view().reviewPanel.opened()) view().reviewPanel.open()
             continue
           }
 
@@ -1213,8 +1217,12 @@ export default function Page() {
     const handlePresentClick = (e: Event) => {
       const detail = (e as CustomEvent).detail as { filepath?: string; content?: string; ext?: string; binary?: boolean; external?: boolean } | undefined
       if (!detail?.filepath) return
-      if (detail.external && platform.openPath) {
-        void platform.openPath(detail.filepath)
+      if (detail.external) {
+        preview.present({ path: detail.filepath, content: "", ext: detail.ext ?? "", external: true })
+        const tab = previewTab(detail.filepath)
+        tabs().open(tab)
+        tabs().setActive(tab)
+        if (!view().reviewPanel.opened()) view().reviewPanel.open()
         return
       }
       if (!detail.content) return

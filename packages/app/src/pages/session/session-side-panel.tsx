@@ -380,14 +380,19 @@ export function SessionSidePanel(props: {
                     </Tabs.List>
                     <Show when={dandelion() && activePreviewItem()}>
                       <div class="shrink-0 flex items-center justify-center px-2">
-                        <Tooltip value={language.t("dandelion.preview.open")} placement="bottom">
+                        <Tooltip value={activePreviewItem()?.external ? language.t("dandelion.preview.openFolder") : language.t("dandelion.preview.open")} placement="bottom">
                           <IconButton
-                            icon="square-arrow-top-right"
+                            icon={activePreviewItem()?.external ? "folder" : "square-arrow-top-right"}
                             variant="ghost"
                             size="small"
                             onClick={() => {
                               const item = activePreviewItem()
                               if (!item) return
+                              if (item.external) {
+                                const dir = item.path.replace(/\/[^/]+$/, "")
+                                platform.openPath?.(dir)
+                                return
+                              }
                               let blob: Blob
                               if (item.binary && item.ext === ".pdf") {
                                 const bytes = Uint8Array.from(atob(item.content), (c) => c.charCodeAt(0))

@@ -1005,6 +1005,8 @@ export const dict = {
 
   "dandelion.preview.tab": "预览",
   "dandelion.preview.empty": "暂无预览内容。AI 生成 HTML 等可视化文件时会在此展示。",
+  "dandelion.preview.openExternal": "点击使用默认应用打开",
   "dandelion.preview.open": "在新窗口打开",
+  "dandelion.preview.openFolder": "在访达中显示",
   "dandelion.preview.toggle": "切换预览面板",
 } satisfies Partial<Record<Keys, string>>
