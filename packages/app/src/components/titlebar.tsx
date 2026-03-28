@@ -324,7 +324,10 @@ export function Titlebar() {
                     "text-text-strong": isChat(),
                     "text-text-weak hover:text-text-base": !isChat(),
                   }}
-                  onClick={() => navigate(`/${base64Encode(dandelion().workspaces.chat)}/session`)}
+                  onClick={() => {
+                    localStorage.setItem("dandelion-mode", "chat")
+                    navigate(`/${base64Encode(dandelion().workspaces.chat)}/session`)
+                  }}
                 >
                   <Icon name="bubble-5" size="small" />
                   {language.t("dandelion.mode.chat")}
@@ -336,7 +339,10 @@ export function Titlebar() {
                     "text-text-strong": isAgent(),
                     "text-text-weak hover:text-text-base": !isAgent(),
                   }}
-                  onClick={() => navigate(`/${base64Encode(dandelion().workspaces.agent)}/session`)}
+                  onClick={() => {
+                    localStorage.setItem("dandelion-mode", "agent")
+                    navigate(`/${base64Encode(dandelion().workspaces.agent)}/session`)
+                  }}
                 >
                   <Icon name="window-cursor" size="small" />
                   {language.t("dandelion.mode.agent")}

@@ -23,9 +23,10 @@ export default function Home() {
   const server = useServer()
   const language = useLanguage()
 
-  // Dandelion: auto-redirect to agent workspace
+  // Dandelion: auto-redirect to last used workspace (default: chat)
   if (platform.dandelion) {
-    const workspace = platform.dandelion.workspaces.agent
+    const last = localStorage.getItem("dandelion-mode") as "chat" | "agent" | null
+    const workspace = platform.dandelion.workspaces[last ?? "chat"]
     layout.projects.open(workspace)
     server.projects.touch(workspace)
     navigate(`/${base64Encode(workspace)}`, { replace: true })

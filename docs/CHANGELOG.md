@@ -360,3 +360,16 @@ Quick reference of all files modified from upstream, grouped by package:
 | `packages/app/src/context/global-sync/event-reducer.ts` | Increment `sessionTotal` when a previously-unknown root session appears via `session.updated` (covers unarchive case) |
 | `packages/app/src/i18n/en.ts` | Add `common.unarchive`, `sidebar.archived`, `sidebar.archived.empty` |
 | `packages/app/src/i18n/zh.ts` | Add `common.unarchive`, `sidebar.archived`, `sidebar.archived.empty` (Chinese) |
+
+---
+
+## 2026-03-28 — Remember last dandelion mode
+
+### fix(dandelion): remember last used mode (chat/agent) across restarts
+
+**Intent:** App always opened in Agent mode on startup because `home.tsx` hardcoded `workspaces.agent`. Now persists the last selected mode to `localStorage` under key `dandelion-mode` and restores it on next launch (defaults to `chat` if no prior selection).
+
+| File | Change |
+|------|--------|
+| `packages/app/src/pages/home.tsx` | Read `localStorage.getItem("dandelion-mode")` to pick workspace; default to `chat` |
+| `packages/app/src/components/titlebar.tsx` | Write `localStorage.setItem("dandelion-mode", ...)` on tab click |
