@@ -544,3 +544,19 @@ Fix: (1) Add `workspaceModel` field to per-workspace persisted store, inserted i
 | File | Change |
 |------|--------|
 | `packages/app/src/components/session/session-header.tsx` | Wrap `StatusPopover` in `!platform.dandelion` guard |
+
+### rebrand(dandelion): rename all UI-facing "OpenCode" text to "Dandelion"
+
+**Intent:** Replace all user-visible "OpenCode" branding in the desktop-electron package with "Dandelion". Internal identifiers (appId, env vars, protocol scheme, binary names, server auth) are left unchanged.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/src/main/index.ts` | `APP_NAMES` values and `app.setName()` fallback: OpenCode -> Dandelion |
+| `packages/desktop-electron/src/main/windows.ts` | Window title: OpenCode -> Dandelion |
+| `packages/desktop-electron/src/main/menu.ts` | Mac menu app label and Help > Documentation label: OpenCode -> Dandelion |
+| `packages/desktop-electron/electron-builder.config.ts` | `productName` and `protocols.name` for all channels: OpenCode -> Dandelion |
+| `packages/desktop-electron/package.json` | `author.name`: OpenCode -> Dandelion |
+| `packages/desktop-electron/src/renderer/index.html` | `<title>`: OpenCode -> Dandelion |
+| `packages/desktop-electron/src/renderer/loading.html` | `<title>`: OpenCode -> Dandelion |
+| `packages/desktop-electron/src/renderer/i18n/*.ts` | All 14 locale files: updater messages and CLI messages: OpenCode -> Dandelion |
+| `packages/desktop-electron/README.md` | Title and description: OpenCode -> Dandelion |

@@ -1,6 +1,6 @@
-# OpenCode Desktop
+# Dandelion Desktop
 
-Native OpenCode desktop app, built with Tauri v2.
+Dandelion desktop app, built with Electron.
 
 ## Development
 
@@ -8,25 +8,11 @@ From the repo root:
 
 ```bash
 bun install
-bun run --cwd packages/desktop tauri dev
-```
-
-This starts the Vite dev server on http://localhost:1420 and opens the native window.
-
-If you only want the web dev server (no native shell):
-
-```bash
-bun run --cwd packages/desktop dev
+cd packages/desktop-electron && bun run dev
 ```
 
 ## Build
 
-To create a production `dist/` and build the native app bundle:
-
 ```bash
-bun run --cwd packages/desktop tauri build
+cd packages/desktop-electron && bun run build && bun run package
 ```
-
-## Prerequisites
-
-Running the desktop app requires additional Tauri dependencies (Rust toolchain, platform-specific libraries). See the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) for setup instructions.
