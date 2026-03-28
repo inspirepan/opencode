@@ -449,7 +449,7 @@ export function SessionHeader() {
                       aria-expanded={view().reviewPanel.opened()}
                       aria-controls="review-panel"
                     >
-                      <Icon size="small" name={view().reviewPanel.opened() ? "review-active" : "review"} />
+                      <Icon size="small" name={platform.dandelion ? "shapes" : (view().reviewPanel.opened() ? "review-active" : "review")} />
                     </Button>
                   </TooltipKeybind>
 

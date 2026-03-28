@@ -940,6 +940,7 @@ export const dict = {
   "error.childStore.storeCreateFailed": "创建存储失败",
   "terminal.connectionLost.abnormalClose": "WebSocket 异常关闭：{{code}}",
 
+  "dandelion.history": "历史记录",
   "dandelion.mode.chat": "聊天",
   "dandelion.mode.agent": "智能体",
   "dandelion.mode.image": "图像生成",

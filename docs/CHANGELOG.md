@@ -478,3 +478,15 @@ Fix: (1) Add `workspaceModel` field to per-workspace persisted store, inserted i
 | `packages/ui/src/i18n/zht.ts` | Add Traditional Chinese active forms matching zh.ts pattern |
 | `packages/ui/src/components/basic-tool.tsx` | Add `activeTitle?: string` to `TriggerTitle` type; import `ToolStatusTitle`; render `ToolStatusTitle` when `activeTitle` is set, fallback to `TextShimmer` otherwise |
 | `packages/ui/src/components/message-part.tsx` | Add `activeTitle?: string` to `ToolInfo` type; update `getToolInfo()` to return `activeTitle` for all tools; update all `ToolRegistry.register()` calls to pass `activeTitle`; replace `TextShimmer` with `ToolStatusTitle` in custom JSX triggers (webfetch, bash, edit, write, apply_patch, skill, present_file); update `contextToolTrigger()` and `ContextToolGroup` list items; refactor skill to use title template with name |
+
+### feat(dandelion): titlebar icon updates and shapes icon
+
+**Intent:** Replace titlebar icons in dandelion mode with more semantically appropriate ones. Sidebar toggle becomes a "history" button (reset icon), new session becomes circle-plus. Side panel toggle uses a new `shapes` icon. Add `dandelion.history` i18n key.
+
+| File | Change |
+|------|--------|
+| `packages/ui/src/components/icon.tsx` | Add `shapes`, `circle-plus`, `circle-plus-active` icons |
+| `packages/app/src/components/titlebar.tsx` | Dandelion mode: sidebar toggle uses `reset` icon with "History" tooltip; new session uses `circle-plus`; upstream icons unchanged |
+| `packages/app/src/components/session/session-header.tsx` | Dandelion mode: side panel toggle uses `shapes` icon instead of `review` |
+| `packages/app/src/i18n/en.ts` | Add `dandelion.history: "History"` |
+| `packages/app/src/i18n/zh.ts` | Add `dandelion.history: "历史记录"` |

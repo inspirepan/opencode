@@ -958,6 +958,7 @@ export const dict = {
   "workspace.reset.archived.many": "{{count}} sessions will be archived.",
   "workspace.reset.note": "This will reset the workspace to match the default branch.",
 
+  "dandelion.history": "History",
   "dandelion.mode.chat": "Chat",
   "dandelion.mode.agent": "Agent",
   "dandelion.mode.image": "Image",
