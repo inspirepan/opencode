@@ -520,3 +520,27 @@ Fix: (1) Add `workspaceModel` field to per-workspace persisted store, inserted i
 | `packages/opencode/src/agent/agent.ts` | Add `dandy` agent (build permissions + Dandy prompt); update `chat` prompt to `PROMPT_DANDY`; add `PROMPT_DANDY_IMAGE` to `image-gen` |
 | `packages/app/src/components/prompt-input.tsx` | Auto-select `dandy` agent in dandelion agent workspace |
 | `packages/opencode/src/session/instruction.ts` | Auto-load `MEMORY.md` from working directory into system prompt |
+
+### Commit 15c5ad56 — fix: show files in @ autocomplete when query is empty
+
+**Intent:** Improve the `@` autocomplete behavior in the editor. When the query is empty, it now correctly returns the first batch of files (respecting the limit) instead of returning nothing or just directories.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/file/index.ts` | `File.search()`: return sliced files when query is empty and kind is `file` or `all` |
+
+### Commit 32094910 — fix(ui): redesign shapes icon layout and optical balance
+
+**Intent:** Refine the `shapes` icon used for the dandelion side panel toggle. Rebalanced the positions and sizes of the square, triangle, diamond, and circle for better optical alignment.
+
+| File | Change |
+|------|--------|
+| `packages/ui/src/components/icon.tsx` | Redraw `shapes` icon SVG paths |
+
+### Commit 566c7cbf — fix(dandelion): hide status popover in dandelion mode
+
+**Intent:** Simplify the UI for non-technical users by hiding the status popover (which contains developer-centric info like provider status) in dandelion mode.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/session/session-header.tsx` | Wrap `StatusPopover` in `!platform.dandelion` guard |

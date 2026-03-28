@@ -415,9 +415,11 @@ export function SessionHeader() {
                 </div>
               </Show>
               <div class="flex items-center gap-1">
-                <Tooltip placement="bottom" value={language.t("status.popover.trigger")}>
-                  <StatusPopover />
-                </Tooltip>
+                <Show when={!platform.dandelion}>
+                  <Tooltip placement="bottom" value={language.t("status.popover.trigger")}>
+                    <StatusPopover />
+                  </Tooltip>
+                </Show>
                 <Show when={!platform.dandelion}>
                   <TooltipKeybind
                     title={language.t("command.terminal.toggle")}
