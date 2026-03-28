@@ -955,6 +955,13 @@ export const dict = {
   "dandelion.home.image.title": "让想法可见",
   "dandelion.home.image.subtitle": "用文字描述生成照片、插画和设计作品",
 
+  "dandelion.placeholder.chat.simple": "随便聊点什么...",
+  "dandelion.placeholder.chat.normal": '随便聊点什么... "{{example}}"',
+  "dandelion.placeholder.agent.simple": "告诉我你需要完成什么任务...",
+  "dandelion.placeholder.agent.normal": '告诉我你需要完成什么任务... "{{example}}"',
+  "dandelion.placeholder.image.simple": "描述你想生成的图片...",
+  "dandelion.placeholder.image.normal": '描述你想生成的图片... "{{example}}"',
+
   "dandelion.starter.writing.title": "写作",
   "dandelion.starter.writing.description": "撰写、润色和翻译文章与文档",
   "dandelion.starter.writing.example1": "帮我写一份专业的项目提案，内容是将数据库迁移到 PostgreSQL",

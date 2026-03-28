@@ -1,5 +1,6 @@
 type PromptPlaceholderInput = {
   mode: "normal" | "shell"
+  dandelion?: "chat" | "agent" | "image"
   commentCount: number
   example: string
   suggest: boolean
@@ -7,6 +8,10 @@ type PromptPlaceholderInput = {
 }
 
 export function promptPlaceholder(input: PromptPlaceholderInput) {
+  if (input.dandelion) {
+    if (!input.suggest) return input.t(`dandelion.placeholder.${input.dandelion}.simple`)
+    return input.t(`dandelion.placeholder.${input.dandelion}.normal`, { example: input.example })
+  }
   if (input.mode === "shell") return input.t("prompt.placeholder.shell")
   if (input.commentCount > 1) return input.t("prompt.placeholder.summarizeComments")
   if (input.commentCount === 1) return input.t("prompt.placeholder.summarizeComment")

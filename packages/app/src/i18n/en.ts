@@ -973,6 +973,13 @@ export const dict = {
   "dandelion.home.image.title": "Visualize your ideas",
   "dandelion.home.image.subtitle": "Generate photos, illustrations, and designs from text",
 
+  "dandelion.placeholder.chat.simple": "Ask me anything...",
+  "dandelion.placeholder.chat.normal": 'Ask me anything... "{{example}}"',
+  "dandelion.placeholder.agent.simple": "What task can I help with?",
+  "dandelion.placeholder.agent.normal": 'What task can I help with? "{{example}}"',
+  "dandelion.placeholder.image.simple": "Describe the image you want to create...",
+  "dandelion.placeholder.image.normal": 'Describe the image you want... "{{example}}"',
+
   "dandelion.starter.writing.title": "Writing",
   "dandelion.starter.writing.description": "Draft, polish, and translate articles and documents",
   "dandelion.starter.writing.example1": "Help me write a professional project proposal for migrating our database to PostgreSQL",

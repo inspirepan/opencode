@@ -56,6 +56,7 @@ import { PromptContextItems } from "./prompt-input/context-items"
 import { PromptImageAttachments } from "./prompt-input/image-attachments"
 import { PromptDragOverlay } from "./prompt-input/drag-overlay"
 import { promptPlaceholder } from "./prompt-input/placeholder"
+import { starters, type DandelionMode } from "./session/starters"
 import { ImagePreview } from "@opencode-ai/ui/image-preview"
 
 interface PromptInputProps {
@@ -99,6 +100,10 @@ const EXAMPLES = [
   "prompt.example.25",
 ] as const
 
+const DANDELION_EXAMPLES: Record<DandelionMode, string[]> = Object.fromEntries(
+  Object.entries(starters).map(([mode, list]) => [mode, list.flatMap((s) => s.examples)]),
+) as Record<DandelionMode, string[]>
+
 const NON_EMPTY_TEXT = /[^\s\u200B]/
 
 export const PromptInput: Component<PromptInputProps> = (props) => {
@@ -118,6 +123,12 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   const dandelionChatMode = createMemo(() => platform.dandelion?.workspaces.chat === sdk.directory)
   const dandelionImageMode = createMemo(() => platform.dandelion?.workspaces.image === sdk.directory)
   const dandelionAgentMode = createMemo(() => platform.dandelion?.workspaces.agent === sdk.directory)
+  const dandelionMode = createMemo((): DandelionMode | undefined => {
+    if (dandelionChatMode()) return "chat"
+    if (dandelionAgentMode()) return "agent"
+    if (dandelionImageMode()) return "image"
+    return undefined
+  })
 
   // Dandelion: auto-select chat agent in chat mode
   createEffect(() => {
@@ -372,11 +383,18 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
 
   const suggest = createMemo(() => !hasUserPrompt())
 
+  const examples = createMemo(() => {
+    const dm = dandelionMode()
+    if (dm) return DANDELION_EXAMPLES[dm]
+    return EXAMPLES as unknown as string[]
+  })
+
   const placeholder = createMemo(() =>
     promptPlaceholder({
       mode: store.mode,
+      dandelion: dandelionMode(),
       commentCount: commentCount(),
-      example: suggest() ? language.t(EXAMPLES[store.placeholder]) : "",
+      example: suggest() ? language.t(examples()[store.placeholder % examples().length] as Parameters<typeof language.t>[0]) : "",
       suggest: suggest(),
       t: (key, params) => language.t(key as Parameters<typeof language.t>[0], params as never),
     }),
@@ -554,7 +572,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     if (params.id) return
     if (!suggest()) return
     const interval = setInterval(() => {
-      setStore("placeholder", (prev) => (prev + 1) % EXAMPLES.length)
+      setStore("placeholder", (prev) => (prev + 1) % examples().length)
     }, 6500)
     onCleanup(() => clearInterval(interval))
   })
