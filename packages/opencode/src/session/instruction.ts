@@ -118,6 +118,12 @@ export namespace InstructionPrompt {
     const config = await Config.get()
     const paths = await systemPaths()
 
+    // Auto-load MEMORY.md from the working directory if it exists
+    const memory = path.join(Instance.directory, "MEMORY.md")
+    if (await Filesystem.exists(memory)) {
+      paths.add(path.resolve(memory))
+    }
+
     const files = Array.from(paths).map(async (p) => {
       const content = await Filesystem.readText(p).catch(() => "")
       return content ? "Instructions from: " + p + "\n" + content : ""

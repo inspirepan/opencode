@@ -507,3 +507,16 @@ Fix: (1) Add `workspaceModel` field to per-workspace persisted store, inserted i
 | `packages/ui/src/components/app-icons/types.ts` | Add `"keynote"` and `"powerpoint"` to `iconNames` |
 | `packages/app/src/i18n/en.ts` | Add `dandelion.preview.openExternal`, `dandelion.preview.openFolder` |
 | `packages/app/src/i18n/zh.ts` | Add `dandelion.preview.openExternal` (点击使用默认应用打开), `dandelion.preview.openFolder` (在访达中显示) |
+
+### feat(dandelion): Dandy persona and per-mode system prompts
+
+**Intent:** Give the Dandelion app its own AI identity ("Dandy") with per-mode system prompts tailored for non-technical users. Replaces the upstream coding-oriented provider prompts with a single unified persona. Also adds a `dandy` agent for the agent workspace (same permissions as `build`, but with the Dandy prompt instead of per-model provider prompts), auto-loads `MEMORY.md` from the working directory, and adds a persistent memory system to the agent prompt.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/agent/prompt/dandy.txt` | **Added:** Chat mode prompt — Dandy persona, pure conversation, no tools |
+| `packages/opencode/src/agent/prompt/dandy-agent.txt` | **Added:** Agent mode prompt — Dandy persona, tool guidance, present_file usage, persistent memory system, workspace awareness |
+| `packages/opencode/src/agent/prompt/dandy-image.txt` | **Added:** Image mode prompt — Dandy persona, creative image generation focus |
+| `packages/opencode/src/agent/agent.ts` | Add `dandy` agent (build permissions + Dandy prompt); update `chat` prompt to `PROMPT_DANDY`; add `PROMPT_DANDY_IMAGE` to `image-gen` |
+| `packages/app/src/components/prompt-input.tsx` | Auto-select `dandy` agent in dandelion agent workspace |
+| `packages/opencode/src/session/instruction.ts` | Auto-load `MEMORY.md` from working directory into system prompt |

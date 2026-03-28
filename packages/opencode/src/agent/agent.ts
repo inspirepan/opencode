@@ -10,6 +10,9 @@ import { ProviderTransform } from "../provider/transform"
 
 import PROMPT_GENERATE from "./generate.txt"
 import PROMPT_CHAT from "./prompt/chat.txt"
+import PROMPT_DANDY from "./prompt/dandy.txt"
+import PROMPT_DANDY_AGENT from "./prompt/dandy-agent.txt"
+import PROMPT_DANDY_IMAGE from "./prompt/dandy-image.txt"
 import PROMPT_COMPACTION from "./prompt/compaction.txt"
 import PROMPT_EXPLORE from "./prompt/explore.txt"
 import PROMPT_SUMMARY from "./prompt/summary.txt"
@@ -107,7 +110,7 @@ export namespace Agent {
             chat: {
               name: "chat",
               description: "Pure conversation mode. No tool access.",
-              prompt: PROMPT_CHAT,
+              prompt: PROMPT_DANDY,
               options: {},
               permission: Permission.merge(
                 defaults,
@@ -121,12 +124,29 @@ export namespace Agent {
             "image-gen": {
               name: "image-gen",
               description: "Image generation mode. No tool access.",
+              prompt: PROMPT_DANDY_IMAGE,
               options: {},
               permission: Permission.merge(
                 defaults,
                 Permission.fromConfig({
                   "*": "deny",
                 }),
+              ),
+              mode: "primary",
+              native: true,
+            },
+            dandy: {
+              name: "dandy",
+              description: "Dandelion agent mode. Friendly assistant with tool access for everyday tasks.",
+              prompt: PROMPT_DANDY_AGENT,
+              options: {},
+              permission: Permission.merge(
+                defaults,
+                Permission.fromConfig({
+                  question: "allow",
+                  plan_enter: "allow",
+                }),
+                user,
               ),
               mode: "primary",
               native: true,

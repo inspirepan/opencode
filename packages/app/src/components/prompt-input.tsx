@@ -117,6 +117,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   const platform = usePlatform()
   const dandelionChatMode = createMemo(() => platform.dandelion?.workspaces.chat === sdk.directory)
   const dandelionImageMode = createMemo(() => platform.dandelion?.workspaces.image === sdk.directory)
+  const dandelionAgentMode = createMemo(() => platform.dandelion?.workspaces.agent === sdk.directory)
 
   // Dandelion: auto-select chat agent in chat mode
   createEffect(() => {
@@ -130,6 +131,13 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     if (!dandelionImageMode()) return
     if (local.agent.current()?.name === "image-gen") return
     local.agent.set("image-gen")
+  })
+
+  // Dandelion: auto-select dandy agent in agent mode
+  createEffect(() => {
+    if (!dandelionAgentMode()) return
+    if (local.agent.current()?.name === "dandy") return
+    local.agent.set("dandy")
   })
 
   const imageFilter = (m: any) => !!m.capabilities?.output?.image
