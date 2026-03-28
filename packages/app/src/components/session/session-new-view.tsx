@@ -1,11 +1,17 @@
 import { For, Show, createMemo, createSignal } from "solid-js"
+import { createMediaQuery } from "@solid-primitives/media"
 import { DateTime } from "luxon"
+import { useNavigate } from "@solidjs/router"
+import { base64Encode } from "@opencode-ai/util/encode"
 import { useSync } from "@/context/sync"
 import { useSDK } from "@/context/sdk"
 import { useLanguage } from "@/context/language"
 import { usePlatform } from "@/context/platform"
 import { usePrompt } from "@/context/prompt"
+import { useLayout } from "@/context/layout"
+
 import { Icon } from "@opencode-ai/ui/icon"
+import { Spinner } from "@opencode-ai/ui/spinner"
 import { Mark } from "@opencode-ai/ui/logo"
 import { getDirectory, getFilename } from "@opencode-ai/util/path"
 import { starters, type Starter, type DandelionMode } from "./starters"
@@ -98,10 +104,15 @@ export function NewSessionView(props: NewSessionViewProps) {
 
 function DandelionNewView() {
   const sdk = useSDK()
+  const sync = useSync()
   const language = useLanguage()
   const platform = usePlatform()
   const prompt = usePrompt()
+  const layout = useLayout()
+  const navigate = useNavigate()
   const [active, setActive] = createSignal<string | null>(null)
+  const xl = createMediaQuery("(min-width: 1280px)")
+  const sidebarVisible = createMemo(() => (xl() ? layout.sidebar.opened() : layout.mobileSidebar.opened()))
 
   const mode = createMemo<DandelionMode>(() => {
     const ws = platform.dandelion?.workspaces
@@ -112,6 +123,14 @@ function DandelionNewView() {
   })
 
   const items = createMemo(() => starters[mode()])
+
+  const recent = createMemo(() =>
+    [...sync.data.session]
+      .sort((a, b) => (b.time.updated ?? b.time.created) - (a.time.updated ?? a.time.created))
+      .slice(0, 3),
+  )
+
+  const slug = createMemo(() => base64Encode(sdk.directory))
 
   const select = (text: string) => {
     prompt.set([{ type: "text", content: text, start: 0, end: text.length }], text.length)
@@ -127,6 +146,42 @@ function DandelionNewView() {
             <div class="text-16-medium text-text-strong">{language.t(`dandelion.home.${mode()}.title`)}</div>
             <div class="text-13-regular text-text-weak">{language.t(`dandelion.home.${mode()}.subtitle`)}</div>
           </div>
+          <Show when={recent().length > 0}>
+            <div class="w-full flex flex-col gap-2">
+              <div class="px-1">
+                <span class="text-12-medium text-text-weak">{language.t("dandelion.home.recent")}</span>
+              </div>
+              <For each={recent()}>
+                {(session) => {
+                  const status = () => sync.data.session_status[session.id]
+                  const busy = () => status() && status()!.type !== "idle"
+                  return (
+                    <button
+                      class="w-full text-left px-4 py-2.5 rounded-lg bg-surface-base hover:bg-surface-base-hover transition-colors flex items-center gap-3 cursor-default"
+                      onClick={() => navigate(`/${slug()}/session/${session.id}`)}
+                    >
+                      <Show when={busy()} fallback={<Icon name="speech-bubble" size="small" class="shrink-0 text-icon-weak" />}>
+                        <Spinner class="size-[14px] shrink-0" />
+                      </Show>
+                      <span class="text-13-regular text-text-base truncate flex-1">{session.title}</span>
+                      <Icon name="chevron-right" size="small" class="shrink-0 text-icon-weak" />
+                    </button>
+                  )
+                }}
+              </For>
+              <Show when={sync.data.session.length > 3 && !sidebarVisible()}>
+                <button
+                  class="text-12-medium text-text-weak hover:text-text-base transition-colors cursor-default py-1 self-start px-1"
+                  onClick={() => {
+                    layout.sidebar.open()
+                    layout.mobileSidebar.show()
+                  }}
+                >
+                  {language.t("dandelion.home.recent.more")}
+                </button>
+              </Show>
+            </div>
+          </Show>
           <div class="w-full grid grid-cols-3 gap-3">
             <For each={items()}>
               {(item) => (

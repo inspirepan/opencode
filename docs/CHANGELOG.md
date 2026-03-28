@@ -58,6 +58,16 @@ Base: upstream `dev` @ `9a64bdb5` (fix: beta resolver typecheck + build smoke ch
 | `packages/opencode/src/agent/agent.ts` | Add `chat` agent: `mode: "primary"`, `"*": "deny"` permissions, custom prompt |
 | `packages/opencode/src/agent/prompt/chat.txt` | Added: chat agent system prompt (friendly conversation, no tools) |
 
+### Commit `pending` — feat(dandelion): show running sessions on new session page
+
+**Intent:** When switching modes via titlebar tabs and landing on the new session page, show currently running sessions (up to 3) above the starter cards. Lets users quickly jump back to an active session without opening the sidebar. A "View all" link appears when there are more than 3, opening the sidebar.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/session/session-new-view.tsx` | Add running sessions section to `DandelionNewView`: filter sessions by `session_status`, show max 3 with spinner + title, "View all" opens sidebar |
+| `packages/app/src/i18n/en.ts` | Add `dandelion.home.running`, `dandelion.home.running.more` |
+| `packages/app/src/i18n/zh.ts` | Add `dandelion.home.running` (进行中), `dandelion.home.running.more` (查看全部) |
+
 ---
 
 ## Files touched (summary)
@@ -70,6 +80,7 @@ Quick reference of all files modified from upstream, grouped by package:
 - `src/context/preview.tsx` — preview data store; `previewTab()`/`previewPath()` helpers
 - `src/components/titlebar.tsx` — dandelion tabs with sliding segmented control, hide portals, settings button
 - `src/components/session-context-usage.tsx` — unified context tab toggle (no dandelion branch)
+- `src/components/session/session-new-view.tsx` — running sessions section in dandelion new session page
 - `src/components/prompt-input.tsx` — chat mode detection, agent auto-switch, hide agent selector, variant descriptions
 - `src/components/dialog-select-model.tsx` — enlarged popover, provider icons
 - `src/pages/home.tsx` — auto-redirect to dandelion workspace

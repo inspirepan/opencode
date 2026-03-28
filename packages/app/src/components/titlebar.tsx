@@ -201,6 +201,21 @@ export function Titlebar() {
             />
           </div>
         </Show>
+        <Show when={platform.dandelion && params.dir}>
+          <div class="xl:hidden flex items-center shrink-0">
+            <Button
+              variant="ghost"
+              icon={creating() ? "new-session-active" : "new-session"}
+              class="titlebar-icon w-8 h-6 p-0 box-border"
+              onClick={() => {
+                if (!params.dir) return
+                navigate(`/${params.dir}/session`)
+              }}
+              aria-label={language.t("command.session.new")}
+              aria-current={creating() ? "page" : undefined}
+            />
+          </div>
+        </Show>
         <div class="flex items-center gap-1 shrink-0">
           <TooltipKeybind
             class={web() ? "hidden xl:flex shrink-0 ml-14" : "hidden xl:flex shrink-0 ml-2"}
