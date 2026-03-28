@@ -444,3 +444,13 @@ Quick reference of all files modified from upstream, grouped by package:
 | `packages/app/src/components/session/session-new-view.tsx` | Add `DandelionNewView` with mode detection, starter cards grid, expandable example prompts |
 | `packages/app/src/i18n/en.ts` | Add `dandelion.home.{chat,agent,image}.*` and `dandelion.starter.*` keys |
 | `packages/app/src/i18n/zh.ts` | Add Chinese translations for all new keys |
+
+### feat(dandelion): per-workspace model selection memory
+
+**Intent:** Switching models in agent mode was also changing the model in chat mode (and vice versa). Root cause: `models.recent` is a global store (`Persist.global`), and when a workspace had no `workspaceModel` set, the fallback chain reached `recentModel()` which returned whatever was last pushed globally by any workspace.
+
+Fix: (1) Add `workspaceModel` field to per-workspace persisted store, inserted in the fallback chain before `recentModel()`; (2) Fix `migrate` to preserve `workspaceModel` across reloads (was being stripped); (3) Add an effect to capture the initial fallback as `workspaceModel` on first load, so global recent changes never leak across workspaces.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/context/local.tsx` | Add `workspaceModel` to `Saved` type; fix `migrate` to preserve it; add `workspaceModel()` in fallback chain before `recentModel()`; save workspace model on `model.set()`; init effect captures fallback as workspace default |

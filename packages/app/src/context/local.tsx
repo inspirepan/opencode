@@ -21,6 +21,7 @@ type State = {
 
 type Saved = {
   session: Record<string, State | undefined>
+  workspaceModel?: ModelKey
 }
 
 const WORKSPACE_KEY = "__workspace__"
@@ -34,14 +35,22 @@ const migrate = (value: unknown) => {
   const item = value as {
     session?: Record<string, State | undefined>
     pick?: Record<string, State | undefined>
+    workspaceModel?: ModelKey
   }
 
-  if (item.session && typeof item.session === "object") return { session: item.session }
-  if (!item.pick || typeof item.pick !== "object") return { session: {} }
-
-  return {
-    session: Object.fromEntries(Object.entries(item.pick).filter(([key]) => key !== WORKSPACE_KEY)),
+  const result: Saved = {
+    session: {},
+    workspaceModel: item.workspaceModel,
   }
+
+  if (item.session && typeof item.session === "object") {
+    result.session = item.session
+    return result
+  }
+  if (!item.pick || typeof item.pick !== "object") return result
+
+  result.session = Object.fromEntries(Object.entries(item.pick).filter(([key]) => key !== WORKSPACE_KEY))
+  return result
 }
 
 const clone = (value: State | undefined) => {
@@ -170,7 +179,19 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
       }
     }
 
-    const fallback = createMemo<ModelKey | undefined>(() => configuredModel() ?? recentModel() ?? defaultModel())
+    const workspaceModel = () => {
+      const model = saved.workspaceModel
+      if (model && validModel(model)) return model
+    }
+
+    const fallback = createMemo<ModelKey | undefined>(() => configuredModel() ?? workspaceModel() ?? recentModel() ?? defaultModel())
+
+    // Capture fallback as workspace default so global recent changes don't leak across workspaces
+    createEffect(() => {
+      if (saved.workspaceModel) return
+      const model = fallback()
+      if (model) setSaved("workspaceModel", { ...model })
+    })
 
     const agent = {
       list,
@@ -300,6 +321,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
           })
           write({ model: item })
           if (!item) return
+          setSaved("workspaceModel", { ...item })
           models.setVisibility(item, true)
           if (!options?.recent) return
           models.recent.push(item)
