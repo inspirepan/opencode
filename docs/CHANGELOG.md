@@ -560,3 +560,19 @@ Fix: (1) Add `workspaceModel` field to per-workspace persisted store, inserted i
 | `packages/desktop-electron/src/renderer/loading.html` | `<title>`: OpenCode -> Dandelion |
 | `packages/desktop-electron/src/renderer/i18n/*.ts` | All 14 locale files: updater messages and CLI messages: OpenCode -> Dandelion |
 | `packages/desktop-electron/README.md` | Title and description: OpenCode -> Dandelion |
+
+### feat(dandelion): add office document and infographic skills with expanded starters
+
+**Intent:** Expand agent mode from 3 starters to 6 by adding skills for common non-developer tasks: Word documents, spreadsheets, PDFs, and infographics. Skills bundled as system skills that sync to the agent workspace on launch. Replace the "Data Processing" starter with "Infographics" since PDF and spreadsheet starters now cover data extraction.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/.system/docx/SKILL.md` | Added: Word document skill (from anthropics-skills) -- create/edit/format .docx files with docx-js |
+| `packages/desktop-electron/assets/skills/.system/xlsx/SKILL.md` | Added: Spreadsheet skill (from anthropics-skills) -- create/edit/analyze .xlsx with openpyxl/pandas |
+| `packages/desktop-electron/assets/skills/.system/pdf/SKILL.md` | Added: PDF skill (from anthropics-skills) -- read/create/merge/split/fill PDFs |
+| `packages/desktop-electron/assets/skills/.system/pdf/forms.md` | Added: PDF forms reference guide |
+| `packages/desktop-electron/assets/skills/.system/pdf/reference.md` | Added: PDF advanced reference |
+| `packages/desktop-electron/assets/skills/.system/baoyu-infographic/` | Added: Infographic skill (from baoyu-skills) -- 21 layouts x 20 styles, 45 reference files |
+| `packages/app/src/components/session/starters.ts` | Agent mode: add docx, xlsx, pdf, infographic starters; remove data starter; now 6 total |
+| `packages/app/src/i18n/en.ts` | Add starter translations for docx, xlsx, pdf, infographic; remove data starter keys |
+| `packages/app/src/i18n/zh.ts` | Add starter translations for docx, xlsx, pdf, infographic; remove data starter keys |
