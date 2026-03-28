@@ -24,3 +24,13 @@ After modifying shared UI files (layout.tsx, titlebar.tsx, etc.), always run at 
 # Dandelion Mode
 
 All dandelion-specific UI is gated behind `platform.dandelion` (truthy only in Electron). The existing e2e tests run in Playwright (Chromium) where `platform.dandelion` is `undefined`, so they test the upstream code path only.
+
+# Packaging (Electron DMG)
+
+```bash
+cd packages/desktop-electron
+bun run build                  # electron-vite build (main + preload + renderer)
+CSC_IDENTITY_AUTO_DISCOVERY=false bun run package:mac   # build dmg + zip without code signing
+```
+
+Output goes to `packages/desktop-electron/dist/`. The ad-hoc signed app requires right-click -> Open on first launch (no Apple Developer certificate). Set `OPENCODE_CHANNEL=dev|beta|prod` to control productName and appId (defaults to `dev`).
