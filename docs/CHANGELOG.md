@@ -585,3 +585,11 @@ Fix: (1) Add `workspaceModel` field to per-workspace persisted store, inserted i
 |------|--------|
 | `packages/opencode/src/provider/provider.ts` | Add `Provider.envKeys()`: collects resolved API keys from all active providers, maps to their env var names, filters to key/token vars only |
 | `packages/opencode/src/tool/bash.ts` | Import `Provider`; call `envKeys()` in parallel with plugin shell.env; merge into spawn environment between `process.env` and `shellEnv.env` |
+
+### fix(dandelion): starter examples overflow hidden when expanded
+
+**Intent:** When clicking a starter card in the empty conversation view, the expanded example buttons were cut off at the bottom because `items-center` on a flex container causes content to overflow symmetrically (both top and bottom) when it exceeds the container height. Replace with `overflow-y-auto` + `my-auto` to keep vertical centering when content fits, but allow scrolling when it doesn't.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/session/session-new-view.tsx` | `DandelionNewView`: replace `items-center` with `overflow-y-auto` on outer flex; add `my-auto` on inner content div |

@@ -120,8 +120,8 @@ function DandelionNewView() {
   return (
     <div class={ROOT_CLASS}>
       <div class="h-12 shrink-0" aria-hidden />
-      <div class="flex-1 px-6 pb-30 flex items-center justify-center">
-        <div class="w-full max-w-180 flex flex-col items-center gap-8">
+      <div class="flex-1 px-6 pb-30 overflow-y-auto flex justify-center">
+        <div class="w-full max-w-180 flex flex-col items-center gap-8 my-auto">
           <div class="flex flex-col items-center gap-3">
             <Mark class="w-10" />
             <div class="text-16-medium text-text-strong">{language.t(`dandelion.home.${mode()}.title`)}</div>

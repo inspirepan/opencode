@@ -949,7 +949,7 @@ export const dict = {
   "dandelion.image.gallery.empty": "生成的图像将在此显示。",
 
   "dandelion.home.chat.title": "随时提问",
-  "dandelion.home.chat.subtitle": "写作、分析、头脑风暴 -- 纯对话，无需工具",
+  "dandelion.home.chat.subtitle": "你的全能 AI 助手，随时为你答疑解惑",
   "dandelion.home.agent.title": "高效行动",
   "dandelion.home.agent.subtitle": "创建文件、处理数据、用 AI 工具自动完成任务",
   "dandelion.home.image.title": "让想法可见",

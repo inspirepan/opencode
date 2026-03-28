@@ -967,7 +967,7 @@ export const dict = {
   "dandelion.image.gallery.empty": "Generated images will appear here.",
 
   "dandelion.home.chat.title": "Ask anything",
-  "dandelion.home.chat.subtitle": "Write, analyze, brainstorm -- no tools, just conversation",
+  "dandelion.home.chat.subtitle": "Your versatile AI assistant, ready to help anytime",
   "dandelion.home.agent.title": "Get things done",
   "dandelion.home.agent.subtitle": "Create files, process data, automate tasks with AI tools",
   "dandelion.home.image.title": "Visualize your ideas",
