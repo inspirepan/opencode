@@ -429,3 +429,18 @@ Quick reference of all files modified from upstream, grouped by package:
 | `packages/app/src/pages/session/session-side-panel.tsx` | Add `imageMode` detection; gallery tab trigger and content; auto-open panel with gallery tab in image mode |
 | `packages/app/src/i18n/en.ts` | Add `dandelion.image.gallery`, `dandelion.image.gallery.empty` |
 | `packages/app/src/i18n/zh.ts` | Add `dandelion.image.gallery` (图库), `dandelion.image.gallery.empty` |
+
+### feat(dandelion): built-in system skills + per-mode starter cards UI
+
+**Intent:** Two features in one commit: (1) Bundle system skills (SKILL.md) into the Electron app and sync to `~/.dandelion/spaces/agent/.agents/skills/.system/` on startup with checksum invalidation; (2) Replace the empty conversation page with per-mode starter cards (chat/agent/image each get 3 category cards with example prompts). Starters are decoupled from skills -- only the agent-mode pptx card corresponds to an actual bundled skill.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/.system/pptx/` | Added: bundled pptx system skill (SKILL.md, editing.md, pptxgenjs.md) |
+| `packages/desktop-electron/src/main/skills.ts` | Added: `syncSystemSkills()` -- walk/fingerprint/sync bundled skills to agent workspace |
+| `packages/desktop-electron/src/main/index.ts` | Call `syncSystemSkills(DANDELION_WORKSPACES.agent)` on startup |
+| `packages/desktop-electron/electron-builder.config.ts` | Add `assets/skills/` -> `skills/` in `extraResources` |
+| `packages/app/src/components/session/starters.ts` | Added: per-mode starter card metadata (id, icon, i18n keys, examples) |
+| `packages/app/src/components/session/session-new-view.tsx` | Add `DandelionNewView` with mode detection, starter cards grid, expandable example prompts |
+| `packages/app/src/i18n/en.ts` | Add `dandelion.home.{chat,agent,image}.*` and `dandelion.starter.*` keys |
+| `packages/app/src/i18n/zh.ts` | Add Chinese translations for all new keys |

@@ -32,6 +32,7 @@ import { initLogging } from "./logging"
 import { parseMarkdown } from "./markdown"
 import { createMenu } from "./menu"
 import { getDefaultServerUrl, getWslConfig, setDefaultServerUrl, setWslConfig, spawnLocalServer } from "./server"
+import { syncSystemSkills } from "./skills"
 import { createLoadingWindow, createMainWindow, setBackgroundColor, setDockIcon } from "./windows"
 
 const DANDELION_WORKSPACES = {
@@ -111,6 +112,7 @@ function setupApp() {
     setupAutoUpdater()
     syncCli()
     ensureDandelionWorkspaces()
+    syncSystemSkills(DANDELION_WORKSPACES.agent)
     await initialize()
   })
 }

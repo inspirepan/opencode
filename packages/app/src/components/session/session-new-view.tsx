@@ -1,11 +1,14 @@
-import { Show, createMemo } from "solid-js"
+import { For, Show, createMemo, createSignal } from "solid-js"
 import { DateTime } from "luxon"
 import { useSync } from "@/context/sync"
 import { useSDK } from "@/context/sdk"
 import { useLanguage } from "@/context/language"
+import { usePlatform } from "@/context/platform"
+import { usePrompt } from "@/context/prompt"
 import { Icon } from "@opencode-ai/ui/icon"
 import { Mark } from "@opencode-ai/ui/logo"
 import { getDirectory, getFilename } from "@opencode-ai/util/path"
+import { starters, type Starter, type DandelionMode } from "./starters"
 
 const MAIN_WORKTREE = "main"
 const CREATE_WORKTREE = "create"
@@ -19,6 +22,7 @@ export function NewSessionView(props: NewSessionViewProps) {
   const sync = useSync()
   const sdk = useSDK()
   const language = useLanguage()
+  const platform = usePlatform()
 
   const sandboxes = createMemo(() => sync.project?.sandboxes ?? [])
   const options = createMemo(() => [MAIN_WORKTREE, ...sandboxes(), CREATE_WORKTREE])
@@ -46,6 +50,8 @@ export function NewSessionView(props: NewSessionViewProps) {
 
     return getFilename(value)
   }
+
+  if (platform.dandelion) return <DandelionNewView />
 
   return (
     <div class={ROOT_CLASS}>
@@ -87,5 +93,99 @@ export function NewSessionView(props: NewSessionViewProps) {
         </div>
       </div>
     </div>
+  )
+}
+
+function DandelionNewView() {
+  const sdk = useSDK()
+  const language = useLanguage()
+  const platform = usePlatform()
+  const prompt = usePrompt()
+  const [active, setActive] = createSignal<string | null>(null)
+
+  const mode = createMemo<DandelionMode>(() => {
+    const ws = platform.dandelion?.workspaces
+    if (!ws) return "agent"
+    if (sdk.directory === ws.chat) return "chat"
+    if ("image" in ws && sdk.directory === (ws as Record<string, string>).image) return "image"
+    return "agent"
+  })
+
+  const items = createMemo(() => starters[mode()])
+
+  const select = (text: string) => {
+    prompt.set([{ type: "text", content: text, start: 0, end: text.length }], text.length)
+  }
+
+  return (
+    <div class={ROOT_CLASS}>
+      <div class="h-12 shrink-0" aria-hidden />
+      <div class="flex-1 px-6 pb-30 flex items-center justify-center">
+        <div class="w-full max-w-180 flex flex-col items-center gap-8">
+          <div class="flex flex-col items-center gap-3">
+            <Mark class="w-10" />
+            <div class="text-16-medium text-text-strong">{language.t(`dandelion.home.${mode()}.title`)}</div>
+            <div class="text-13-regular text-text-weak">{language.t(`dandelion.home.${mode()}.subtitle`)}</div>
+          </div>
+          <div class="w-full grid grid-cols-3 gap-3">
+            <For each={items()}>
+              {(item) => (
+                <StarterCard
+                  starter={item}
+                  active={active() === item.id}
+                  onClick={() => setActive(active() === item.id ? null : item.id)}
+                />
+              )}
+            </For>
+          </div>
+          <Show when={active()}>
+            {(id) => {
+              const skill = () => items().find((s) => s.id === id())
+              return (
+                <Show when={skill()}>
+                  {(s) => (
+                    <div class="w-full flex flex-col gap-2">
+                      <For each={s().examples}>
+                        {(key) => (
+                          <button
+                            class="w-full text-left px-4 py-3 rounded-lg bg-surface-base hover:bg-surface-base-hover transition-colors flex items-center gap-3"
+                            onClick={() => select(language.t(key))}
+                          >
+                            <Icon name="speech-bubble" size="small" class="shrink-0 text-icon-base" />
+                            <span class="text-14-regular text-text-base">{language.t(key)}</span>
+                          </button>
+                        )}
+                      </For>
+                    </div>
+                  )}
+                </Show>
+              )
+            }}
+          </Show>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function StarterCard(props: { starter: Starter; active: boolean; onClick: () => void }) {
+  const language = useLanguage()
+  return (
+    <button
+      class="flex flex-col gap-3 p-4 rounded-xl text-left transition-colors"
+      classList={{
+        "bg-surface-raised-base hover:bg-surface-raised-base-hover": !props.active,
+        "bg-surface-raised-base-hover ring-1 ring-border-base": props.active,
+      }}
+      onClick={props.onClick}
+    >
+      <div class="size-9 rounded-lg bg-surface-base flex items-center justify-center">
+        <Icon name={props.starter.icon} size="normal" class="text-icon-base" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <div class="text-14-medium text-text-strong">{language.t(props.starter.title)}</div>
+        <div class="text-12-regular text-text-weak">{language.t(props.starter.description)}</div>
+      </div>
+    </button>
   )
 }
