@@ -161,6 +161,14 @@ export function SessionSidePanel(props: {
   const activeTab = tabState.activeTab
   const activeFileTab = tabState.activeFileTab
 
+  // Auto-close side panel in dandelion mode when empty
+  createEffect(() => {
+    if (!dandelion()) return
+    if (imageMode()) return
+    if (openedTabs().length > 0 || contextOpen()) return
+    view().reviewPanel.close()
+  })
+
   const activePreviewItem = createMemo(() => {
     const path = previewPath(activeTab())
     return path ? preview.get(path) : undefined

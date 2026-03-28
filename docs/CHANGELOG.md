@@ -58,7 +58,7 @@ Base: upstream `dev` @ `9a64bdb5` (fix: beta resolver typecheck + build smoke ch
 | `packages/opencode/src/agent/agent.ts` | Add `chat` agent: `mode: "primary"`, `"*": "deny"` permissions, custom prompt |
 | `packages/opencode/src/agent/prompt/chat.txt` | Added: chat agent system prompt (friendly conversation, no tools) |
 
-### Commit `pending` — feat(dandelion): show running sessions on new session page
+### Commit `e7c2f3c94` — feat(dandelion): show running sessions on new session page
 
 **Intent:** When switching modes via titlebar tabs and landing on the new session page, show currently running sessions (up to 3) above the starter cards. Lets users quickly jump back to an active session without opening the sidebar. A "View all" link appears when there are more than 3, opening the sidebar.
 
@@ -80,14 +80,26 @@ Quick reference of all files modified from upstream, grouped by package:
 - `src/context/preview.tsx` — preview data store; `previewTab()`/`previewPath()` helpers
 - `src/components/titlebar.tsx` — dandelion tabs with sliding segmented control, hide portals, settings button
 - `src/components/session-context-usage.tsx` — unified context tab toggle (no dandelion branch)
-- `src/components/session/session-new-view.tsx` — running sessions section in dandelion new session page
-- `src/components/prompt-input.tsx` — chat mode detection, agent auto-switch, hide agent selector, variant descriptions
-- `src/components/dialog-select-model.tsx` — enlarged popover, provider icons
+- `src/components/session/session-new-view.tsx` — running sessions section, per-mode starter cards in dandelion new session page
+- `src/components/session/starters.ts` — per-mode starter card metadata
+- `src/components/prompt-input.tsx` — chat mode detection, agent auto-switch, hide agent selector, variant descriptions, per-mode placeholders
+- `src/components/prompt-input/placeholder.ts` — dandelion mode parameter for placeholder text
+- `src/components/dialog-select-model.tsx` — enlarged popover, provider icons, filter prop
+- `src/components/dialog-manage-models.tsx` — provider icons and tags (image/free/latest)
+- `src/context/local.tsx` — per-workspace model selection memory
+- `src/context/global-sync/child-store.ts` — session fetch limit increase
+- `src/context/global-sync/event-reducer.ts` — session total increment on unarchive
+- `src/context/server.tsx` — filter empty worktree from projects
+- `src/pages/layout/sidebar-workspace.tsx` — load-more limit increase; archived sessions section
+- `src/pages/layout/sidebar-items.tsx` — idle session icon swap in dandelion mode
+- `src/pages/session/image-gallery.tsx` — image gallery panel for image mode
+- `src/pages/session/use-session-commands.tsx` — auto-close panel on last tab close
 - `src/pages/home.tsx` — auto-redirect to dandelion workspace
 - `src/pages/layout.tsx` — autoselect, sidebar rail skip, width adjustments, project header hide
 - `src/pages/directory-layout.tsx` — pass `serverUrl` to `DataProvider`
 - `src/pages/session.tsx` — present_file detection, preview+tab sync, mobile preview fallback, external file handling
-- `src/pages/session/session-side-panel.tsx` — unified tab system for preview/context/review; open-in-new-window for PDF
+- `src/pages/session/session-side-panel.tsx` — unified tab system for preview/context/review; open-in-new-window for PDF; auto-close empty panel
+- `src/components/session/session-header.tsx` — hide status popover, shapes icon for side panel toggle
 - `src/pages/session/preview-tab.tsx` — iframe preview with PDF (pdf.js), Markdown, SVG, Mermaid support
 - `src/pages/session/helpers.ts` — `activeTab` supports `preview://` tabs
 - `src/i18n/en.ts` — dandelion + variant i18n keys
@@ -95,33 +107,54 @@ Quick reference of all files modified from upstream, grouped by package:
 
 ### `packages/ui/`
 - `src/components/logo.tsx` — dandelion seed SVG
-- `src/components/message-part.tsx` — `present_file` tool renderer with clickable filename; `file` part renderer for generated images
+- `src/components/icon.tsx` — `shapes`, `circle-plus`, `circle-plus-active` icons
+- `src/components/message-part.tsx` — `present_file` tool renderer with clickable filename; `file` part renderer for generated images; active form text for all tools
 - `src/components/message-part.css` — `file-part` image styles
+- `src/components/basic-tool.tsx` — `activeTitle` support with `ToolStatusTitle`
 - `src/components/image-preview.tsx` — download button support
+- `src/components/app-icon.tsx` — keynote/powerpoint app icons
+- `src/components/app-icons/types.ts` — app icon name registry
+- `src/components/tabs.css` — remove redundant tab underline
 - `src/context/data.tsx` — `serverUrl` prop for media URL resolution
 - `src/components/list.css` — sticky group header gradient fix
 - `src/components/select.css` — dropdown max-height increase
-- `src/i18n/en.ts` — `ui.tool.present` translation
-- `src/i18n/zh.ts` — `ui.tool.present` translation (Chinese)
+- `src/i18n/en.ts` — tool active form translations
+- `src/i18n/zh.ts` — tool active form translations (Chinese)
+- `src/i18n/zht.ts` — tool active form translations (Traditional Chinese)
 
 ### `packages/desktop-electron/`
-- `src/main/index.ts` — workspace creation, globals, IPC
+- `src/main/index.ts` — workspace creation (chat/agent/image), globals, IPC, Dandelion branding
 - `src/main/ipc.ts` — getDandelionWorkspace handler
 - `src/main/windows.ts` — globals type and injection
-- `src/preload/index.ts` — synchronous workspace path exposure
+- `src/main/skills.ts` — system skills sync on startup
+- `src/main/menu.ts` — Dandelion branding
+- `src/preload/index.ts` — synchronous workspace path exposure (3 modes)
 - `src/preload/types.ts` — ElectronAPI type
 - `src/renderer/env.d.ts` — window type declarations
 - `src/renderer/index.tsx` — platform dandelion setup
+- `src/renderer/index.html` — Dandelion title
+- `src/renderer/loading.html` — Dandelion title
+- `src/renderer/i18n/*.ts` — Dandelion branding in all 14 locales
+- `electron-builder.config.ts` — Dandelion product name; skills extraResources
+- `assets/skills/.system/` — bundled system skills (pptx, docx, xlsx, pdf, infographic, baoyu-skills suite)
 
 ### `packages/opencode/`
-- `src/agent/agent.ts` — chat agent definition
+- `src/agent/agent.ts` — chat, dandy, image-gen agent definitions
 - `src/agent/prompt/chat.txt` — chat agent system prompt
+- `src/agent/prompt/dandy.txt` — Dandy persona chat prompt
+- `src/agent/prompt/dandy-agent.txt` — Dandy persona agent prompt (with memory system, question tool guide)
+- `src/agent/prompt/dandy-image.txt` — Dandy persona image prompt
+- `src/provider/provider.ts` — `envKeys()` for API key injection; `PENDING_MODELS` for missing models
 - `src/provider/transform.ts` — `responseModalities` for image-capable Google/Vertex models
 - `src/session/media.ts` — media file storage module
 - `src/session/processor.ts` — `file` event handler for model image output
-- `src/server/routes/session.ts` — media file serving endpoint
+- `src/session/instruction.ts` — auto-load MEMORY.md from working directory
+- `src/server/routes/session.ts` — media file serving endpoint; session unarchive fix
+- `src/server/server.ts` — exempt media paths from basic auth
+- `src/file/index.ts` — show files in @ autocomplete when query is empty
 - `src/tool/present.ts` — present_file tool (HTML, SVG, PDF, PPTX)
 - `src/tool/present.txt` — tool description
+- `src/tool/bash.ts` — inject provider API keys into spawned processes
 - `src/tool/registry.ts` — register PresentTool
 
 ### Root
@@ -604,3 +637,40 @@ Fix: (1) Add `workspaceModel` field to per-workspace persisted store, inserted i
 | File | Change |
 |------|--------|
 | `packages/app/src/components/session/session-new-view.tsx` | `DandelionNewView`: replace `items-center` with `overflow-y-auto` on outer flex; add `my-auto` on inner content div |
+
+### Commit `9e32b9322` — feat(dandelion): bundle baoyu-skills suite as system skills
+
+**Intent:** Expand bundled system skills from 4 to 14 by adding the baoyu-skills suite. Remove 3 risky skills (danger-gemini-web, danger-x-to-markdown, post-to-x) that could cause unintended side effects.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/.system/baoyu-*/` | Added: 10 baoyu-skills (image-gen, comic, cover-image, article-illustrator, xhs-images, slide-deck, compress-image, format-markdown, url-to-markdown) with SKILL.md, references, and scripts |
+
+### Commit `8ee032f64` — feat(dandelion): mode-specific placeholder text for prompt input
+
+**Intent:** Each mode (chat/agent/image) gets its own placeholder text with rotating example prompts drawn from the starter cards, replacing the generic upstream placeholder.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/prompt-input.tsx` | Build `DANDELION_EXAMPLES` from starters; extend `promptPlaceholder()` with dandelion param; derive `dandelionMode` memo |
+| `packages/app/src/components/prompt-input/placeholder.ts` | Add dandelion mode parameter to placeholder function |
+| `packages/app/src/i18n/en.ts` | Add per-mode simple/normal placeholder i18n keys |
+| `packages/app/src/i18n/zh.ts` | Add per-mode simple/normal placeholder i18n keys (Chinese) |
+
+### Commit `def46dd44` — docs(dandelion): add question tool usage guide to dandy-agent prompt
+
+**Intent:** Add AskUserQuestion tool usage instructions to the dandy-agent prompt, covering when to use it, how to write good questions, parameter details, and JSON examples.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/agent/prompt/dandy-agent.txt` | Add "Asking the user questions" subsection under Tool usage with examples |
+
+### fix(dandelion): increase session list limit and auto-close empty side panel
+
+**Intent:** Two UX improvements: (1) Load 50 sessions at a time instead of 5 so users see their full history without clicking "load more"; (2) Auto-close the right side panel in dandelion mode when all tabs are closed (covers edge cases not handled by the per-button close logic).
+
+| File | Change |
+|------|--------|
+| `packages/app/src/context/global-sync/child-store.ts` | Initial session fetch limit: 5 -> 50 |
+| `packages/app/src/pages/layout/sidebar-workspace.tsx` | Load-more increment: 5 -> 50 (both `SortableWorkspace` and `LocalWorkspace`) |
+| `packages/app/src/pages/session/session-side-panel.tsx` | Add `createEffect` to auto-close panel when no tabs and no context open (dandelion non-image mode) |
