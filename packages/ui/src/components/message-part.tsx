@@ -215,6 +215,7 @@ import type { IconProps } from "./icon"
 export type ToolInfo = {
   icon: IconProps["name"]
   title: string
+  activeTitle?: string
   subtitle?: string
 }
 
@@ -230,42 +231,49 @@ export function getToolInfo(tool: string, input: any = {}): ToolInfo {
       return {
         icon: "glasses",
         title: i18n.t("ui.tool.read"),
+        activeTitle: i18n.t("ui.tool.read.active"),
         subtitle: input.filePath ? getFilename(input.filePath) : undefined,
       }
     case "list":
       return {
         icon: "bullet-list",
         title: i18n.t("ui.tool.list"),
+        activeTitle: i18n.t("ui.tool.list.active"),
         subtitle: input.path ? getFilename(input.path) : undefined,
       }
     case "glob":
       return {
         icon: "magnifying-glass-menu",
         title: i18n.t("ui.tool.glob"),
+        activeTitle: i18n.t("ui.tool.glob.active"),
         subtitle: input.pattern,
       }
     case "grep":
       return {
         icon: "magnifying-glass-menu",
         title: i18n.t("ui.tool.grep"),
+        activeTitle: i18n.t("ui.tool.grep.active"),
         subtitle: input.pattern,
       }
     case "webfetch":
       return {
         icon: "window-cursor",
         title: i18n.t("ui.tool.webfetch"),
+        activeTitle: i18n.t("ui.tool.webfetch.active"),
         subtitle: input.url,
       }
     case "websearch":
       return {
         icon: "window-cursor",
         title: i18n.t("ui.tool.websearch"),
+        activeTitle: i18n.t("ui.tool.websearch.active"),
         subtitle: input.query,
       }
     case "codesearch":
       return {
         icon: "code",
         title: i18n.t("ui.tool.codesearch"),
+        activeTitle: i18n.t("ui.tool.codesearch.active"),
         subtitle: input.query,
       }
     case "task": {
@@ -283,24 +291,28 @@ export function getToolInfo(tool: string, input: any = {}): ToolInfo {
       return {
         icon: "console",
         title: i18n.t("ui.tool.shell"),
+        activeTitle: i18n.t("ui.tool.shell.active"),
         subtitle: input.description,
       }
     case "edit":
       return {
         icon: "code-lines",
         title: i18n.t("ui.messagePart.title.edit"),
+        activeTitle: i18n.t("ui.messagePart.title.edit.active"),
         subtitle: input.filePath ? getFilename(input.filePath) : undefined,
       }
     case "write":
       return {
         icon: "code-lines",
         title: i18n.t("ui.messagePart.title.write"),
+        activeTitle: i18n.t("ui.messagePart.title.write.active"),
         subtitle: input.filePath ? getFilename(input.filePath) : undefined,
       }
     case "apply_patch":
       return {
         icon: "code-lines",
         title: i18n.t("ui.tool.patch"),
+        activeTitle: i18n.t("ui.tool.patch.active"),
         subtitle: input.files?.length
           ? `${input.files.length} ${i18n.t(input.files.length > 1 ? "ui.common.file.other" : "ui.common.file.one")}`
           : undefined,
@@ -309,6 +321,7 @@ export function getToolInfo(tool: string, input: any = {}): ToolInfo {
       return {
         icon: "checklist",
         title: i18n.t("ui.tool.todos"),
+        activeTitle: i18n.t("ui.tool.todos.active"),
       }
     case "todoread":
       return {
@@ -319,11 +332,13 @@ export function getToolInfo(tool: string, input: any = {}): ToolInfo {
       return {
         icon: "bubble-5",
         title: i18n.t("ui.tool.questions"),
+        activeTitle: i18n.t("ui.tool.questions.active"),
       }
     case "skill":
       return {
         icon: "brain",
-        title: input.name || i18n.t("ui.tool.skill"),
+        title: i18n.t("ui.tool.skill", { name: input.name || "" }),
+        activeTitle: i18n.t("ui.tool.skill.active"),
       }
     default:
       return {
@@ -614,6 +629,7 @@ function contextToolTrigger(part: ToolPart, i18n: ReturnType<typeof useI18n>) {
       if (limit !== undefined) args.push("limit=" + limit)
       return {
         title: i18n.t("ui.tool.read"),
+        activeTitle: i18n.t("ui.tool.read.active"),
         subtitle: filePath ? getFilename(filePath) : "",
         args,
       }
@@ -621,11 +637,13 @@ function contextToolTrigger(part: ToolPart, i18n: ReturnType<typeof useI18n>) {
     case "list":
       return {
         title: i18n.t("ui.tool.list"),
+        activeTitle: i18n.t("ui.tool.list.active"),
         subtitle: getDirectory(path),
       }
     case "glob":
       return {
         title: i18n.t("ui.tool.glob"),
+        activeTitle: i18n.t("ui.tool.glob.active"),
         subtitle: getDirectory(path),
         args: pattern ? ["pattern=" + pattern] : [],
       }
@@ -635,6 +653,7 @@ function contextToolTrigger(part: ToolPart, i18n: ReturnType<typeof useI18n>) {
       if (include) args.push("include=" + include)
       return {
         title: i18n.t("ui.tool.grep"),
+        activeTitle: i18n.t("ui.tool.grep.active"),
         subtitle: getDirectory(path),
         args,
       }
@@ -643,6 +662,7 @@ function contextToolTrigger(part: ToolPart, i18n: ReturnType<typeof useI18n>) {
       const info = getToolInfo(part.tool, input)
       return {
         title: info.title,
+        activeTitle: info.activeTitle,
         subtitle: info.subtitle || contextToolDetail(part),
         args: [],
       }
@@ -858,7 +878,16 @@ function ContextToolGroup(props: { parts: ToolPart[]; busy?: boolean }) {
                         <div data-slot="basic-tool-tool-info-structured">
                           <div data-slot="basic-tool-tool-info-main">
                             <span data-slot="basic-tool-tool-title">
-                              <TextShimmer text={trigger().title} active={running()} />
+                              <Show
+                                when={trigger().activeTitle}
+                                fallback={<TextShimmer text={trigger().title} active={running()} />}
+                              >
+                                <ToolStatusTitle
+                                  active={running()}
+                                  activeText={trigger().activeTitle!}
+                                  doneText={trigger().title}
+                                />
+                              </Show>
                             </span>
                             <Show when={!running() && trigger().subtitle}>
                               <span data-slot="basic-tool-tool-subtitle">{trigger().subtitle}</span>
@@ -1488,6 +1517,7 @@ ToolRegistry.register({
           icon="glasses"
           trigger={{
             title: i18n.t("ui.tool.read"),
+            activeTitle: i18n.t("ui.tool.read.active"),
             subtitle: props.input.filePath ? getFilename(props.input.filePath) : "",
             args,
           }}
@@ -1515,7 +1545,7 @@ ToolRegistry.register({
       <BasicTool
         {...props}
         icon="bullet-list"
-        trigger={{ title: i18n.t("ui.tool.list"), subtitle: getDirectory(props.input.path || "/") }}
+        trigger={{ title: i18n.t("ui.tool.list"), activeTitle: i18n.t("ui.tool.list.active"), subtitle: getDirectory(props.input.path || "/") }}
       >
         <Show when={props.output}>
           <div data-component="tool-output" data-scrollable>
@@ -1537,6 +1567,7 @@ ToolRegistry.register({
         icon="magnifying-glass-menu"
         trigger={{
           title: i18n.t("ui.tool.glob"),
+          activeTitle: i18n.t("ui.tool.glob.active"),
           subtitle: getDirectory(props.input.path || "/"),
           args: props.input.pattern ? ["pattern=" + props.input.pattern] : [],
         }}
@@ -1564,6 +1595,7 @@ ToolRegistry.register({
         icon="magnifying-glass-menu"
         trigger={{
           title: i18n.t("ui.tool.grep"),
+          activeTitle: i18n.t("ui.tool.grep.active"),
           subtitle: getDirectory(props.input.path || "/"),
           args,
         }}
@@ -1597,7 +1629,7 @@ ToolRegistry.register({
           <div data-slot="basic-tool-tool-info-structured">
             <div data-slot="basic-tool-tool-info-main">
               <span data-slot="basic-tool-tool-title">
-                <TextShimmer text={i18n.t("ui.tool.webfetch")} active={pending()} />
+                <ToolStatusTitle active={pending()} activeText={i18n.t("ui.tool.webfetch.active")} doneText={i18n.t("ui.tool.webfetch")} />
               </span>
               <Show when={!pending() && url()}>
                 <a
@@ -1640,6 +1672,7 @@ ToolRegistry.register({
         icon="window-cursor"
         trigger={{
           title: i18n.t("ui.tool.websearch"),
+          activeTitle: i18n.t("ui.tool.websearch.active"),
           subtitle: query(),
           subtitleClass: "exa-tool-query",
         }}
@@ -1666,6 +1699,7 @@ ToolRegistry.register({
         icon="code"
         trigger={{
           title: i18n.t("ui.tool.codesearch"),
+          activeTitle: i18n.t("ui.tool.codesearch.active"),
           subtitle: query(),
           subtitleClass: "exa-tool-query",
         }}
@@ -1698,7 +1732,7 @@ ToolRegistry.register({
 
     const href = createMemo(() => sessionLink(childSessionId(), location.pathname, data.sessionHref))
 
-    const titleContent = () => <TextShimmer text={title()} active={running()} />
+    const titleContent = () => <ToolStatusTitle active={running()} activeText={title()} doneText={title()} />
 
     const trigger = () => (
       <div data-slot="basic-tool-tool-info-structured">
@@ -1760,7 +1794,7 @@ ToolRegistry.register({
           <div data-slot="basic-tool-tool-info-structured">
             <div data-slot="basic-tool-tool-info-main">
               <span data-slot="basic-tool-tool-title">
-                <TextShimmer text={i18n.t("ui.tool.shell")} active={pending()} />
+                <ToolStatusTitle active={pending()} activeText={i18n.t("ui.tool.shell.active")} doneText={i18n.t("ui.tool.shell")} />
               </span>
               <Show when={!pending() && props.input.description}>
                 <ShellSubmessage text={props.input.description} animate={sawPending} />
@@ -1817,7 +1851,7 @@ ToolRegistry.register({
               <div data-slot="message-part-title-area">
                 <div data-slot="message-part-title">
                   <span data-slot="message-part-title-text">
-                    <TextShimmer text={i18n.t("ui.messagePart.title.edit")} active={pending()} />
+                    <ToolStatusTitle active={pending()} activeText={i18n.t("ui.messagePart.title.edit.active")} doneText={i18n.t("ui.messagePart.title.edit")} />
                   </span>
                   <Show when={!pending()}>
                     <span data-slot="message-part-title-filename">{filename()}</span>
@@ -1889,7 +1923,7 @@ ToolRegistry.register({
               <div data-slot="message-part-title-area">
                 <div data-slot="message-part-title">
                   <span data-slot="message-part-title-text">
-                    <TextShimmer text={i18n.t("ui.messagePart.title.write")} active={pending()} />
+                    <ToolStatusTitle active={pending()} activeText={i18n.t("ui.messagePart.title.write.active")} doneText={i18n.t("ui.messagePart.title.write")} />
                   </span>
                   <Show when={!pending()}>
                     <span data-slot="message-part-title-filename">{filename()}</span>
@@ -1980,6 +2014,7 @@ ToolRegistry.register({
               defer
               trigger={{
                 title: i18n.t("ui.tool.patch"),
+                activeTitle: i18n.t("ui.tool.patch.active"),
                 subtitle: subtitle(),
               }}
             >
@@ -2080,7 +2115,7 @@ ToolRegistry.register({
                 <div data-slot="message-part-title-area">
                   <div data-slot="message-part-title">
                     <span data-slot="message-part-title-text">
-                      <TextShimmer text={i18n.t("ui.tool.patch")} active={pending()} />
+                      <ToolStatusTitle active={pending()} activeText={i18n.t("ui.tool.patch.active")} doneText={i18n.t("ui.tool.patch")} />
                     </span>
                     <Show when={!pending()}>
                       <span data-slot="message-part-title-filename">{getFilename(single()!.relativePath)}</span>
@@ -2168,6 +2203,7 @@ ToolRegistry.register({
         icon="checklist"
         trigger={{
           title: i18n.t("ui.tool.todos"),
+          activeTitle: i18n.t("ui.tool.todos.active"),
           subtitle: subtitle(),
         }}
       >
@@ -2214,6 +2250,7 @@ ToolRegistry.register({
         icon="bubble-5"
         trigger={{
           title: i18n.t("ui.tool.questions"),
+          activeTitle: i18n.t("ui.tool.questions.active"),
           subtitle: subtitle(),
         }}
       >
@@ -2241,22 +2278,19 @@ ToolRegistry.register({
   name: "skill",
   render(props) {
     const i18n = useI18n()
-    const title = createMemo(() => props.input.name || i18n.t("ui.tool.skill"))
-    const running = createMemo(() => props.status === "pending" || props.status === "running")
+    const name = createMemo(() => (props.input.name as string) || "")
 
-    const titleContent = () => <TextShimmer text={title()} active={running()} />
-
-    const trigger = () => (
-      <div data-slot="basic-tool-tool-info-structured">
-        <div data-slot="basic-tool-tool-info-main">
-          <span data-slot="basic-tool-tool-title" class="capitalize agent-title">
-            {titleContent()}
-          </span>
-        </div>
-      </div>
+    return (
+      <BasicTool
+        icon="brain"
+        status={props.status}
+        trigger={{
+          title: i18n.t("ui.tool.skill", { name: name() }),
+          activeTitle: i18n.t("ui.tool.skill.active"),
+        }}
+        hideDetails
+      />
     )
-
-    return <BasicTool icon="brain" status={props.status} trigger={trigger()} hideDetails />
   },
 })
 
@@ -2283,7 +2317,7 @@ ToolRegistry.register({
       <div data-slot="basic-tool-tool-info-structured">
         <div data-slot="basic-tool-tool-info-main">
           <span data-slot="basic-tool-tool-title">
-            <TextShimmer text={i18n.t("ui.tool.present")} active={props.status === "pending" || props.status === "running"} />
+            <ToolStatusTitle active={props.status === "pending" || props.status === "running"} activeText={i18n.t("ui.tool.present.active")} doneText={i18n.t("ui.tool.present")} />
           </span>
           <Show when={filename() && props.status !== "pending" && props.status !== "running"}>
             <span data-slot="basic-tool-tool-subtitle" class="clickable" onClick={handleClick}>

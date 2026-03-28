@@ -5,9 +5,11 @@ import { createStore } from "solid-js/store"
 import { Collapsible } from "./collapsible"
 import type { IconProps } from "./icon"
 import { TextShimmer } from "./text-shimmer"
+import { ToolStatusTitle } from "./tool-status-title"
 
 export type TriggerTitle = {
   title: string
+  activeTitle?: string
   titleClass?: string
   subtitle?: string
   subtitleClass?: string
@@ -138,7 +140,16 @@ export function BasicTool(props: BasicToolProps) {
                             [trigger().titleClass ?? ""]: !!trigger().titleClass,
                           }}
                         >
-                          <TextShimmer text={trigger().title} active={pending()} />
+                          <Show
+                            when={trigger().activeTitle}
+                            fallback={<TextShimmer text={trigger().title} active={pending()} />}
+                          >
+                            <ToolStatusTitle
+                              active={pending()}
+                              activeText={trigger().activeTitle!}
+                              doneText={trigger().title}
+                            />
+                          </Show>
                         </span>
                         <Show when={!pending()}>
                           <Show when={trigger().subtitle}>

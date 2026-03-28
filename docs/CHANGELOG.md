@@ -445,6 +445,18 @@ Quick reference of all files modified from upstream, grouped by package:
 | `packages/app/src/i18n/en.ts` | Add `dandelion.home.{chat,agent,image}.*` and `dandelion.starter.*` keys |
 | `packages/app/src/i18n/zh.ts` | Add Chinese translations for all new keys |
 
+### Commit `74d113265` — fix(dandelion): fix tab slider not tracking agent mode and startup workspace race
+
+**Intent:** Two bugs: (1) the sliding indicator in the titlebar didn't move to the Agent tab when navigating to the agent workspace — the effect was missing `isAgent()` as a dependency; (2) on startup, `home.tsx` was writing workspaces to the persisted store before it finished loading, so the writes were overwritten. Fix by moving all workspace registration to `layout.tsx` autoselect (runs after store is ready) and having tab clicks call `layout.projects.open()` before navigating.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/titlebar.tsx` | Add `isAgent()` to slider effect dependencies; call `layout.projects.open()` on tab click before navigating |
+| `packages/app/src/pages/home.tsx` | Remove workspace `open()` calls — defer to `layout.tsx` autoselect |
+| `packages/app/src/pages/layout.tsx` | Autoselect now solely handles dandelion startup workspace registration (all three modes) |
+| `packages/desktop-electron/src/main/windows.ts` | Add missing `image` field to `Globals.dandelionWorkspaces` type |
+| `packages/app/src/components/session/session-new-view.tsx` | Simplify image mode check (remove redundant guard) |
+
 ### feat(dandelion): per-workspace model selection memory
 
 **Intent:** Switching models in agent mode was also changing the model in chat mode (and vice versa). Root cause: `models.recent` is a global store (`Persist.global`), and when a workspace had no `workspaceModel` set, the fallback chain reached `recentModel()` which returned whatever was last pushed globally by any workspace.
@@ -454,3 +466,15 @@ Fix: (1) Add `workspaceModel` field to per-workspace persisted store, inserted i
 | File | Change |
 |------|--------|
 | `packages/app/src/context/local.tsx` | Add `workspaceModel` to `Saved` type; fix `migrate` to preserve it; add `workspaceModel()` in fallback chain before `recentModel()`; save workspace model on `model.set()`; init effect captures fallback as workspace default |
+
+### feat(ui): active form text for tool titles during execution
+
+**Intent:** When a tool is executing (pending/running with shimmer animation), show a distinct "active form" text instead of the static tool name. Uses the existing `ToolStatusTitle` component for smooth animated transitions between active and done states. Example: "编写中" (shimmer) -> "写入" (done).
+
+| File | Change |
+|------|--------|
+| `packages/ui/src/i18n/en.ts` | Add `.active` i18n keys for all tools (e.g. `ui.tool.read.active: "Reading"`, `ui.messagePart.title.write.active: "Writing"`); change `ui.tool.skill` to template `"Loaded skill {{name}}"` |
+| `packages/ui/src/i18n/zh.ts` | Add Chinese active forms (e.g. `读取中`, `编写中`, `编辑中`, `执行中`); `ui.tool.skill: "加载技能 {{name}}"`, `ui.tool.skill.active: "加载技能中"`; `ui.tool.patch: "编辑"`, `ui.tool.webfetch: "获取网页"` |
+| `packages/ui/src/i18n/zht.ts` | Add Traditional Chinese active forms matching zh.ts pattern |
+| `packages/ui/src/components/basic-tool.tsx` | Add `activeTitle?: string` to `TriggerTitle` type; import `ToolStatusTitle`; render `ToolStatusTitle` when `activeTitle` is set, fallback to `TextShimmer` otherwise |
+| `packages/ui/src/components/message-part.tsx` | Add `activeTitle?: string` to `ToolInfo` type; update `getToolInfo()` to return `activeTitle` for all tools; update all `ToolRegistry.register()` calls to pass `activeTitle`; replace `TextShimmer` with `ToolStatusTitle` in custom JSX triggers (webfetch, bash, edit, write, apply_patch, skill, present_file); update `contextToolTrigger()` and `ContextToolGroup` list items; refactor skill to use title template with name |
