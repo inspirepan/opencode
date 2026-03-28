@@ -668,6 +668,8 @@ export namespace File {
 
           if (!query) {
             if (kind === "file") return result.files.slice(0, limit)
+            if (kind === "all")
+              return sortHiddenLast([...result.dirs.toSorted(), ...result.files], preferHidden).slice(0, limit)
             return sortHiddenLast(result.dirs.toSorted(), preferHidden).slice(0, limit)
           }
 
