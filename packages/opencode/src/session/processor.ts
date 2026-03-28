@@ -52,7 +52,6 @@ export namespace SessionProcessor {
           try {
             let currentText: MessageV2.TextPart | undefined
             let reasoningMap: Record<string, MessageV2.ReasoningPart> = {}
-            let thinking = false
             let content = false
             const stream = await LLM.stream(streamInput)
 
@@ -64,7 +63,6 @@ export namespace SessionProcessor {
                   break
 
                 case "reasoning-start":
-                  thinking = true
                   if (value.id in reasoningMap) {
                     continue
                   }
@@ -237,7 +235,6 @@ export namespace SessionProcessor {
                   throw value.error
 
                 case "start-step":
-                  thinking = false
                   content = false
                   snapshot = await Snapshot.track()
                   await Session.updatePart({
@@ -349,11 +346,6 @@ export namespace SessionProcessor {
                   break
 
                 case "file":
-                  // Skip thought/sketch images from Gemini thinking process:
-                  // AI SDK file events don't carry providerMetadata, so detect by
-                  // position — images before any text/tool content in a reasoning
-                  // step are thought sketches.
-                  if (thinking && !content) break
                   const filePart = await Media.save({
                     sessionID: input.assistantMessage.sessionID,
                     base64: value.file.base64,
