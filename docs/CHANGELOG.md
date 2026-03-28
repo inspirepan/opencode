@@ -373,3 +373,59 @@ Quick reference of all files modified from upstream, grouped by package:
 |------|--------|
 | `packages/app/src/pages/home.tsx` | Read `localStorage.getItem("dandelion-mode")` to pick workspace; default to `chat` |
 | `packages/app/src/components/titlebar.tsx` | Write `localStorage.setItem("dandelion-mode", ...)` on tab click |
+
+### feat(dandelion): add image generation mode tab
+
+**Intent:** Third workspace mode for AI image generation. Has its own workspace (`~/.dandelion/spaces/image/`), `image-gen` agent (no tools, no system prompt), and a filtered model selector that only shows models with `capabilities.output.image`. Shows a warning banner when no image-capable models are configured.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/src/main/index.ts` | Add `image` path to `DANDELION_WORKSPACES`; `mkdirSync` in `ensureDandelionWorkspaces` |
+| `packages/desktop-electron/src/preload/index.ts` | Add `image` path to `DANDELION_WORKSPACES` |
+| `packages/desktop-electron/src/renderer/env.d.ts` | Add `image: string` to `__DANDELION__.workspaces` type |
+| `packages/app/src/context/platform.tsx` | Add `image: string` to `dandelion.workspaces` type |
+| `packages/opencode/src/agent/agent.ts` | Add `image-gen` agent: `mode: "primary"`, `"*": "deny"`, no prompt |
+| `packages/app/src/components/titlebar.tsx` | Add Image tab button with `photo` icon and sliding indicator support |
+| `packages/app/src/pages/home.tsx` | Support `"image"` in `dandelion-mode` localStorage |
+| `packages/app/src/pages/layout.tsx` | Open all three workspaces on autoselect; navigate to last used |
+| `packages/app/src/components/prompt-input.tsx` | Detect image mode; auto-select `image-gen` agent; pass `imageFilter` to model selector; show no-models warning banner |
+| `packages/app/src/components/dialog-select-model.tsx` | Add `filter` prop to `ModelList` and `ModelSelectorPopover` |
+| `packages/app/src/i18n/en.ts` | Add `dandelion.mode.image`, `dandelion.image.noModels` |
+| `packages/app/src/i18n/zh.ts` | Add `dandelion.mode.image`, `dandelion.image.noModels` (Chinese) |
+
+### fix(app): guard empty worktree in server projects store
+
+**Intent:** Persisted server project store could contain entries with empty `worktree`, crashing layout context init when `globalSync.child("")` is called. Filter out empty entries and prevent storing them.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/context/layout.tsx` | Add `?? []` guards and `.filter(p => p.worktree)` on `server.projects.list()` calls |
+| `packages/app/src/context/server.tsx` | Filter empty worktree from `projectsList`; guard `open()` against empty directory |
+
+### feat(dandelion): image mode model filtering and empty state
+
+**Intent:** In image mode, the model selector must only show image-capable models. When current model doesn't support images, display "Select Model" instead of fallback text LLM. Empty popover shows guidance to connect provider or manage models.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/prompt-input.tsx` | `effectiveModel()` memo hides non-image models; `empty` prop for popover with connect + manage buttons |
+| `packages/app/src/components/dialog-select-model.tsx` | `empty` JSX prop on `ModelList`/`ModelSelectorPopover`; `<Show>` fallback when list is empty |
+
+### style(dandelion): add tags to model management dialog
+
+**Intent:** Model management dialog now shows provider icons and tags (Image Gen, Free, Latest) consistent with the model selector list.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/dialog-manage-models.tsx` | Add `ProviderIcon`, `Tag`, `Show` imports; render provider icon + image/free/latest tags per model |
+
+### feat(dandelion): image gallery panel for image mode
+
+**Intent:** Right-side panel in image mode shows a gallery grid of all generated images from the current session. Auto-opens when entering a session. Images are clickable for full preview with download. Metadata (resolution, parameters) fields reserved for future implementation.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/pages/session/image-gallery.tsx` | **Added:** Gallery component — extracts `FilePart` images from session messages, renders responsive 2-col grid with click-to-preview |
+| `packages/app/src/pages/session/session-side-panel.tsx` | Add `imageMode` detection; gallery tab trigger and content; auto-open panel with gallery tab in image mode |
+| `packages/app/src/i18n/en.ts` | Add `dandelion.image.gallery`, `dandelion.image.gallery.empty` |
+| `packages/app/src/i18n/zh.ts` | Add `dandelion.image.gallery` (图库), `dandelion.image.gallery.empty` |

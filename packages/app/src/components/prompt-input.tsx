@@ -27,6 +27,7 @@ import { IconButton } from "@opencode-ai/ui/icon-button"
 import { Select } from "@opencode-ai/ui/select"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { ModelSelectorPopover } from "@/components/dialog-select-model"
+import { DialogManageModels } from "@/components/dialog-manage-models"
 import { DialogSelectModelUnpaid } from "@/components/dialog-select-model-unpaid"
 import { useProviders } from "@/hooks/use-providers"
 import { useCommand } from "@/context/command"
@@ -115,6 +116,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   const language = useLanguage()
   const platform = usePlatform()
   const dandelionChatMode = createMemo(() => platform.dandelion?.workspaces.chat === sdk.directory)
+  const dandelionImageMode = createMemo(() => platform.dandelion?.workspaces.image === sdk.directory)
 
   // Dandelion: auto-select chat agent in chat mode
   createEffect(() => {
@@ -122,6 +124,27 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     if (local.agent.current()?.name === "chat") return
     local.agent.set("chat")
   })
+
+  // Dandelion: auto-select image-gen agent in image mode
+  createEffect(() => {
+    if (!dandelionImageMode()) return
+    if (local.agent.current()?.name === "image-gen") return
+    local.agent.set("image-gen")
+  })
+
+  const imageFilter = (m: any) => !!m.capabilities?.output?.image
+  const hasImageModels = createMemo(() => {
+    if (!dandelionImageMode()) return true
+    return local.model.list().some(imageFilter)
+  })
+  // In image mode, current model must support image output
+  const imageModelValid = createMemo(() => {
+    if (!dandelionImageMode()) return true
+    const m = local.model.current()
+    return m ? imageFilter(m) : false
+  })
+  // Effective model for display: null in image mode when current model is not image-capable
+  const effectiveModel = createMemo(() => (imageModelValid() ? local.model.current() : undefined))
 
   const { params, tabs, view } = useSessionLayout()
   let editorRef!: HTMLDivElement
@@ -1288,6 +1311,20 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
         commandKeybind={command.keybind}
         t={(key) => language.t(key as Parameters<typeof language.t>[0])}
       />
+      <Show when={!hasImageModels()}>
+        <div class="flex items-center gap-2 px-3 py-2 text-12-regular text-text-weak bg-surface-raised rounded-md mx-2 mb-1">
+          <Icon name="warning" size="small" class="shrink-0 text-icon-warning-base" />
+          <span>{language.t("dandelion.image.noModels")}</span>
+          <Button
+            variant="ghost"
+            size="small"
+            class="ml-auto shrink-0 text-12-medium"
+            onClick={() => command.trigger("provider.connect")}
+          >
+            {language.t("command.provider.connect")}
+          </Button>
+        </div>
+      </Show>
       <DockShellForm
         onSubmit={handleSubmit}
         classList={{
@@ -1509,15 +1546,15 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                           style={control()}
                           onClick={() => dialog.show(() => <DialogSelectModelUnpaid model={local.model} />)}
                         >
-                          <Show when={local.model.current()?.provider?.id}>
+                          <Show when={effectiveModel()?.provider?.id}>
                             <ProviderIcon
-                              id={local.model.current()?.provider?.id ?? ""}
+                              id={effectiveModel()?.provider?.id ?? ""}
                               class="size-4 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity duration-150"
                               style={{ "will-change": "opacity", transform: "translateZ(0)" }}
                             />
                           </Show>
                           <span class="truncate">
-                            {local.model.current()?.name ?? language.t("dialog.model.select.title")}
+                            {effectiveModel()?.name ?? language.t("dialog.model.select.title")}
                           </span>
                           <Icon name="chevron-down" size="small" class="shrink-0" />
                         </Button>
@@ -1532,6 +1569,25 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                     >
                       <ModelSelectorPopover
                         model={local.model}
+                        filter={dandelionImageMode() ? imageFilter : undefined}
+                        empty={
+                          dandelionImageMode() ? (
+                            <div class="flex flex-col items-center gap-3 py-8 px-4 text-center">
+                              <Icon name="warning" size="large" class="text-icon-warning-base" />
+                              <div class="text-13-regular text-text-weak">
+                                {language.t("dandelion.image.noModels")}
+                              </div>
+                              <div class="flex items-center gap-2">
+                                <Button size="normal" onClick={() => command.trigger("provider.connect")}>
+                                  {language.t("command.provider.connect")}
+                                </Button>
+                                <Button size="normal" variant="ghost" onClick={() => dialog.show(() => <DialogManageModels />)}>
+                                  {language.t("dialog.model.manage")}
+                                </Button>
+                              </div>
+                            </div>
+                          ) : undefined
+                        }
                         triggerAs={Button}
                         triggerProps={{
                           variant: "ghost",
@@ -1541,15 +1597,15 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                           "data-action": "prompt-model",
                         }}
                       >
-                        <Show when={local.model.current()?.provider?.id}>
+                        <Show when={effectiveModel()?.provider?.id}>
                           <ProviderIcon
-                            id={local.model.current()?.provider?.id ?? ""}
+                            id={effectiveModel()?.provider?.id ?? ""}
                             class="size-4 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity duration-150"
                             style={{ "will-change": "opacity", transform: "translateZ(0)" }}
                           />
                         </Show>
                         <span class="truncate">
-                          {local.model.current()?.name ?? language.t("dialog.model.select.title")}
+                          {effectiveModel()?.name ?? language.t("dialog.model.select.title")}
                         </span>
                         <Icon name="chevron-down" size="small" class="shrink-0" />
                       </ModelSelectorPopover>

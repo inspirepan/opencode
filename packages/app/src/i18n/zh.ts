@@ -227,7 +227,7 @@ export const dict = {
 
   "model.tag.free": "免费",
   "model.tag.latest": "最新",
-  "model.tag.image": "图片生成",
+  "model.tag.image": "图像生成",
   "model.provider.anthropic": "Anthropic",
   "model.provider.openai": "OpenAI",
   "model.provider.google": "Google",
@@ -942,6 +942,10 @@ export const dict = {
 
   "dandelion.mode.chat": "聊天",
   "dandelion.mode.agent": "智能体",
+  "dandelion.mode.image": "图像生成",
+  "dandelion.image.noModels": "没有可用的图像生成模型，请先配置支持图像输出的模型服务商。",
+  "dandelion.image.gallery": "图库",
+  "dandelion.image.gallery.empty": "生成的图像将在此显示。",
 
   "dandelion.preview.tab": "预览",
   "dandelion.preview.empty": "暂无预览内容。AI 生成 HTML 等可视化文件时会在此展示。",

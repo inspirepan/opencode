@@ -118,6 +118,19 @@ export namespace Agent {
               mode: "primary",
               native: true,
             },
+            "image-gen": {
+              name: "image-gen",
+              description: "Image generation mode. No tool access.",
+              options: {},
+              permission: Permission.merge(
+                defaults,
+                Permission.fromConfig({
+                  "*": "deny",
+                }),
+              ),
+              mode: "primary",
+              native: true,
+            },
             build: {
               name: "build",
               description: "The default agent. Executes tools based on configured permissions.",

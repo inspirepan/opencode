@@ -594,11 +594,16 @@ export default function Layout(props: ParentProps) {
     await layout.ready.promise
     if (!untrack(() => state.autoselect)) return
 
-    // Dandelion: open both workspaces, navigate to agent by default
+    // Dandelion: open all workspaces, navigate to last used by default
     if (platform.dandelion) {
-      const { chat, agent } = platform.dandelion.workspaces
-      layout.projects.open(chat)
-      await openProject(agent, true)
+      const { chat, agent, image } = platform.dandelion.workspaces
+      const last = localStorage.getItem("dandelion-mode") as "chat" | "agent" | "image" | null
+      const target = platform.dandelion.workspaces[last ?? "chat"]
+      for (const ws of [chat, agent, image]) {
+        if (ws === target) continue
+        layout.projects.open(ws)
+      }
+      await openProject(target, true)
       return
     }
 

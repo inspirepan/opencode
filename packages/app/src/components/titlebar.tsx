@@ -297,11 +297,13 @@ export function Titlebar() {
             })
             const isChat = createMemo(() => currentDir() === dandelion().workspaces.chat)
             const isAgent = createMemo(() => currentDir() === dandelion().workspaces.agent)
+            const isImage = createMemo(() => currentDir() === dandelion().workspaces.image)
             let chatRef: HTMLButtonElement | undefined
             let agentRef: HTMLButtonElement | undefined
+            let imageRef: HTMLButtonElement | undefined
             const [slider, setSlider] = createStore({ left: 0, width: 0 })
             const sync = () => {
-              const el = isChat() ? chatRef : agentRef
+              const el = isChat() ? chatRef : isAgent() ? agentRef : imageRef
               if (!el) return
               const parent = el.offsetParent as HTMLElement | null
               if (!parent) return
@@ -309,6 +311,7 @@ export function Titlebar() {
             }
             createEffect(() => {
               isChat()
+              isImage()
               requestAnimationFrame(sync)
             })
             return (
@@ -346,6 +349,21 @@ export function Titlebar() {
                 >
                   <Icon name="window-cursor" size="small" />
                   {language.t("dandelion.mode.agent")}
+                </button>
+                <button
+                  ref={imageRef}
+                  class="relative z-[1] flex items-center gap-1.5 h-full px-3 rounded-md text-12-medium whitespace-nowrap transition-colors duration-150 cursor-default"
+                  classList={{
+                    "text-text-strong": isImage(),
+                    "text-text-weak hover:text-text-base": !isImage(),
+                  }}
+                  onClick={() => {
+                    localStorage.setItem("dandelion-mode", "image")
+                    navigate(`/${base64Encode(dandelion().workspaces.image)}/session`)
+                  }}
+                >
+                  <Icon name="photo" size="small" />
+                  {language.t("dandelion.mode.image")}
                 </button>
               </div>
             )

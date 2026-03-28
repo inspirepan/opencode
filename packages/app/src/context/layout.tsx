@@ -458,7 +458,7 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
     }
 
     createEffect(() => {
-      const projects = server.projects.list()
+      const projects = server.projects.list() ?? []
       const seen = new Set(projects.map((project) => project.worktree))
 
       batch(() => {
@@ -478,7 +478,9 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
       })
     })
 
-    const enriched = createMemo(() => server.projects.list().map(enrich))
+    const enriched = createMemo(() =>
+      (server.projects.list() ?? []).filter((p) => p.worktree).map(enrich),
+    )
     const list = createMemo(() => {
       const projects = enriched()
       return projects.map((project) => {
@@ -545,7 +547,7 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
 
     onMount(() => {
       Promise.all(
-        server.projects.list().map((project) => {
+        (server.projects.list() ?? []).map((project) => {
           return globalSync.project.loadSessions(project.worktree)
         }),
       )
@@ -567,7 +569,7 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
         list,
         open(directory: string) {
           const root = rootFor(directory)
-          if (server.projects.list().find((x) => x.worktree === root)) return
+          if ((server.projects.list() ?? []).find((x) => x.worktree === root)) return
           globalSync.project.loadSessions(root)
           server.projects.open(root)
         },

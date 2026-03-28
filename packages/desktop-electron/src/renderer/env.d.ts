@@ -10,7 +10,7 @@ declare global {
       dandelionWorkspace?: string
     }
     __DANDELION__?: {
-      workspaces: { chat: string; agent: string }
+      workspaces: { chat: string; agent: string; image: string }
     }
   }
 }

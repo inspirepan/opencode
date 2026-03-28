@@ -37,11 +37,13 @@ import { createLoadingWindow, createMainWindow, setBackgroundColor, setDockIcon 
 const DANDELION_WORKSPACES = {
   chat: join(homedir(), ".dandelion", "spaces", "chat"),
   agent: join(homedir(), ".dandelion", "spaces", "agent"),
+  image: join(homedir(), ".dandelion", "spaces", "image"),
 }
 
 function ensureDandelionWorkspaces() {
   mkdirSync(DANDELION_WORKSPACES.chat, { recursive: true })
   mkdirSync(DANDELION_WORKSPACES.agent, { recursive: true })
+  mkdirSync(DANDELION_WORKSPACES.image, { recursive: true })
 }
 
 const initEmitter = new EventEmitter()

@@ -25,7 +25,7 @@ export default function Home() {
 
   // Dandelion: auto-redirect to last used workspace (default: chat)
   if (platform.dandelion) {
-    const last = localStorage.getItem("dandelion-mode") as "chat" | "agent" | null
+    const last = localStorage.getItem("dandelion-mode") as "chat" | "agent" | "image" | null
     const workspace = platform.dandelion.workspaces[last ?? "chat"]
     layout.projects.open(workspace)
     server.projects.touch(workspace)

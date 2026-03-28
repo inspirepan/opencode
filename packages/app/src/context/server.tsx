@@ -207,7 +207,7 @@ export const { use: useServer, provider: ServerProvider } = createSimpleContext(
     })
 
     const origin = createMemo(() => projectsKey(state.active))
-    const projectsList = createMemo(() => store.projects[origin()] ?? [])
+    const projectsList = createMemo(() => (store.projects[origin()] ?? []).filter((p) => p.worktree))
     const current: Accessor<ServerConnection.Any | undefined> = createMemo(
       () => allServers().find((s) => ServerConnection.key(s) === state.active) ?? allServers()[0],
     )
@@ -238,6 +238,7 @@ export const { use: useServer, provider: ServerProvider } = createSimpleContext(
       projects: {
         list: projectsList,
         open(directory: string) {
+          if (!directory) return
           const key = origin()
           if (!key) return
           const current = store.projects[key] ?? []

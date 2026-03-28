@@ -23,6 +23,8 @@ type ModelState = ReturnType<typeof useLocal>["model"]
 
 const ModelList: Component<{
   provider?: string
+  filter?: (m: any) => boolean
+  empty?: JSX.Element
   class?: string
   onSelect: () => void
   action?: JSX.Element
@@ -35,10 +37,12 @@ const ModelList: Component<{
     model
       .list()
       .filter((m) => model.visible({ modelID: m.id, providerID: m.provider.id }))
-      .filter((m) => (props.provider ? m.provider.id === props.provider : true)),
+      .filter((m) => (props.provider ? m.provider.id === props.provider : true))
+      .filter((m) => (props.filter ? props.filter(m) : true)),
   )
 
   return (
+    <Show when={!props.empty || models().length > 0} fallback={props.empty}>
     <List
       class={`flex-1 min-h-0 [&_[data-slot=list-scroll]]:flex-1 [&_[data-slot=list-scroll]]:min-h-0 ${props.class ?? ""}`}
       search={{ placeholder: language.t("dialog.model.search.placeholder"), autofocus: true, action: props.action }}
@@ -89,6 +93,7 @@ const ModelList: Component<{
         </div>
       )}
     </List>
+    </Show>
   )
 }
 
@@ -96,6 +101,8 @@ type ModelSelectorTriggerProps = Omit<ComponentProps<typeof Kobalte.Trigger>, "a
 
 export function ModelSelectorPopover(props: {
   provider?: string
+  filter?: (m: any) => boolean
+  empty?: JSX.Element
   model?: ModelState
   children?: JSX.Element
   triggerAs?: ValidComponent
@@ -160,6 +167,8 @@ export function ModelSelectorPopover(props: {
           <Kobalte.Title class="sr-only">{language.t("dialog.model.select.title")}</Kobalte.Title>
           <ModelList
             provider={props.provider}
+            filter={props.filter}
+            empty={props.empty}
             model={props.model}
             onSelect={() => setStore("open", false)}
             class="p-1"

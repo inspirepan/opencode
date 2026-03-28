@@ -3,12 +3,17 @@ import { List } from "@opencode-ai/ui/list"
 import { Switch } from "@opencode-ai/ui/switch"
 import { Tooltip } from "@opencode-ai/ui/tooltip"
 import { Button } from "@opencode-ai/ui/button"
-import type { Component } from "solid-js"
+import { Tag } from "@opencode-ai/ui/tag"
+import { ProviderIcon } from "@opencode-ai/ui/provider-icon"
+import { type Component, Show } from "solid-js"
 import { useLocal } from "@/context/local"
 import { popularProviders } from "@/hooks/use-providers"
 import { useLanguage } from "@/context/language"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { DialogSelectProvider } from "./dialog-select-provider"
+
+const isFree = (provider: string, cost: { input: number } | undefined) =>
+  provider === "opencode" && (!cost || cost.input === 0)
 
 export const DialogManageModels: Component = () => {
   const local = useLocal()
@@ -84,7 +89,19 @@ export const DialogManageModels: Component = () => {
       >
         {(i) => (
           <div class="w-full flex items-center justify-between gap-x-3">
-            <span>{i.name}</span>
+            <div class="flex items-center gap-x-2 min-w-0">
+              <ProviderIcon id={i.provider.id} class="size-4 shrink-0" />
+              <span class="truncate">{i.name}</span>
+              <Show when={(i as any).capabilities?.output?.image}>
+                <Tag class="shrink-0 whitespace-nowrap">{language.t("model.tag.image")}</Tag>
+              </Show>
+              <Show when={isFree(i.provider.id, i.cost)}>
+                <Tag>{language.t("model.tag.free")}</Tag>
+              </Show>
+              <Show when={i.latest}>
+                <Tag>{language.t("model.tag.latest")}</Tag>
+              </Show>
+            </div>
             <div onClick={(e) => e.stopPropagation()}>
               <Switch
                 checked={!!local.model.visible({ modelID: i.id, providerID: i.provider.id })}

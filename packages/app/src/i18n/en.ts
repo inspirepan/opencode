@@ -960,6 +960,10 @@ export const dict = {
 
   "dandelion.mode.chat": "Chat",
   "dandelion.mode.agent": "Agent",
+  "dandelion.mode.image": "Image",
+  "dandelion.image.noModels": "No image generation models available. Please configure a provider with image output support.",
+  "dandelion.image.gallery": "Gallery",
+  "dandelion.image.gallery.empty": "Generated images will appear here.",
 
   "dandelion.preview.tab": "Preview",
   "dandelion.preview.empty": "No preview available. AI will show content here when it generates HTML or other visual files.",

@@ -93,6 +93,7 @@ export type Platform = {
     workspaces: {
       chat: string
       agent: string
+      image: string
     }
   }
 }

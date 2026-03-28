@@ -22,10 +22,12 @@ import { useLayout } from "@/context/layout"
 import { usePlatform } from "@/context/platform"
 import { usePreview, previewPath, previewTab } from "@/context/preview"
 import { useSync } from "@/context/sync"
+import { decode64 } from "@/utils/base64"
 import { createFileTabListSync } from "@/pages/session/file-tab-scroll"
 import { FileTabContent } from "@/pages/session/file-tabs"
 import { createOpenSessionFileTab, createSessionTabs, getTabReorderIndex, type Sizing } from "@/pages/session/helpers"
 import { PreviewTab } from "@/pages/session/preview-tab"
+import { ImageGallery } from "@/pages/session/image-gallery"
 import { setSessionHandoff } from "@/pages/session/handoff"
 import { useSessionLayout } from "@/pages/session/session-layout"
 
@@ -46,6 +48,10 @@ export function SessionSidePanel(props: {
   const dialog = useDialog()
   const { params, sessionKey, tabs, view } = useSessionLayout()
   const dandelion = () => !!platform.dandelion
+  const imageMode = createMemo(() => {
+    const ws = platform.dandelion?.workspaces.image
+    return ws ? decode64(params.dir) === ws : false
+  })
 
   const isDesktop = createMediaQuery("(min-width: 768px)")
 
@@ -196,6 +202,15 @@ export function SessionSidePanel(props: {
     setStore("activeDraggable", undefined)
   }
 
+  // Image mode: auto-open panel with gallery tab
+  createEffect(() => {
+    if (!imageMode()) return
+    if (!params.id) return
+    tabs().open("gallery")
+    tabs().setActive("gallery")
+    if (!view().reviewPanel.opened()) view().reviewPanel.open()
+  })
+
   createEffect(() => {
     if (!file.ready()) return
 
@@ -305,6 +320,13 @@ export function SessionSidePanel(props: {
                           </div>
                         </Tabs.Trigger>
                       </Show>
+                      <Show when={imageMode()}>
+                        <Tabs.Trigger value="gallery">
+                          <div class="flex items-center gap-1.5">
+                            <div>{language.t("dandelion.image.gallery")}</div>
+                          </div>
+                        </Tabs.Trigger>
+                      </Show>
                       <Show when={dandelion()}>
                         <For each={openedTabs()}>
                           {(tab) => {
@@ -384,6 +406,11 @@ export function SessionSidePanel(props: {
                     </Show>
                   </div>
 
+                  <Show when={imageMode()}>
+                    <Tabs.Content value="gallery" class="flex flex-col h-full overflow-hidden contain-strict">
+                      <ImageGallery />
+                    </Tabs.Content>
+                  </Show>
                   <Show when={dandelion()}>
                     <Tabs.Content value="empty" class="flex flex-col h-full overflow-hidden contain-strict">
                       <PreviewTab resizing={props.size.active} />

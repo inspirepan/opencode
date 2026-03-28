@@ -6,6 +6,7 @@ import type { ElectronAPI, InitStep, SqliteMigrationProgress } from "./types"
 const DANDELION_WORKSPACES = {
   chat: join(homedir(), ".dandelion", "spaces", "chat"),
   agent: join(homedir(), ".dandelion", "spaces", "agent"),
+  image: join(homedir(), ".dandelion", "spaces", "image"),
 }
 
 const api: ElectronAPI = {
