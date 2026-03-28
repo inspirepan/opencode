@@ -107,7 +107,7 @@ function DandelionNewView() {
     const ws = platform.dandelion?.workspaces
     if (!ws) return "agent"
     if (sdk.directory === ws.chat) return "chat"
-    if ("image" in ws && sdk.directory === (ws as Record<string, string>).image) return "image"
+    if (sdk.directory === ws.image) return "image"
     return "agent"
   })
 

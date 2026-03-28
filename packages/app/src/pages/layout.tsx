@@ -592,7 +592,8 @@ export default function Layout(props: ParentProps) {
   const [autoselecting] = createResource(async () => {
     await ready.promise
     await layout.ready.promise
-    if (!untrack(() => state.autoselect)) return
+    const autoselect = untrack(() => state.autoselect)
+    if (!autoselect) return
 
     // Dandelion: open all workspaces, navigate to last used by default
     if (platform.dandelion) {

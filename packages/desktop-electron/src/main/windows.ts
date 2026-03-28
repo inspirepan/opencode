@@ -7,7 +7,7 @@ import type { TitlebarTheme } from "../preload/types"
 type Globals = {
   updaterEnabled: boolean
   deepLinks?: string[]
-  dandelionWorkspaces?: { chat: string; agent: string }
+  dandelionWorkspaces?: { chat: string; agent: string; image: string }
 }
 
 const root = dirname(fileURLToPath(import.meta.url))

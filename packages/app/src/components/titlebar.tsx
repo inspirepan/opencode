@@ -311,6 +311,7 @@ export function Titlebar() {
             }
             createEffect(() => {
               isChat()
+              isAgent()
               isImage()
               requestAnimationFrame(sync)
             })
@@ -329,6 +330,7 @@ export function Titlebar() {
                   }}
                   onClick={() => {
                     localStorage.setItem("dandelion-mode", "chat")
+                    layout.projects.open(dandelion().workspaces.chat)
                     navigate(`/${base64Encode(dandelion().workspaces.chat)}/session`)
                   }}
                 >
@@ -344,6 +346,7 @@ export function Titlebar() {
                   }}
                   onClick={() => {
                     localStorage.setItem("dandelion-mode", "agent")
+                    layout.projects.open(dandelion().workspaces.agent)
                     navigate(`/${base64Encode(dandelion().workspaces.agent)}/session`)
                   }}
                 >
@@ -359,6 +362,7 @@ export function Titlebar() {
                   }}
                   onClick={() => {
                     localStorage.setItem("dandelion-mode", "image")
+                    layout.projects.open(dandelion().workspaces.image)
                     navigate(`/${base64Encode(dandelion().workspaces.image)}/session`)
                   }}
                 >

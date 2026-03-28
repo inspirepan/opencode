@@ -23,13 +23,8 @@ export default function Home() {
   const server = useServer()
   const language = useLanguage()
 
-  // Dandelion: auto-redirect to last used workspace (default: chat)
+  // Dandelion: handled by layout.tsx autoselecting (after persisted store is ready)
   if (platform.dandelion) {
-    const last = localStorage.getItem("dandelion-mode") as "chat" | "agent" | "image" | null
-    const workspace = platform.dandelion.workspaces[last ?? "chat"]
-    layout.projects.open(workspace)
-    server.projects.touch(workspace)
-    navigate(`/${base64Encode(workspace)}`, { replace: true })
     return <div class="size-full" />
   }
 
