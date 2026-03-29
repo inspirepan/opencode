@@ -5,6 +5,21 @@
 
 ---
 
+## 2026-03-29 — i18n: translate Shell to Chinese and add language-matching for tool output
+
+### i18n(dandelion): translate "Shell" UI labels and add language-matching rule for LLM tool output
+
+**Intent:** Non-technical Chinese users see "Shell" in multiple places which is meaningless jargon. Translate to "终端" (terminal) for mode labels and "执行命令" for tool display. Also instruct the LLM to match the user's language in all user-visible tool parameters (bash description, todo content, question text/options) via both the tool schema and the dandy-agent system prompt.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/i18n/zh.ts` | `command.prompt.mode.shell`, `prompt.mode.shell`: "Shell" -> "终端"; `prompt.placeholder.shell`: "输入 shell 命令..." -> "输入终端命令..." |
+| `packages/ui/src/i18n/zh.ts` | `ui.tool.shell`: "Shell" -> "执行命令"; `ui.tool.shell.active`: "执行中" -> "执行命令中" |
+| `packages/opencode/src/tool/bash.ts` | `description` parameter `.describe()`: add "Must match the user's language" instruction |
+| `packages/opencode/src/agent/prompt/dandy-agent.txt` | Add language-matching rule at top of "Tool usage" section: all user-visible output (bash descriptions, todo items, question text/options) must match the user's language |
+
+---
+
 ## 2026-03-29 — present_file: image and directory gallery support
 
 ### Commit `de592862` — feat(dandelion): present_file supports images and directory galleries

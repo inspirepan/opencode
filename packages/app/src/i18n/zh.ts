@@ -101,7 +101,7 @@ export const dict = {
   "variant.max.description": "最大强度推理",
   "variant.xhigh.description": "超高强度推理",
 
-  "command.prompt.mode.shell": "Shell",
+  "command.prompt.mode.shell": "终端",
   "command.prompt.mode.normal": "Prompt",
 
   "command.permissions.autoaccept.enable": "自动接受权限",
@@ -258,12 +258,12 @@ export const dict = {
   "common.default": "默认",
   "common.attachment": "附件",
 
-  "prompt.placeholder.shell": "输入 shell 命令...",
+  "prompt.placeholder.shell": "输入终端命令...",
   "prompt.placeholder.normal": '随便问点什么... "{{example}}"',
   "prompt.placeholder.simple": "随便问点什么...",
   "prompt.placeholder.summarizeComments": "总结评论…",
   "prompt.placeholder.summarizeComment": "总结该评论…",
-  "prompt.mode.shell": "Shell",
+  "prompt.mode.shell": "终端",
   "prompt.mode.normal": "Prompt",
   "prompt.mode.shell.exit": "按 esc 退出",
   "prompt.example.1": "修复代码库中的一个 TODO",
