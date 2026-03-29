@@ -131,6 +131,9 @@ const createPlatform = (): Platform => {
     openLink(url: string) {
       window.api.openLink(url)
     },
+    showInFolder(path: string) {
+      window.api.showInFolder(path)
+    },
     async openPath(path: string, app?: string) {
       if (os === "windows") {
         const resolvedApp = app ? await window.api.resolveAppPath(app).catch(() => null) : null

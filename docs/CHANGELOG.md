@@ -7,7 +7,7 @@
 
 ## 2026-03-29 — present_file: image and directory gallery support
 
-### (uncommitted) — feat(dandelion): present_file supports images and directory galleries
+### Commit `de592862` — feat(dandelion): present_file supports images and directory galleries
 
 **Intent:** Allow `present_file` tool to present common image types (png/jpg/gif/webp/bmp/avif) and directories containing images. When a directory is presented, all image files are scanned and displayed as a gallery grid in the preview panel. Re-presenting the same directory updates the gallery, enabling incremental preview during batch image generation.
 
@@ -18,6 +18,21 @@
 | `packages/app/src/context/preview.tsx` | Add `directory?: boolean` to `PreviewItem` type |
 | `packages/app/src/pages/session.tsx` | Add `directory` to metadata type assertions in present_file watcher and click handler |
 | `packages/app/src/pages/session/preview-tab.tsx` | Add `ImageView` component for single image preview; add `GalleryView` component for directory gallery with click-to-enlarge; import `ImagePreview` and `useDialog` |
+| `packages/desktop-electron/assets/skills/.system/baoyu-image-gen/SKILL.md` | Add "Presenting Results" section instructing agent to use `present_file` after generation |
+
+### Commit `b2d6a62e` — fix(dandelion): inline HTML images in present_file and reveal files in Finder
+
+**Intent:** Fix two preview UX issues: (1) HTML files with local `<img src>` references show broken images because `srcdoc` iframe can't resolve local paths -- now base64-inlined like Markdown. (2) Preview "open" button was dumping raw content into a new window for galleries/images -- now unified to reveal the file in Finder with highlight.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/tool/present.ts` | Refactor `inlineImages` into `inlineLocal`/`inlineMdImages`/`inlineHtmlImages`; add HTML `<img src>` inlining for `.html`/`.htm` files |
+| `packages/app/src/context/platform.tsx` | Add `showInFolder?(path)` to `Platform` type |
+| `packages/app/src/pages/session/session-side-panel.tsx` | Unify preview open button: folder icon, `showInFolder` for files, `openPath` for directories |
+| `packages/desktop-electron/src/main/ipc.ts` | Add `show-in-folder` IPC handler using `shell.showItemInFolder` |
+| `packages/desktop-electron/src/preload/index.ts` | Expose `showInFolder` via preload bridge |
+| `packages/desktop-electron/src/preload/types.ts` | Add `showInFolder` to `ElectronAPI` type |
+| `packages/desktop-electron/src/renderer/index.tsx` | Wire `showInFolder` to platform |
 
 ---
 
@@ -92,7 +107,7 @@ Quick reference of all files modified from upstream, grouped by package:
 
 ### `packages/app/`
 - `src/app.tsx` — `window.__OPENCODE__` type extension; `PreviewProvider`
-- `src/context/platform.tsx` — `Platform.dandelion` type
+- `src/context/platform.tsx` — `Platform.dandelion` type; `showInFolder` method
 - `src/context/preview.tsx` — preview data store; `previewTab()`/`previewPath()` helpers
 - `src/components/titlebar.tsx` — dandelion tabs with sliding segmented control, hide portals, settings button
 - `src/components/session-context-usage.tsx` — unified context tab toggle (no dandelion branch)
@@ -114,7 +129,7 @@ Quick reference of all files modified from upstream, grouped by package:
 - `src/pages/layout.tsx` — autoselect, sidebar rail skip, width adjustments, project header hide
 - `src/pages/directory-layout.tsx` — pass `serverUrl` to `DataProvider`
 - `src/pages/session.tsx` — present_file detection, preview+tab sync, mobile preview fallback, external file handling
-- `src/pages/session/session-side-panel.tsx` — unified tab system for preview/context/review; open-in-new-window for PDF; auto-close empty panel
+- `src/pages/session/session-side-panel.tsx` — unified tab system for preview/context/review; auto-close empty panel; Finder reveal button
 - `src/components/session/session-header.tsx` — hide status popover, shapes icon for side panel toggle
 - `src/pages/session/preview-tab.tsx` — iframe preview with PDF (pdf.js), Markdown, SVG, Mermaid support; image preview; directory gallery view
 - `src/pages/session/helpers.ts` — `activeTab` supports `preview://` tabs
@@ -140,14 +155,14 @@ Quick reference of all files modified from upstream, grouped by package:
 
 ### `packages/desktop-electron/`
 - `src/main/index.ts` — workspace creation (chat/agent/image), globals, IPC, Dandelion branding
-- `src/main/ipc.ts` — getDandelionWorkspace handler
+- `src/main/ipc.ts` — getDandelionWorkspace handler; `show-in-folder` IPC
 - `src/main/windows.ts` — globals type and injection
 - `src/main/skills.ts` — system skills sync on startup
 - `src/main/menu.ts` — Dandelion branding
-- `src/preload/index.ts` — synchronous workspace path exposure (3 modes)
-- `src/preload/types.ts` — ElectronAPI type
+- `src/preload/index.ts` — synchronous workspace path exposure (3 modes); `showInFolder` bridge
+- `src/preload/types.ts` — ElectronAPI type; `showInFolder`
 - `src/renderer/env.d.ts` — window type declarations
-- `src/renderer/index.tsx` — platform dandelion setup
+- `src/renderer/index.tsx` — platform dandelion setup; `showInFolder` wiring
 - `src/renderer/index.html` — Dandelion title
 - `src/renderer/loading.html` — Dandelion title
 - `src/renderer/i18n/*.ts` — Dandelion branding in all 14 locales

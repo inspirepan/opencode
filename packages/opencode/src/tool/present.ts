@@ -28,24 +28,40 @@ const MIME: Record<string, string> = {
   ".avif": "image/avif",
 }
 
-async function inlineImages(md: string, dir: string): Promise<string> {
+async function inlineLocal(src: string, dir: string): Promise<string | undefined> {
+  if (/^https?:\/\//.test(src) || src.startsWith("data:")) return undefined
+  const abs = path.isAbsolute(src) ? src : path.resolve(dir, src)
+  const ext = path.extname(abs).toLowerCase()
+  const mime = MIME[ext]
+  if (!mime) return undefined
+  try {
+    const bytes = await Filesystem.readBytes(abs)
+    return `data:${mime};base64,${bytes.toString("base64")}`
+  } catch {
+    return undefined
+  }
+}
+
+async function inlineMdImages(md: string, dir: string): Promise<string> {
   const regex = /!\[([^\]]*)\]\(([^)]+)\)/g
   let result = md
   let match: RegExpExecArray | null
   while ((match = regex.exec(md)) !== null) {
     const [full, alt, src] = match
-    if (/^https?:\/\//.test(src) || src.startsWith("data:")) continue
-    const abs = path.isAbsolute(src) ? src : path.resolve(dir, src)
-    const ext = path.extname(abs).toLowerCase()
-    const mime = MIME[ext]
-    if (!mime) continue
-    try {
-      const bytes = await Filesystem.readBytes(abs)
-      const base64 = bytes.toString("base64")
-      result = result.replace(full, `![${alt}](data:${mime};base64,${base64})`)
-    } catch {
-      // skip unreadable files
-    }
+    const data = await inlineLocal(src, dir)
+    if (data) result = result.replace(full, `![${alt}](${data})`)
+  }
+  return result
+}
+
+async function inlineHtmlImages(html: string, dir: string): Promise<string> {
+  const regex = /<img\b([^>]*)\bsrc\s*=\s*"([^"]+)"([^>]*)>/gi
+  let result = html
+  let match: RegExpExecArray | null
+  while ((match = regex.exec(html)) !== null) {
+    const [full, before, src, after] = match
+    const data = await inlineLocal(src, dir)
+    if (data) result = result.replace(full, `<img${before}src="${data}"${after}>`)
   }
   return result
 }
@@ -166,8 +182,11 @@ export const PresentTool = Tool.define("present_file", {
 
     let content = await Filesystem.readText(filepath)
 
+    const dir = path.dirname(filepath)
     if (MD_EXTS.has(ext)) {
-      content = await inlineImages(content, path.dirname(filepath))
+      content = await inlineMdImages(content, dir)
+    } else if (ext === ".html" || ext === ".htm") {
+      content = await inlineHtmlImages(content, dir)
     }
 
     return {

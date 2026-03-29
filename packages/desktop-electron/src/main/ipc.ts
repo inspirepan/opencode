@@ -132,6 +132,10 @@ export function registerIpcHandlers(deps: Deps) {
     void shell.openExternal(url)
   })
 
+  ipcMain.on("show-in-folder", (_event: IpcMainEvent, path: string) => {
+    shell.showItemInFolder(path)
+  })
+
   ipcMain.handle("open-path", async (_event: IpcMainInvokeEvent, path: string, app?: string) => {
     if (!app) return shell.openPath(path)
     await new Promise<void>((resolve, reject) => {
