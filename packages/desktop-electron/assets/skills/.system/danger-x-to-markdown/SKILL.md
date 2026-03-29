@@ -1,5 +1,5 @@
 ---
-name: baoyu-danger-x-to-markdown
+name: danger-x-to-markdown
 description: Converts X (Twitter) tweets and articles to markdown with YAML front matter. Uses reverse-engineered API requiring user consent. Use when user mentions "X to markdown", "tweet to markdown", "save tweet", or provides x.com/twitter.com URLs for conversion.
 ---
 
@@ -27,10 +27,10 @@ Scripts located in `scripts/` subdirectory.
 
 ```bash
 # macOS
-cat ~/Library/Application\ Support/baoyu-skills/x-to-markdown/consent.json
+cat ~/Library/Application\ Support/dandelion/skill-configs/x-to-markdown/consent.json
 
 # Linux
-cat ~/.local/share/baoyu-skills/x-to-markdown/consent.json
+cat ~/.local/share/dandelion/skill-configs/x-to-markdown/consent.json
 ```
 
 **Step 2**: If `accepted: true` and `disclaimerVersion: "1.0"` → print warning and proceed:
@@ -73,18 +73,18 @@ Use Bash to check EXTEND.md existence (priority order):
 
 ```bash
 # Check project-level first
-test -f .baoyu-skills/baoyu-danger-x-to-markdown/EXTEND.md && echo "project"
+test -f .dandelion/skill-configs/danger-x-to-markdown/EXTEND.md && echo "project"
 
 # Then user-level (cross-platform: $HOME works on macOS/Linux/WSL)
-test -f "$HOME/.baoyu-skills/baoyu-danger-x-to-markdown/EXTEND.md" && echo "user"
+test -f "$HOME/.dandelion/skill-configs/danger-x-to-markdown/EXTEND.md" && echo "user"
 ```
 
 ┌────────────────────────────────────────────────────────────┬───────────────────┐
 │                            Path                            │     Location      │
 ├────────────────────────────────────────────────────────────┼───────────────────┤
-│ .baoyu-skills/baoyu-danger-x-to-markdown/EXTEND.md         │ Project directory │
+│ .dandelion/skill-configs/danger-x-to-markdown/EXTEND.md         │ Project directory │
 ├────────────────────────────────────────────────────────────┼───────────────────┤
-│ $HOME/.baoyu-skills/baoyu-danger-x-to-markdown/EXTEND.md   │ User home         │
+│ $HOME/.dandelion/skill-configs/danger-x-to-markdown/EXTEND.md   │ User home         │
 └────────────────────────────────────────────────────────────┴───────────────────┘
 
 ┌───────────┬───────────────────────────────────────────────────────────────────────────┐
@@ -113,8 +113,8 @@ Use `AskUserQuestion` with ALL questions in ONE call:
 - (User may choose "Other" to type a custom path)
 
 **Question 3** — header: "Save", question: "Where to save preferences?"
-- "User (Recommended)" — ~/.baoyu-skills/ (all projects)
-- "Project" — .baoyu-skills/ (this project only)
+- "User (Recommended)" — ~/.dandelion/skill-configs/ (all projects)
+- "Project" — .dandelion/skill-configs/ (this project only)
 
 After user answers, create EXTEND.md at the chosen location, confirm "Preferences saved to [path]", then continue.
 

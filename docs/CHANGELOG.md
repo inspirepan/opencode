@@ -5,6 +5,19 @@
 
 ---
 
+## 2026-03-29 — chore: rename bundled baoyu-* skills to remove prefix
+
+### chore(dandelion): remove `baoyu-` prefix from bundled system skills
+
+**Intent:** Clean up skill naming -- the `baoyu-` vendor prefix is unnecessary for bundled skills and clutters the slash command namespace (e.g. `/baoyu-comic` becomes `/comic`).
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/.system/baoyu-*/` | Rename all 13 directories: remove `baoyu-` prefix (e.g. `baoyu-comic/` -> `comic/`) |
+| `*/SKILL.md` (all 13 files) | Update frontmatter `name:`, slash commands (`/baoyu-X` -> `/X`), EXTEND.md skill subdirectory paths, relative script paths; rename `.baoyu-skills/` -> `.dandelion/skill-configs/` in all extension/config paths |
+
+---
+
 ## 2026-03-29 — i18n: translate Shell to Chinese and add language-matching for tool output
 
 ### i18n(dandelion): translate "Shell" UI labels and add language-matching rule for LLM tool output

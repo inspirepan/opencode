@@ -1,5 +1,5 @@
 ---
-name: baoyu-infographic
+name: infographic
 description: Generates professional infographics with 21 layout types and 20 visual styles. Analyzes content, recommends layout×style combinations, and generates publication-ready infographics. Use when user asks to create "infographic", "信息图", "visual summary", "可视化", or "高密度信息大图".
 ---
 
@@ -10,10 +10,10 @@ Two dimensions: **layout** (information structure) × **style** (visual aestheti
 ## Usage
 
 ```bash
-/baoyu-infographic path/to/content.md
-/baoyu-infographic path/to/content.md --layout hierarchical-layers --style technical-schematic
-/baoyu-infographic path/to/content.md --aspect portrait --lang zh
-/baoyu-infographic  # then paste content
+/infographic path/to/content.md
+/infographic path/to/content.md --layout hierarchical-layers --style technical-schematic
+/infographic path/to/content.md --aspect portrait --lang zh
+/infographic  # then paste content
 ```
 
 ## Options
@@ -142,18 +142,18 @@ Use Bash to check EXTEND.md existence (priority order):
 
 ```bash
 # Check project-level first
-test -f .baoyu-skills/baoyu-infographic/EXTEND.md && echo "project"
+test -f .dandelion/skill-configs/infographic/EXTEND.md && echo "project"
 
 # Then user-level (cross-platform: $HOME works on macOS/Linux/WSL)
-test -f "$HOME/.baoyu-skills/baoyu-infographic/EXTEND.md" && echo "user"
+test -f "$HOME/.dandelion/skill-configs/infographic/EXTEND.md" && echo "user"
 ```
 
 ┌────────────────────────────────────────────────────┬───────────────────┐
 │                        Path                        │     Location      │
 ├────────────────────────────────────────────────────┼───────────────────┤
-│ .baoyu-skills/baoyu-infographic/EXTEND.md          │ Project directory │
+│ .dandelion/skill-configs/infographic/EXTEND.md          │ Project directory │
 ├────────────────────────────────────────────────────┼───────────────────┤
-│ $HOME/.baoyu-skills/baoyu-infographic/EXTEND.md    │ User home         │
+│ $HOME/.dandelion/skill-configs/infographic/EXTEND.md    │ User home         │
 └────────────────────────────────────────────────────┴───────────────────┘
 
 ┌───────────┬───────────────────────────────────────────────────────────────────────────┐

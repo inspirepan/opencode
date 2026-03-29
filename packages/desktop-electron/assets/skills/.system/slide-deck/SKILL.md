@@ -1,5 +1,5 @@
 ---
-name: baoyu-slide-deck
+name: slide-deck
 description: Generates professional slide deck images from content. Creates outlines with style instructions, then generates individual slide images. Use when user asks to "create slides", "make a presentation", "generate deck", "slide deck", or "PPT".
 ---
 
@@ -10,13 +10,13 @@ Transform content into professional slide deck images.
 ## Usage
 
 ```bash
-/baoyu-slide-deck path/to/content.md
-/baoyu-slide-deck path/to/content.md --style sketch-notes
-/baoyu-slide-deck path/to/content.md --audience executives
-/baoyu-slide-deck path/to/content.md --lang zh
-/baoyu-slide-deck path/to/content.md --slides 10
-/baoyu-slide-deck path/to/content.md --outline-only
-/baoyu-slide-deck  # Then paste content
+/slide-deck path/to/content.md
+/slide-deck path/to/content.md --style sketch-notes
+/slide-deck path/to/content.md --audience executives
+/slide-deck path/to/content.md --lang zh
+/slide-deck path/to/content.md --slides 10
+/slide-deck path/to/content.md --outline-only
+/slide-deck  # Then paste content
 ```
 
 ## Script Directory
@@ -193,18 +193,18 @@ Use Bash to check EXTEND.md existence (priority order):
 
 ```bash
 # Check project-level first
-test -f .baoyu-skills/baoyu-slide-deck/EXTEND.md && echo "project"
+test -f .dandelion/skill-configs/slide-deck/EXTEND.md && echo "project"
 
 # Then user-level (cross-platform: $HOME works on macOS/Linux/WSL)
-test -f "$HOME/.baoyu-skills/baoyu-slide-deck/EXTEND.md" && echo "user"
+test -f "$HOME/.dandelion/skill-configs/slide-deck/EXTEND.md" && echo "user"
 ```
 
 ┌──────────────────────────────────────────────────┬───────────────────┐
 │                       Path                       │     Location      │
 ├──────────────────────────────────────────────────┼───────────────────┤
-│ .baoyu-skills/baoyu-slide-deck/EXTEND.md         │ Project directory │
+│ .dandelion/skill-configs/slide-deck/EXTEND.md         │ Project directory │
 ├──────────────────────────────────────────────────┼───────────────────┤
-│ $HOME/.baoyu-skills/baoyu-slide-deck/EXTEND.md   │ User home         │
+│ $HOME/.dandelion/skill-configs/slide-deck/EXTEND.md   │ User home         │
 └──────────────────────────────────────────────────┴───────────────────┘
 
 **When EXTEND.md Found** → Read, parse, **output summary to user**:
@@ -590,7 +590,7 @@ PDF: {topic-slug}.pdf
 Generate outline and prompts without images:
 
 ```bash
-/baoyu-slide-deck content.md --prompts-only
+/slide-deck content.md --prompts-only
 ```
 
 Output: `outline.md` + `prompts/*.md` ready for review/editing.
@@ -600,7 +600,7 @@ Output: `outline.md` + `prompts/*.md` ready for review/editing.
 Generate images from existing prompts (starts at Step 7):
 
 ```bash
-/baoyu-slide-deck slide-deck/topic-slug/ --images-only
+/slide-deck slide-deck/topic-slug/ --images-only
 ```
 
 Prerequisites:
@@ -613,10 +613,10 @@ Regenerate specific slides:
 
 ```bash
 # Single slide
-/baoyu-slide-deck slide-deck/topic-slug/ --regenerate 3
+/slide-deck slide-deck/topic-slug/ --regenerate 3
 
 # Multiple slides
-/baoyu-slide-deck slide-deck/topic-slug/ --regenerate 2,5,8
+/slide-deck slide-deck/topic-slug/ --regenerate 2,5,8
 ```
 
 Flow:
@@ -637,7 +637,7 @@ Flow:
 ### Edit Single Slide
 
 1. **Update prompt file FIRST** in `prompts/NN-slide-{slug}.md`
-2. Run: `/baoyu-slide-deck <dir> --regenerate N`
+2. Run: `/slide-deck <dir> --regenerate N`
 3. Or manually regenerate image + PDF
 
 **IMPORTANT**: When updating slides, ALWAYS update the prompt file (`prompts/NN-slide-{slug}.md`) FIRST before regenerating. This ensures changes are documented and reproducible.

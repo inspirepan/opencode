@@ -1,5 +1,5 @@
 ---
-name: baoyu-post-to-x
+name: post-to-x
 description: Posts content and articles to X (Twitter). Supports regular posts with images/videos and X Articles (long-form Markdown). Uses real Chrome with CDP to bypass anti-automation. Use when user asks to "post to X", "tweet", "publish to Twitter", or "share on X".
 ---
 
@@ -34,18 +34,18 @@ Use Bash to check EXTEND.md existence (priority order):
 
 ```bash
 # Check project-level first
-test -f .baoyu-skills/baoyu-post-to-x/EXTEND.md && echo "project"
+test -f .dandelion/skill-configs/post-to-x/EXTEND.md && echo "project"
 
 # Then user-level (cross-platform: $HOME works on macOS/Linux/WSL)
-test -f "$HOME/.baoyu-skills/baoyu-post-to-x/EXTEND.md" && echo "user"
+test -f "$HOME/.dandelion/skill-configs/post-to-x/EXTEND.md" && echo "user"
 ```
 
 ┌──────────────────────────────────────────────────┬───────────────────┐
 │                       Path                       │     Location      │
 ├──────────────────────────────────────────────────┼───────────────────┤
-│ .baoyu-skills/baoyu-post-to-x/EXTEND.md          │ Project directory │
+│ .dandelion/skill-configs/post-to-x/EXTEND.md          │ Project directory │
 ├──────────────────────────────────────────────────┼───────────────────┤
-│ $HOME/.baoyu-skills/baoyu-post-to-x/EXTEND.md    │ User home         │
+│ $HOME/.dandelion/skill-configs/post-to-x/EXTEND.md    │ User home         │
 └──────────────────────────────────────────────────┴───────────────────┘
 
 ┌───────────┬───────────────────────────────────────────────────────────────────────────┐

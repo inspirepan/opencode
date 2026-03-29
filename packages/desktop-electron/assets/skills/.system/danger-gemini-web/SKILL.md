@@ -1,5 +1,5 @@
 ---
-name: baoyu-danger-gemini-web
+name: danger-gemini-web
 description: Generates images and text via reverse-engineered Gemini Web API. Supports text generation, image generation from prompts, reference images for vision input, and multi-turn conversations. Use when other skills need image generation backend, or when user requests "generate image with Gemini", "Gemini text generation", or needs vision-capable AI generation.
 ---
 
@@ -27,9 +27,9 @@ Text/image generation via Gemini Web API. Supports reference images and multi-tu
 Before first use, verify user consent for reverse-engineered API usage.
 
 **Consent file locations**:
-- macOS: `~/Library/Application Support/baoyu-skills/gemini-web/consent.json`
-- Linux: `~/.local/share/baoyu-skills/gemini-web/consent.json`
-- Windows: `%APPDATA%\baoyu-skills\gemini-web\consent.json`
+- macOS: `~/Library/Application Support/dandelion/skill-configs/gemini-web/consent.json`
+- Linux: `~/.local/share/dandelion/skill-configs/gemini-web/consent.json`
+- Windows: `%APPDATA%\dandelion\skill-configs\gemini-web\consent.json`
 
 **Flow**:
 1. Check if consent file exists with `accepted: true` and `disclaimerVersion: "1.0"`
@@ -47,18 +47,18 @@ Use Bash to check EXTEND.md existence (priority order):
 
 ```bash
 # Check project-level first
-test -f .baoyu-skills/baoyu-danger-gemini-web/EXTEND.md && echo "project"
+test -f .dandelion/skill-configs/danger-gemini-web/EXTEND.md && echo "project"
 
 # Then user-level (cross-platform: $HOME works on macOS/Linux/WSL)
-test -f "$HOME/.baoyu-skills/baoyu-danger-gemini-web/EXTEND.md" && echo "user"
+test -f "$HOME/.dandelion/skill-configs/danger-gemini-web/EXTEND.md" && echo "user"
 ```
 
 ┌──────────────────────────────────────────────────────────┬───────────────────┐
 │                           Path                           │     Location      │
 ├──────────────────────────────────────────────────────────┼───────────────────┤
-│ .baoyu-skills/baoyu-danger-gemini-web/EXTEND.md          │ Project directory │
+│ .dandelion/skill-configs/danger-gemini-web/EXTEND.md          │ Project directory │
 ├──────────────────────────────────────────────────────────┼───────────────────┤
-│ $HOME/.baoyu-skills/baoyu-danger-gemini-web/EXTEND.md    │ User home         │
+│ $HOME/.dandelion/skill-configs/danger-gemini-web/EXTEND.md    │ User home         │
 └──────────────────────────────────────────────────────────┴───────────────────┘
 
 ┌───────────┬───────────────────────────────────────────────────────────────────────────┐

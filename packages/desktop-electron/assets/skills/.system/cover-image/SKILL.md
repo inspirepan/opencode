@@ -1,5 +1,5 @@
 ---
-name: baoyu-cover-image
+name: cover-image
 description: Generates article cover images with 5 dimensions (type, palette, rendering, text, mood) combining 9 color palettes and 6 rendering styles. Supports cinematic (2.35:1), widescreen (16:9), and square (1:1) aspects. Use when user asks to "generate cover image", "create article cover", or "make cover".
 ---
 
@@ -11,22 +11,22 @@ Generate elegant cover images for articles with 5-dimensional customization.
 
 ```bash
 # Auto-select dimensions based on content
-/baoyu-cover-image path/to/article.md
+/cover-image path/to/article.md
 
 # Quick mode: skip confirmation
-/baoyu-cover-image article.md --quick
+/cover-image article.md --quick
 
 # Specify dimensions
-/baoyu-cover-image article.md --type conceptual --palette warm --rendering flat-vector
+/cover-image article.md --type conceptual --palette warm --rendering flat-vector
 
 # Style presets (shorthand for palette + rendering)
-/baoyu-cover-image article.md --style blueprint
+/cover-image article.md --style blueprint
 
 # With reference images
-/baoyu-cover-image article.md --ref style-ref.png
+/cover-image article.md --ref style-ref.png
 
 # Direct content input
-/baoyu-cover-image --palette mono --aspect 1:1 --quick
+/cover-image --palette mono --aspect 1:1 --quick
 [paste content]
 ```
 
@@ -128,8 +128,8 @@ Analyze + Save Refs → [Output Dir] → [Confirm: 6 Dimensions] → Prompt → 
 
 Check EXTEND.md existence (priority: project → user):
 ```bash
-test -f .baoyu-skills/baoyu-cover-image/EXTEND.md && echo "project"
-test -f "$HOME/.baoyu-skills/baoyu-cover-image/EXTEND.md" && echo "user"
+test -f .dandelion/skill-configs/cover-image/EXTEND.md && echo "project"
+test -f "$HOME/.dandelion/skill-configs/cover-image/EXTEND.md" && echo "user"
 ```
 
 | Result | Action |

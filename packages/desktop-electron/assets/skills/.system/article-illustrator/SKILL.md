@@ -1,5 +1,5 @@
 ---
-name: baoyu-article-illustrator
+name: article-illustrator
 description: Analyzes article structure, identifies positions requiring visual aids, generates illustrations with Type × Style two-dimension approach. Use when user asks to "illustrate article", "add images", "generate images for article", or "为文章配图".
 ---
 
@@ -47,8 +47,8 @@ See [references/styles.md](references/styles.md) for Core Styles, full gallery, 
 **1.5 Load Preferences (EXTEND.md) ⛔ BLOCKING**
 
 ```bash
-test -f .baoyu-skills/baoyu-article-illustrator/EXTEND.md && echo "project"
-test -f "$HOME/.baoyu-skills/baoyu-article-illustrator/EXTEND.md" && echo "user"
+test -f .dandelion/skill-configs/article-illustrator/EXTEND.md && echo "project"
+test -f "$HOME/.dandelion/skill-configs/article-illustrator/EXTEND.md" && echo "user"
 ```
 
 | Result | Action |

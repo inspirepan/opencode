@@ -1,5 +1,5 @@
 ---
-name: baoyu-image-gen
+name: image-gen
 description: AI image generation with OpenAI, Google, DashScope and Replicate APIs. Supports text-to-image, reference images, aspect ratios. Sequential by default; parallel generation available on request. Use when user asks to generate, create, or draw images.
 ---
 
@@ -19,18 +19,18 @@ Use Bash to check EXTEND.md existence (priority order):
 
 ```bash
 # Check project-level first
-test -f .baoyu-skills/baoyu-image-gen/EXTEND.md && echo "project"
+test -f .dandelion/skill-configs/image-gen/EXTEND.md && echo "project"
 
 # Then user-level (cross-platform: $HOME works on macOS/Linux/WSL)
-test -f "$HOME/.baoyu-skills/baoyu-image-gen/EXTEND.md" && echo "user"
+test -f "$HOME/.dandelion/skill-configs/image-gen/EXTEND.md" && echo "user"
 ```
 
 ┌──────────────────────────────────────────────────┬───────────────────┐
 │                       Path                       │     Location      │
 ├──────────────────────────────────────────────────┼───────────────────┤
-│ .baoyu-skills/baoyu-image-gen/EXTEND.md          │ Project directory │
+│ .dandelion/skill-configs/image-gen/EXTEND.md          │ Project directory │
 ├──────────────────────────────────────────────────┼───────────────────┤
-│ $HOME/.baoyu-skills/baoyu-image-gen/EXTEND.md    │ User home         │
+│ $HOME/.dandelion/skill-configs/image-gen/EXTEND.md    │ User home         │
 └──────────────────────────────────────────────────┴───────────────────┘
 
 ┌───────────┬───────────────────────────────────────────────────────────────────────────┐
@@ -113,7 +113,7 @@ npx -y bun ${SKILL_DIR}/scripts/main.ts --prompt "A cat" --image out.png --provi
 | `DASHSCOPE_BASE_URL` | Custom DashScope endpoint |
 | `REPLICATE_BASE_URL` | Custom Replicate endpoint |
 
-**Load Priority**: CLI args > EXTEND.md > env vars > `<cwd>/.baoyu-skills/.env` > `~/.baoyu-skills/.env`
+**Load Priority**: CLI args > EXTEND.md > env vars > `<cwd>/.dandelion/skill-configs/.env` > `~/.dandelion/skill-configs/.env`
 
 ## Replicate Model Configuration
 

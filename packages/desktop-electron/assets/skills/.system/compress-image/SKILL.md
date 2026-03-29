@@ -1,5 +1,5 @@
 ---
-name: baoyu-compress-image
+name: compress-image
 description: Compresses images to WebP (default) or PNG with automatic tool selection. Use when user asks to "compress image", "optimize image", "convert to webp", or reduce image file size.
 ---
 
@@ -21,18 +21,18 @@ Use Bash to check EXTEND.md existence (priority order):
 
 ```bash
 # Check project-level first
-test -f .baoyu-skills/baoyu-compress-image/EXTEND.md && echo "project"
+test -f .dandelion/skill-configs/compress-image/EXTEND.md && echo "project"
 
 # Then user-level (cross-platform: $HOME works on macOS/Linux/WSL)
-test -f "$HOME/.baoyu-skills/baoyu-compress-image/EXTEND.md" && echo "user"
+test -f "$HOME/.dandelion/skill-configs/compress-image/EXTEND.md" && echo "user"
 ```
 
 ┌────────────────────────────────────────────────────────┬───────────────────┐
 │                          Path                          │     Location      │
 ├────────────────────────────────────────────────────────┼───────────────────┤
-│ .baoyu-skills/baoyu-compress-image/EXTEND.md           │ Project directory │
+│ .dandelion/skill-configs/compress-image/EXTEND.md           │ Project directory │
 ├────────────────────────────────────────────────────────┼───────────────────┤
-│ $HOME/.baoyu-skills/baoyu-compress-image/EXTEND.md     │ User home         │
+│ $HOME/.dandelion/skill-configs/compress-image/EXTEND.md     │ User home         │
 └────────────────────────────────────────────────────────┴───────────────────┘
 
 ┌───────────┬───────────────────────────────────────────────────────────────────────────┐

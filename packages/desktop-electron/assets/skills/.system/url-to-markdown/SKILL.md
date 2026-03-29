@@ -1,5 +1,5 @@
 ---
-name: baoyu-url-to-markdown
+name: url-to-markdown
 description: Fetch any URL and convert to markdown using Chrome CDP. Supports two modes - auto-capture on page load, or wait for user signal (for pages requiring login). Use when user wants to save a webpage as markdown.
 ---
 
@@ -27,18 +27,18 @@ Use Bash to check EXTEND.md existence (priority order):
 
 ```bash
 # Check project-level first
-test -f .baoyu-skills/baoyu-url-to-markdown/EXTEND.md && echo "project"
+test -f .dandelion/skill-configs/url-to-markdown/EXTEND.md && echo "project"
 
 # Then user-level (cross-platform: $HOME works on macOS/Linux/WSL)
-test -f "$HOME/.baoyu-skills/baoyu-url-to-markdown/EXTEND.md" && echo "user"
+test -f "$HOME/.dandelion/skill-configs/url-to-markdown/EXTEND.md" && echo "user"
 ```
 
 ┌────────────────────────────────────────────────────────┬───────────────────┐
 │                          Path                          │     Location      │
 ├────────────────────────────────────────────────────────┼───────────────────┤
-│ .baoyu-skills/baoyu-url-to-markdown/EXTEND.md          │ Project directory │
+│ .dandelion/skill-configs/url-to-markdown/EXTEND.md          │ Project directory │
 ├────────────────────────────────────────────────────────┼───────────────────┤
-│ $HOME/.baoyu-skills/baoyu-url-to-markdown/EXTEND.md    │ User home         │
+│ $HOME/.dandelion/skill-configs/url-to-markdown/EXTEND.md    │ User home         │
 └────────────────────────────────────────────────────────┴───────────────────┘
 
 ┌───────────┬───────────────────────────────────────────────────────────────────────────┐

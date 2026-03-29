@@ -1,5 +1,5 @@
 ---
-name: baoyu-format-markdown
+name: format-markdown
 description: Formats plain text or markdown files with frontmatter, titles, summaries, headings, bold, lists, and code blocks. Use when user asks to "format markdown", "beautify article", "add formatting", or improve article layout. Outputs to {filename}-formatted.md.
 ---
 
@@ -23,18 +23,18 @@ Use Bash to check EXTEND.md existence (priority order):
 
 ```bash
 # Check project-level first
-test -f .baoyu-skills/baoyu-format-markdown/EXTEND.md && echo "project"
+test -f .dandelion/skill-configs/format-markdown/EXTEND.md && echo "project"
 
 # Then user-level (cross-platform: $HOME works on macOS/Linux/WSL)
-test -f "$HOME/.baoyu-skills/baoyu-format-markdown/EXTEND.md" && echo "user"
+test -f "$HOME/.dandelion/skill-configs/format-markdown/EXTEND.md" && echo "user"
 ```
 
 ┌──────────────────────────────────────────────────────────┬───────────────────┐
 │                           Path                           │     Location      │
 ├──────────────────────────────────────────────────────────┼───────────────────┤
-│ .baoyu-skills/baoyu-format-markdown/EXTEND.md            │ Project directory │
+│ .dandelion/skill-configs/format-markdown/EXTEND.md            │ Project directory │
 ├──────────────────────────────────────────────────────────┼───────────────────┤
-│ $HOME/.baoyu-skills/baoyu-format-markdown/EXTEND.md      │ User home         │
+│ $HOME/.dandelion/skill-configs/format-markdown/EXTEND.md      │ User home         │
 └──────────────────────────────────────────────────────────┴───────────────────┘
 
 ┌───────────┬───────────────────────────────────────────────────────────────────────────┐
