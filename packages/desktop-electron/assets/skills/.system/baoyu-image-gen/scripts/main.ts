@@ -325,6 +325,31 @@ function normalizeOutputImagePath(p: string): string {
   return `${full}.png`;
 }
 
+function detectMime(data: Uint8Array): string | null {
+  if (data[0] === 0xff && data[1] === 0xd8 && data[2] === 0xff) return "image/jpeg";
+  if (data[0] === 0x89 && data[1] === 0x50 && data[2] === 0x4e && data[3] === 0x47) return "image/png";
+  if (data[0] === 0x52 && data[1] === 0x49 && data[2] === 0x46 && data[3] === 0x46 && data[8] === 0x57 && data[9] === 0x45 && data[10] === 0x42 && data[11] === 0x50) return "image/webp";
+  if (data[0] === 0x47 && data[1] === 0x49 && data[2] === 0x46 && data[3] === 0x38) return "image/gif";
+  return null;
+}
+
+const MIME_EXT: Record<string, string> = {
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/webp": ".webp",
+  "image/gif": ".gif",
+};
+
+function fixExtension(outputPath: string, data: Uint8Array): string {
+  const mime = detectMime(data);
+  if (!mime) return outputPath;
+  const expected = MIME_EXT[mime];
+  if (!expected) return outputPath;
+  const ext = path.extname(outputPath).toLowerCase();
+  if (ext === expected || (ext === ".jpeg" && expected === ".jpg")) return outputPath;
+  return outputPath.replace(/\.[^.]+$/, expected);
+}
+
 function detectProvider(args: CliArgs): Provider {
   if (args.referenceImages.length > 0 && args.provider && args.provider !== "google" && args.provider !== "openai" && args.provider !== "replicate") {
     throw new Error(
@@ -467,15 +492,16 @@ async function main(): Promise<void> {
     }
   }
 
-  const dir = path.dirname(outputPath);
+  const finalPath = fixExtension(outputPath, imageData);
+  const dir = path.dirname(finalPath);
   await mkdir(dir, { recursive: true });
-  await writeFile(outputPath, imageData);
+  await writeFile(finalPath, imageData);
 
   if (mergedArgs.json) {
     console.log(
       JSON.stringify(
         {
-          savedImage: outputPath,
+          savedImage: finalPath,
           provider,
           model,
           prompt: prompt.slice(0, 200),
@@ -485,7 +511,7 @@ async function main(): Promise<void> {
       )
     );
   } else {
-    console.log(outputPath);
+    console.log(finalPath);
   }
 }
 
