@@ -674,3 +674,16 @@ Fix: (1) Add `workspaceModel` field to per-workspace persisted store, inserted i
 | `packages/app/src/context/global-sync/child-store.ts` | Initial session fetch limit: 5 -> 50 |
 | `packages/app/src/pages/layout/sidebar-workspace.tsx` | Load-more increment: 5 -> 50 (both `SortableWorkspace` and `LocalWorkspace`) |
 | `packages/app/src/pages/session/session-side-panel.tsx` | Add `createEffect` to auto-close panel when no tabs and no context open (dandelion non-image mode) |
+
+### fix(dandelion): populate empty bundled skill SKILL.md files with actual content
+
+**Intent:** All `baoyu-*` bundled skills except `baoyu-infographic` had 0-byte `SKILL.md` files, causing the skill loader to silently skip them (no frontmatter to parse). Agent sessions could not discover skills like `baoyu-image-gen`, `baoyu-cover-image`, etc.
+
+Fix: copy full skill content (SKILL.md, references/, scripts/, prompts/) from upstream baoyu-skills source. Also add 3 previously missing skills: `baoyu-danger-gemini-web`, `baoyu-danger-x-to-markdown`, `baoyu-post-to-x`.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/.system/baoyu-*/` | Populate all empty SKILL.md files with full content; add missing reference/script/prompt files |
+| `packages/desktop-electron/assets/skills/.system/baoyu-danger-gemini-web/` | **Added:** Gemini web API skill (browser cookie auth image gen) |
+| `packages/desktop-electron/assets/skills/.system/baoyu-danger-x-to-markdown/` | **Added:** Twitter/X thread to markdown skill |
+| `packages/desktop-electron/assets/skills/.system/baoyu-post-to-x/` | **Added:** Post to Twitter/X skill |
