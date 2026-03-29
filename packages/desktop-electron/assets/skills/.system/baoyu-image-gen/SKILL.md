@@ -189,6 +189,14 @@ Supported: `1:1`, `16:9`, `9:16`, `4:3`, `3:4`, `2.35:1`
 # Collect results via TaskOutput when all complete
 ```
 
+## Presenting Results
+
+After generating images, always use the `present_file` tool to show results to the user:
+
+- **Single image**: call `present_file` with the output image path
+- **Multiple images**: save all images to the same directory, then call `present_file` with the directory path to display them as a gallery
+- **Batch generation**: you can present the output directory early (after the first image), then re-present the same directory after more images are generated to refresh the gallery
+
 ## Error Handling
 
 - Missing API key → error with setup instructions

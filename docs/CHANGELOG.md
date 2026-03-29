@@ -5,6 +5,22 @@
 
 ---
 
+## 2026-03-29 — present_file: image and directory gallery support
+
+### (uncommitted) — feat(dandelion): present_file supports images and directory galleries
+
+**Intent:** Allow `present_file` tool to present common image types (png/jpg/gif/webp/bmp/avif) and directories containing images. When a directory is presented, all image files are scanned and displayed as a gallery grid in the preview panel. Re-presenting the same directory updates the gallery, enabling incremental preview during batch image generation.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/tool/present.ts` | Add IMAGE_EXTS to SUPPORTED/BINARY_EXTS; add `gallery()` function to scan directories for images; handle directory input returning gallery metadata with `directory: true`; add `directory: false` to all non-directory return paths for type consistency |
+| `packages/opencode/src/tool/present.txt` | Document image file support, directory/gallery support, and batch generation tip |
+| `packages/app/src/context/preview.tsx` | Add `directory?: boolean` to `PreviewItem` type |
+| `packages/app/src/pages/session.tsx` | Add `directory` to metadata type assertions in present_file watcher and click handler |
+| `packages/app/src/pages/session/preview-tab.tsx` | Add `ImageView` component for single image preview; add `GalleryView` component for directory gallery with click-to-enlarge; import `ImagePreview` and `useDialog` |
+
+---
+
 ## 2026-03-25 — Initial Dandelion transformation
 
 Base: upstream `dev` @ `9a64bdb5` (fix: beta resolver typecheck + build smoke check)
@@ -100,7 +116,7 @@ Quick reference of all files modified from upstream, grouped by package:
 - `src/pages/session.tsx` — present_file detection, preview+tab sync, mobile preview fallback, external file handling
 - `src/pages/session/session-side-panel.tsx` — unified tab system for preview/context/review; open-in-new-window for PDF; auto-close empty panel
 - `src/components/session/session-header.tsx` — hide status popover, shapes icon for side panel toggle
-- `src/pages/session/preview-tab.tsx` — iframe preview with PDF (pdf.js), Markdown, SVG, Mermaid support
+- `src/pages/session/preview-tab.tsx` — iframe preview with PDF (pdf.js), Markdown, SVG, Mermaid support; image preview; directory gallery view
 - `src/pages/session/helpers.ts` — `activeTab` supports `preview://` tabs
 - `src/i18n/en.ts` — dandelion + variant i18n keys
 - `src/i18n/zh.ts` — dandelion + variant i18n keys (Chinese)

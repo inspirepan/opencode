@@ -7,6 +7,7 @@ export type PreviewItem = {
   ext: string
   binary?: boolean
   external?: boolean
+  directory?: boolean
 }
 
 const PREFIX = "preview://"

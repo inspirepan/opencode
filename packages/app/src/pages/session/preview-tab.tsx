@@ -1,9 +1,11 @@
-import { createEffect, createMemo, createSignal, onCleanup, Show, type Accessor } from "solid-js"
+import { createEffect, createMemo, createSignal, For, onCleanup, Show, type Accessor } from "solid-js"
 import { Marked } from "marked"
 import { renderMermaidSVG } from "beautiful-mermaid"
 import * as pdfjsLib from "pdfjs-dist"
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url"
 import { AppIcon } from "@opencode-ai/ui/app-icon"
+import { ImagePreview } from "@opencode-ai/ui/image-preview"
+import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { usePreview } from "@/context/preview"
 import { useLanguage } from "@/context/language"
 import { usePlatform } from "@/context/platform"
@@ -13,6 +15,17 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker
 
 const MD_EXTS = new Set([".md", ".markdown"])
 const MERMAID_EXTS = new Set([".mmd", ".mermaid"])
+const IMAGE_EXTS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".avif"])
+
+const MIME: Record<string, string> = {
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".gif": "image/gif",
+  ".webp": "image/webp",
+  ".bmp": "image/bmp",
+  ".avif": "image/avif",
+}
 
 const SANS = '"Inter","Inter Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'
 
@@ -105,6 +118,75 @@ function ExternalCard(props: { path: string; ext: string }) {
   )
 }
 
+type GalleryEntry = { name: string; data: string; mime: string }
+
+function GalleryView(props: { content: string; path: string }) {
+  const dialog = useDialog()
+
+  const entries = createMemo(() => {
+    try {
+      return JSON.parse(props.content) as GalleryEntry[]
+    } catch {
+      return []
+    }
+  })
+
+  const src = (entry: GalleryEntry) => `data:${entry.mime};base64,${entry.data}`
+
+  return (
+    <div class="h-full overflow-y-auto">
+      <Show
+        when={entries().length > 0}
+        fallback={
+          <div class="h-full flex items-center justify-center">
+            <div class="text-12-regular text-text-weak">No images</div>
+          </div>
+        }
+      >
+        <div class="grid grid-cols-2 gap-2 p-3">
+          <For each={entries()}>
+            {(entry) => (
+              <div
+                class="relative rounded-lg overflow-hidden cursor-pointer bg-background-stronger hover:ring-2 hover:ring-border-base transition-shadow"
+                onClick={() => dialog.show(() => <ImagePreview src={src(entry)} alt={entry.name} download />)}
+              >
+                <img
+                  src={src(entry)}
+                  alt={entry.name}
+                  class="w-full object-cover aspect-square"
+                  loading="lazy"
+                />
+                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/50 to-transparent px-2 py-1.5">
+                  <div class="text-11-regular text-white truncate">{entry.name}</div>
+                </div>
+              </div>
+            )}
+          </For>
+        </div>
+      </Show>
+    </div>
+  )
+}
+
+function ImageView(props: { content: string; ext: string }) {
+  const dialog = useDialog()
+  const mime = () => MIME[props.ext] ?? "image/png"
+  const src = () => `data:${mime()};base64,${props.content}`
+
+  return (
+    <div
+      class="flex-1 flex items-center justify-center bg-background-stronger p-4 cursor-pointer"
+      onClick={() => dialog.show(() => <ImagePreview src={src()} alt="preview" download />)}
+    >
+      <img
+        src={src()}
+        alt="preview"
+        class="max-w-full max-h-full object-contain rounded"
+      />
+    </div>
+  )
+}
+
 export function PreviewTab(props: { path?: string; resizing?: Accessor<boolean> }) {
   const preview = usePreview()
   const language = useLanguage()
@@ -114,6 +196,8 @@ export function PreviewTab(props: { path?: string; resizing?: Accessor<boolean> 
   const mono = createMemo(() => monoFontFamily(settings.appearance.font()))
   const isPdf = createMemo(() => item()?.ext === ".pdf" && item()?.binary)
   const isExternal = createMemo(() => !!item()?.external)
+  const isImage = createMemo(() => IMAGE_EXTS.has(item()?.ext ?? "") && item()?.binary)
+  const isGallery = createMemo(() => !!item()?.directory)
 
   // PDF: render pages as images via pdf.js
   const [pdfSrcdoc, setPdfSrcdoc] = createSignal("")
@@ -133,7 +217,7 @@ export function PreviewTab(props: { path?: string; resizing?: Accessor<boolean> 
 
   const srcdoc = createMemo(() => {
     const current = item()
-    if (!current || isPdf()) return ""
+    if (!current || isPdf() || isImage() || isGallery()) return ""
     if (current.ext === ".svg") {
       return `<!DOCTYPE html><html><head><style>html,body{margin:0;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}svg{max-width:100%;max-height:100%;height:auto;width:auto}</style></head><body>${current.content}</body></html>`
     }
@@ -171,10 +255,16 @@ export function PreviewTab(props: { path?: string; resizing?: Accessor<boolean> 
           </div>
         }
       >
-        <Show
-          when={!isExternal()}
-          fallback={<ExternalCard path={item()!.path} ext={item()!.ext} />}
-        >
+        <Show when={isGallery()}>
+          <GalleryView content={item()!.content} path={item()!.path} />
+        </Show>
+        <Show when={isImage() && !isGallery()}>
+          <ImageView content={item()!.content} ext={item()!.ext} />
+        </Show>
+        <Show when={isExternal() && !isImage() && !isGallery()}>
+          <ExternalCard path={item()!.path} ext={item()!.ext} />
+        </Show>
+        <Show when={!isExternal() && !isImage() && !isGallery()}>
           <iframe
             class="flex-1 w-full border-none bg-white"
             classList={{ "pointer-events-none": !!props.resizing?.() }}

@@ -1,4 +1,4 @@
-The present_file tool makes a file visible to the user by rendering it in the preview panel.
+The present_file tool makes a file or directory visible to the user by rendering it in the preview panel.
 
 When to use the present_file tool:
 - After creating or modifying a file that should be presented to the user
@@ -9,6 +9,8 @@ When to use the present_file tool:
 - Presenting Mermaid diagram files (.mmd/.mermaid) (rendered as diagrams)
 - Presenting PDF files (rendered as paginated document)
 - Presenting PowerPoint files (.pptx/.ppt) (opened with system default application)
+- Presenting image files (.png/.jpg/.jpeg/.gif/.webp/.bmp/.avif) (rendered as zoomable image)
+- Presenting a directory of images (rendered as a gallery grid)
 
 When NOT to use the present_file tool:
 - When you only need to read file contents for your own processing
@@ -16,11 +18,18 @@ When NOT to use the present_file tool:
 - For plain text or source code files that have no visual rendering
 
 How it works:
-- Accepts a single file path (absolute or relative to the workspace)
+- Accepts a file path (absolute or relative to the workspace) or a directory path
 - The file must already exist on disk (use the Write tool first if needed)
 - The preview panel will open automatically and render the file content
 - For Markdown files, local image references (png, jpg, svg, gif, etc.) are automatically inlined for preview
 - For PDF files, the binary content is base64-encoded and rendered client-side via the built-in PDF viewer
+- For image files, the binary content is base64-encoded and rendered as a zoomable image (click to enlarge)
+- For directories, all image files are scanned and displayed as a gallery grid (up to 20 images, newest first)
+- Calling present_file on the same directory again will refresh the gallery with the latest images
+
+Batch image generation tip:
+- Generate all images into a single directory, then present that directory to show them as a gallery
+- You can present the directory early (before all images are done), then re-present it after generating more images to update the gallery
 
 Supported file types:
 - .html, .htm — rendered as a live web page in the preview panel
@@ -29,3 +38,5 @@ Supported file types:
 - .mmd, .mermaid — rendered as diagrams (flowcharts, sequence, state, class, ER, XY charts) in the preview panel
 - .pdf — rendered via the built-in PDF viewer with zoom, page navigation and search in the preview panel
 - .pptx, .ppt — opened with the system default application (e.g., Keynote, PowerPoint, LibreOffice Impress)
+- .png, .jpg, .jpeg, .gif, .webp, .bmp, .avif — rendered as a zoomable image in the preview panel
+- directories — scanned for image files and rendered as a gallery grid (newest first, max 20 images)
