@@ -101,7 +101,7 @@ const EXAMPLES = [
 ] as const
 
 const DANDELION_EXAMPLES: Record<DandelionMode, string[]> = Object.fromEntries(
-  Object.entries(starters).map(([mode, list]) => [mode, list.flatMap((s) => s.examples)]),
+  Object.entries(starters).map(([mode, list]) => [mode, list.flatMap((s) => s.examples.map((e) => e.label))]),
 ) as Record<DandelionMode, string[]>
 
 const NON_EMPTY_TEXT = /[^\s\u200B]/

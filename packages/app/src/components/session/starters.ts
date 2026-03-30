@@ -1,11 +1,13 @@
 import type { IconProps } from "@opencode-ai/ui/icon"
 
+export type Example = { label: string; query: string }
+
 export type Starter = {
   id: string
   icon: IconProps["name"]
   title: string
   description: string
-  examples: string[]
+  examples: Example[]
   color?: { icon: string; bg: string }
 }
 
@@ -20,9 +22,9 @@ export const starters: Record<DandelionMode, Starter[]> = {
       title: "dandelion.starter.writing.title",
       description: "dandelion.starter.writing.description",
       examples: [
-        "dandelion.starter.writing.example1",
-        "dandelion.starter.writing.example2",
-        "dandelion.starter.writing.example3",
+        { label: "dandelion.starter.writing.label1", query: "dandelion.starter.writing.query1" },
+        { label: "dandelion.starter.writing.label2", query: "dandelion.starter.writing.query2" },
+        { label: "dandelion.starter.writing.label3", query: "dandelion.starter.writing.query3" },
       ],
     },
     {
@@ -32,9 +34,9 @@ export const starters: Record<DandelionMode, Starter[]> = {
       title: "dandelion.starter.analysis.title",
       description: "dandelion.starter.analysis.description",
       examples: [
-        "dandelion.starter.analysis.example1",
-        "dandelion.starter.analysis.example2",
-        "dandelion.starter.analysis.example3",
+        { label: "dandelion.starter.analysis.label1", query: "dandelion.starter.analysis.query1" },
+        { label: "dandelion.starter.analysis.label2", query: "dandelion.starter.analysis.query2" },
+        { label: "dandelion.starter.analysis.label3", query: "dandelion.starter.analysis.query3" },
       ],
     },
     {
@@ -44,9 +46,9 @@ export const starters: Record<DandelionMode, Starter[]> = {
       title: "dandelion.starter.brainstorm.title",
       description: "dandelion.starter.brainstorm.description",
       examples: [
-        "dandelion.starter.brainstorm.example1",
-        "dandelion.starter.brainstorm.example2",
-        "dandelion.starter.brainstorm.example3",
+        { label: "dandelion.starter.brainstorm.label1", query: "dandelion.starter.brainstorm.query1" },
+        { label: "dandelion.starter.brainstorm.label2", query: "dandelion.starter.brainstorm.query2" },
+        { label: "dandelion.starter.brainstorm.label3", query: "dandelion.starter.brainstorm.query3" },
       ],
     },
   ],
@@ -58,9 +60,9 @@ export const starters: Record<DandelionMode, Starter[]> = {
       title: "dandelion.starter.pptx.title",
       description: "dandelion.starter.pptx.description",
       examples: [
-        "dandelion.starter.pptx.example1",
-        "dandelion.starter.pptx.example2",
-        "dandelion.starter.pptx.example3",
+        { label: "dandelion.starter.pptx.label1", query: "dandelion.starter.pptx.query1" },
+        { label: "dandelion.starter.pptx.label2", query: "dandelion.starter.pptx.query2" },
+        { label: "dandelion.starter.pptx.label3", query: "dandelion.starter.pptx.query3" },
       ],
     },
     {
@@ -70,9 +72,9 @@ export const starters: Record<DandelionMode, Starter[]> = {
       title: "dandelion.starter.docx.title",
       description: "dandelion.starter.docx.description",
       examples: [
-        "dandelion.starter.docx.example1",
-        "dandelion.starter.docx.example2",
-        "dandelion.starter.docx.example3",
+        { label: "dandelion.starter.docx.label1", query: "dandelion.starter.docx.query1" },
+        { label: "dandelion.starter.docx.label2", query: "dandelion.starter.docx.query2" },
+        { label: "dandelion.starter.docx.label3", query: "dandelion.starter.docx.query3" },
       ],
     },
     {
@@ -82,9 +84,9 @@ export const starters: Record<DandelionMode, Starter[]> = {
       title: "dandelion.starter.xlsx.title",
       description: "dandelion.starter.xlsx.description",
       examples: [
-        "dandelion.starter.xlsx.example1",
-        "dandelion.starter.xlsx.example2",
-        "dandelion.starter.xlsx.example3",
+        { label: "dandelion.starter.xlsx.label1", query: "dandelion.starter.xlsx.query1" },
+        { label: "dandelion.starter.xlsx.label2", query: "dandelion.starter.xlsx.query2" },
+        { label: "dandelion.starter.xlsx.label3", query: "dandelion.starter.xlsx.query3" },
       ],
     },
     {
@@ -94,9 +96,9 @@ export const starters: Record<DandelionMode, Starter[]> = {
       title: "dandelion.starter.files.title",
       description: "dandelion.starter.files.description",
       examples: [
-        "dandelion.starter.files.example1",
-        "dandelion.starter.files.example2",
-        "dandelion.starter.files.example3",
+        { label: "dandelion.starter.files.label1", query: "dandelion.starter.files.query1" },
+        { label: "dandelion.starter.files.label2", query: "dandelion.starter.files.query2" },
+        { label: "dandelion.starter.files.label3", query: "dandelion.starter.files.query3" },
       ],
     },
     {
@@ -106,9 +108,9 @@ export const starters: Record<DandelionMode, Starter[]> = {
       title: "dandelion.starter.infographic.title",
       description: "dandelion.starter.infographic.description",
       examples: [
-        "dandelion.starter.infographic.example1",
-        "dandelion.starter.infographic.example2",
-        "dandelion.starter.infographic.example3",
+        { label: "dandelion.starter.infographic.label1", query: "dandelion.starter.infographic.query1" },
+        { label: "dandelion.starter.infographic.label2", query: "dandelion.starter.infographic.query2" },
+        { label: "dandelion.starter.infographic.label3", query: "dandelion.starter.infographic.query3" },
       ],
     },
     {
@@ -118,9 +120,9 @@ export const starters: Record<DandelionMode, Starter[]> = {
       title: "dandelion.starter.poster.title",
       description: "dandelion.starter.poster.description",
       examples: [
-        "dandelion.starter.poster.example1",
-        "dandelion.starter.poster.example2",
-        "dandelion.starter.poster.example3",
+        { label: "dandelion.starter.poster.label1", query: "dandelion.starter.poster.query1" },
+        { label: "dandelion.starter.poster.label2", query: "dandelion.starter.poster.query2" },
+        { label: "dandelion.starter.poster.label3", query: "dandelion.starter.poster.query3" },
       ],
     },
   ],
@@ -132,9 +134,9 @@ export const starters: Record<DandelionMode, Starter[]> = {
       title: "dandelion.starter.photo.title",
       description: "dandelion.starter.photo.description",
       examples: [
-        "dandelion.starter.photo.example1",
-        "dandelion.starter.photo.example2",
-        "dandelion.starter.photo.example3",
+        { label: "dandelion.starter.photo.label1", query: "dandelion.starter.photo.query1" },
+        { label: "dandelion.starter.photo.label2", query: "dandelion.starter.photo.query2" },
+        { label: "dandelion.starter.photo.label3", query: "dandelion.starter.photo.query3" },
       ],
     },
     {
@@ -144,9 +146,9 @@ export const starters: Record<DandelionMode, Starter[]> = {
       title: "dandelion.starter.remix.title",
       description: "dandelion.starter.remix.description",
       examples: [
-        "dandelion.starter.remix.example1",
-        "dandelion.starter.remix.example2",
-        "dandelion.starter.remix.example3",
+        { label: "dandelion.starter.remix.label1", query: "dandelion.starter.remix.query1" },
+        { label: "dandelion.starter.remix.label2", query: "dandelion.starter.remix.query2" },
+        { label: "dandelion.starter.remix.label3", query: "dandelion.starter.remix.query3" },
       ],
     },
   ],

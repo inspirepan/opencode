@@ -41,7 +41,7 @@ test -f "$HOME/.dandelion/skill-configs/image-gen/EXTEND.md" && echo "user"
 │ Not found │ Use defaults                                                              │
 └───────────┴───────────────────────────────────────────────────────────────────────────┘
 
-**EXTEND.md Supports**: Default provider | Default quality | Default aspect ratio | Default image size | Default models
+**EXTEND.md Supports**: Default provider | Default quality | Default aspect ratio | Default image size | Default batch size | Default models
 
 Schema: `references/config/preferences-schema.md`
 
@@ -165,29 +165,30 @@ Supported: `1:1`, `16:9`, `9:16`, `4:3`, `3:4`, `2.35:1`
 
 ## Generation Mode
 
-**Default**: Sequential generation (one image at a time). This ensures stable output and easier debugging.
+Batch size controls how many images are generated in parallel per round. After each round completes, call `present_file` to show results before starting the next round.
 
-**Parallel Generation**: Only use when user explicitly requests parallel/concurrent generation.
+**Batch size resolution** (highest priority first):
+1. User explicitly requests parallel/batch in the conversation
+2. EXTEND.md `default_batch_size`
+3. Default: `1` (sequential)
 
-| Mode | When to Use |
-|------|-------------|
-| Sequential (default) | Normal usage, single images, small batches |
-| Parallel | User explicitly requests, large batches (10+) |
+| Batch Size | Behavior |
+|------------|----------|
+| `1` (default) | Generate one image, present, repeat |
+| `2-8` | Generate N images in parallel per round, present round results, continue next round |
 
-**Parallel Settings** (when requested):
+**Workflow** (for a total of T images with batch size B):
 
-| Setting | Value |
-|---------|-------|
-| Recommended concurrency | 4 subagents |
-| Max concurrency | 8 subagents |
-| Use case | Large batch generation when user requests parallel |
-
-**Agent Implementation** (parallel mode only):
 ```
-# Launch multiple generations in parallel using Task tool
-# Each Task runs as background subagent with run_in_background=true
-# Collect results via TaskOutput when all complete
+Round 1: launch min(B, remaining) subagents in parallel → wait all → present_file
+Round 2: launch min(B, remaining) subagents in parallel → wait all → present_file
+...repeat until all T images are generated
 ```
+
+**Constraints**:
+- Max batch size: `8` (clamp silently if larger)
+- Each subagent runs via Task tool with `run_in_background=true`; collect via `TaskOutput`
+- When batch size is `1`, run directly without subagents (no Task overhead)
 
 ## Presenting Results
 

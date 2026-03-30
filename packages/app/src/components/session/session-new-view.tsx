@@ -202,13 +202,13 @@ function DandelionNewView() {
                   {(s) => (
                     <div class="w-full flex flex-col gap-1">
                       <For each={s().examples}>
-                        {(key) => (
+                        {(ex) => (
                           <button
                             class="w-full text-left px-4 py-1.5 rounded-lg hover:bg-surface-base-hover transition-colors flex items-center gap-3"
-                            onClick={() => select(language.t(key))}
+                            onClick={() => select(language.t(ex.query))}
                           >
                             <Icon name="speech-bubble" size="small" class="shrink-0 text-icon-base" />
-                            <span class="text-13-regular text-text-base">{language.t(key)}</span>
+                            <span class="text-13-regular text-text-base">{language.t(ex.label)}</span>
                           </button>
                         )}
                       </For>
