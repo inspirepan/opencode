@@ -1175,8 +1175,13 @@ export default function Page() {
   // In dandelion mode, watch for completed `present` tool parts and push to preview
   if (platform.dandelion) {
     let seen = new Set<string>()
+    let prev: string | undefined
     createEffect(() => {
       const id = params.id
+      if (id !== prev) {
+        seen = new Set<string>()
+        prev = id
+      }
       if (!id) return
       const msgs = sync.data.message[id]
       if (!msgs) return
