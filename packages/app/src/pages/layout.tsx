@@ -595,16 +595,15 @@ export default function Layout(props: ParentProps) {
     const autoselect = untrack(() => state.autoselect)
     if (!autoselect) return
 
-    // Dandelion: open all workspaces, navigate to last used by default
+    // Dandelion: open all workspaces, always start with a fresh new-session page
     if (platform.dandelion) {
       const { chat, agent, image } = platform.dandelion.workspaces
       const last = localStorage.getItem("dandelion-mode") as "chat" | "agent" | "image" | null
       const target = platform.dandelion.workspaces[last ?? "chat"]
       for (const ws of [chat, agent, image]) {
-        if (ws === target) continue
         layout.projects.open(ws)
       }
-      await openProject(target, true)
+      navigateWithSidebarReset(`/${base64Encode(target)}/session`)
       return
     }
 
