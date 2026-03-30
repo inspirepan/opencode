@@ -1796,7 +1796,7 @@ ToolRegistry.register({
               <span data-slot="basic-tool-tool-title">
                 <ToolStatusTitle active={pending()} activeText={i18n.t("ui.tool.shell.active")} doneText={i18n.t("ui.tool.shell")} />
               </span>
-              <Show when={!pending() && props.input.description}>
+              <Show when={props.input.description}>
                 <ShellSubmessage text={props.input.description} animate={sawPending} />
               </Show>
             </div>
