@@ -148,7 +148,7 @@ export function spawnCommand(args: string, extraEnv: Record<string, string>) {
   console.log(`[cli] Executing: ${cmd} ${cmdArgs.join(" ")}`)
   const child = spawn(cmd, cmdArgs, {
     env: envs,
-    detached: process.platform !== "win32",
+    detached: process.platform !== "win32" && app.isPackaged,
     windowsHide: true,
     stdio: ["ignore", "pipe", "pipe"],
   })
