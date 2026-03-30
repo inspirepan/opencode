@@ -5,6 +5,19 @@
 
 ---
 
+## 2026-03-30 — fix: bash tool description not matching user language
+
+### fix(bash): reinforce language-matching requirement for bash tool description
+
+**Intent:** The bash tool's `description` parameter (shown in the UI as "执行命令中 XXX") was sometimes generated in English even when the user was writing in Chinese. The schema `.describe()` and `dandy-agent.txt` both mentioned language matching, but `bash.txt` (the tool's own prompt, closest context to the model) did not, and the schema examples were all English. Added explicit language-matching instruction to `bash.txt` and added Chinese examples to the schema.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/tool/bash.txt` | Add "The description MUST be in the same language the user is writing in" to the description instruction |
+| `packages/opencode/src/tool/bash.ts` | Change "Must" to "MUST" in schema describe; add Chinese example outputs alongside English ones |
+
+---
+
 ## 2026-03-30 — feat: Exa API key configuration for websearch/codesearch
 
 ### feat(exa): support Exa API key configuration via settings UI and environment variable

@@ -73,7 +73,7 @@ export const BashTool = Tool.define("bash", async () => {
       description: z
         .string()
         .describe(
-          "Clear, concise description of what this command does in 5-10 words. Must match the user's language (e.g. if user writes in Chinese, describe in Chinese). Examples:\nInput: ls\nOutput: Lists files in current directory\n\nInput: git status\nOutput: Shows working tree status\n\nInput: npm install\nOutput: Installs package dependencies\n\nInput: mkdir foo\nOutput: Creates directory 'foo'",
+          "Clear, concise description of what this command does in 5-10 words. MUST match the user's language (e.g. if user writes in Chinese, describe in Chinese). Examples:\nInput: ls (English user)\nOutput: Lists files in current directory\n\nInput: git status (English user)\nOutput: Shows working tree status\n\nInput: npm install (Chinese user)\nOutput: 安装项目依赖\n\nInput: mkdir foo (Chinese user)\nOutput: 创建 foo 目录",
         ),
     }),
     async execute(params, ctx) {
