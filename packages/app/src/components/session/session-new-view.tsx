@@ -239,6 +239,7 @@ function StarterCard(props: { starter: Starter; active: boolean; onClick: () => 
               background: props.active
                 ? `color-mix(in srgb, ${props.starter.color.bg} 60%, white)`
                 : `color-mix(in srgb, ${props.starter.color.bg} 35%, white)`,
+              border: `1px solid color-mix(in srgb, ${props.starter.color.bg} 100%, transparent)`,
             }
           : undefined
       }
