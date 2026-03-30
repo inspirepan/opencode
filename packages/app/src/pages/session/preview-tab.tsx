@@ -27,7 +27,7 @@ const MIME: Record<string, string> = {
   ".avif": "image/avif",
 }
 
-const SANS = '"Inter","Inter Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'
+const SANS = '"Geist","Geist Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'
 
 function mdStyle(mono: string): string {
   return `
@@ -230,7 +230,7 @@ export function PreviewTab(props: { path?: string; resizing?: Accessor<boolean> 
         const svg = renderMermaidSVG(current.content, {
           bg: "#ffffff",
           fg: "#1a1a1a",
-          font: "Inter",
+          font: "Geist",
           transparent: true,
           padding: 40,
         })

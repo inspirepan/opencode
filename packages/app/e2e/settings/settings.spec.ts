@@ -162,7 +162,7 @@ test("changing font persists in localStorage and updates CSS variable", async ({
   const initialFontFamily = await page.evaluate(() => {
     return getComputedStyle(document.documentElement).getPropertyValue("--font-family-mono")
   })
-  expect(initialFontFamily).toContain("IBM Plex Mono")
+  expect(initialFontFamily).toContain("Geist Mono")
 
   await select.locator('[data-slot="select-select-trigger"]').click()
 
@@ -176,7 +176,7 @@ test("changing font persists in localStorage and updates CSS variable", async ({
     return raw ? JSON.parse(raw) : null
   }, settingsKey)
 
-  expect(stored?.appearance?.font).not.toBe("ibm-plex-mono")
+  expect(stored?.appearance?.font).not.toBe("geist-mono")
 
   const newFontFamily = await page.evaluate(() => {
     return getComputedStyle(document.documentElement).getPropertyValue("--font-family-mono")

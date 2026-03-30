@@ -1,9 +1,9 @@
 import { Show } from "solid-js"
 import { Style, Link } from "@solidjs/meta"
-import inter from "../assets/fonts/inter.woff2"
-import ibmPlexMonoRegular from "../assets/fonts/ibm-plex-mono.woff2"
-import ibmPlexMonoMedium from "../assets/fonts/ibm-plex-mono-medium.woff2"
-import ibmPlexMonoBold from "../assets/fonts/ibm-plex-mono-bold.woff2"
+import geist from "../assets/fonts/geist.woff2"
+import geistMonoRegular from "../assets/fonts/geist-mono.woff2"
+import geistMonoMedium from "../assets/fonts/geist-mono-medium.woff2"
+import geistMonoBold from "../assets/fonts/geist-mono-bold.woff2"
 
 import cascadiaCode from "../assets/fonts/cascadia-code-nerd-font.woff2"
 import cascadiaCodeBold from "../assets/fonts/cascadia-code-nerd-font-bold.woff2"
@@ -27,8 +27,8 @@ import ubuntuMono from "../assets/fonts/ubuntu-mono-nerd-font.woff2"
 import ubuntuMonoBold from "../assets/fonts/ubuntu-mono-nerd-font-bold.woff2"
 import iosevka from "../assets/fonts/iosevka-nerd-font.woff2"
 import iosevkaBold from "../assets/fonts/iosevka-nerd-font-bold.woff2"
-import geistMono from "../assets/fonts/GeistMonoNerdFontMono-Regular.woff2"
-import geistMonoBold from "../assets/fonts/GeistMonoNerdFontMono-Bold.woff2"
+import geistMonoNerd from "../assets/fonts/GeistMonoNerdFontMono-Regular.woff2"
+import geistMonoNerdBold from "../assets/fonts/GeistMonoNerdFontMono-Bold.woff2"
 
 type MonoFont = {
   family: string
@@ -94,8 +94,8 @@ export const MONO_NERD_FONTS = [
   },
   {
     family: "GeistMono Nerd Font",
-    regular: geistMono,
-    bold: geistMonoBold,
+    regular: geistMonoNerd,
+    bold: geistMonoNerdBold,
   },
 ] satisfies MonoFont[]
 
@@ -122,14 +122,14 @@ export const Font = () => {
     <>
       <Style>{`
         @font-face {
-          font-family: "Inter";
-          src: url("${inter}") format("woff2-variations");
+          font-family: "Geist";
+          src: url("${geist}") format("woff2-variations");
           font-display: swap;
           font-style: normal;
           font-weight: 100 900;
         }
         @font-face {
-          font-family: "Inter Fallback";
+          font-family: "Geist Fallback";
           src: local("Arial");
           size-adjust: 100%;
           ascent-override: 97%;
@@ -137,28 +137,28 @@ export const Font = () => {
           line-gap-override: 1%;
         }
         @font-face {
-          font-family: "IBM Plex Mono";
-          src: url("${ibmPlexMonoRegular}") format("woff2");
+          font-family: "Geist Mono";
+          src: url("${geistMonoRegular}") format("woff2");
           font-display: swap;
           font-style: normal;
           font-weight: 400;
         }
         @font-face {
-          font-family: "IBM Plex Mono";
-          src: url("${ibmPlexMonoMedium}") format("woff2");
+          font-family: "Geist Mono";
+          src: url("${geistMonoMedium}") format("woff2");
           font-display: swap;
           font-style: normal;
           font-weight: 500;
         }
         @font-face {
-          font-family: "IBM Plex Mono";
-          src: url("${ibmPlexMonoBold}") format("woff2");
+          font-family: "Geist Mono";
+          src: url("${geistMonoBold}") format("woff2");
           font-display: swap;
           font-style: normal;
           font-weight: 700;
         }
         @font-face {
-          font-family: "IBM Plex Mono Fallback";
+          font-family: "Geist Mono Fallback";
           src: local("Courier New");
           size-adjust: 100%;
           ascent-override: 97%;
@@ -168,8 +168,8 @@ export const Font = () => {
 ${monoNerdCss}
       `}</Style>
       <Show when={typeof location === "undefined" || location.protocol !== "file:"}>
-        <Link rel="preload" href={inter} as="font" type="font/woff2" crossorigin="anonymous" />
-        <Link rel="preload" href={ibmPlexMonoRegular} as="font" type="font/woff2" crossorigin="anonymous" />
+        <Link rel="preload" href={geist} as="font" type="font/woff2" crossorigin="anonymous" />
+        <Link rel="preload" href={geistMonoRegular} as="font" type="font/woff2" crossorigin="anonymous" />
       </Show>
     </>
   )
