@@ -113,7 +113,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     },
     {
       id: "poster",
-      icon: "megaphone",
+      icon: "shopping-bag",
       color: { icon: "#BE123C", bg: "#FFE4E6" },
       title: "dandelion.starter.poster.title",
       description: "dandelion.starter.poster.description",

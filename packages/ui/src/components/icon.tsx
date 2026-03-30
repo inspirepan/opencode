@@ -107,6 +107,7 @@ const icons = {
   document: `<path d="M5 2.5h7l3.5 3.5v11.5H5V2.5zM12 2.5V6h3.5M7.5 9h5M7.5 11.5h4M7.5 14h5" stroke="currentColor" stroke-linecap="square"/>`,
   table: `<path d="M3 3.5h14v13H3V3.5zM3 7.5h14M3 11.5h14M9 3.5v13" stroke="currentColor" stroke-linecap="square"/>`,
   megaphone: `<path d="M3.5 8.5v3h2l5 3.5V5l-5 3.5H3.5zM14.5 7.5c1.25 1.25 1.25 3.75 0 5M16.5 5.5c2.5 2.25 2.5 6.75 0 9" stroke="currentColor" stroke-linecap="square"/>`,
+  "shopping-bag": `<path d="M4.5 6h11l-1 11.5H5.5L4.5 6zM7.5 6V4.5a2.5 2.5 0 015 0V6" stroke="currentColor" stroke-linecap="square"/>`,
 }
 
 export interface IconProps extends ComponentProps<"svg"> {

@@ -139,16 +139,16 @@ function DandelionNewView() {
   return (
     <div class={ROOT_CLASS}>
       <div class="h-12 shrink-0" aria-hidden />
-      <div class="flex-1 px-6 pb-30 overflow-y-auto flex justify-center">
-        <div class="w-full max-w-180 flex flex-col items-center gap-8 my-auto">
+      <div class="flex-1 px-6 pb-30 overflow-y-auto flex justify-center" style={{ "scrollbar-gutter": "stable" }}>
+        <div class="w-full max-w-180 flex flex-col items-center gap-5 pt-12">
           <div class="flex flex-col items-center gap-3">
             <Mark class="w-10" />
             <div class="text-16-medium text-text-strong">{language.t(`dandelion.home.${mode()}.title`)}</div>
             <div class="text-13-regular text-text-weak">{language.t(`dandelion.home.${mode()}.subtitle`)}</div>
           </div>
           <Show when={recent().length > 0}>
-            <div class="w-full flex flex-col gap-2">
-              <div class="px-1">
+            <div class="w-full flex flex-col gap-0.5">
+              <div class="px-1 mb-0.5">
                 <span class="text-12-medium text-text-weak">{language.t("dandelion.home.recent")}</span>
               </div>
               <For each={recent()}>
@@ -157,7 +157,7 @@ function DandelionNewView() {
                   const busy = () => status() && status()!.type !== "idle"
                   return (
                     <button
-                      class="w-full text-left px-4 py-2.5 rounded-lg bg-surface-base hover:bg-surface-base-hover transition-colors flex items-center gap-3 cursor-default"
+                      class="w-full text-left px-4 py-1.5 rounded-lg hover:bg-surface-base-hover transition-colors flex items-center gap-3 cursor-default"
                       onClick={() => navigate(`/${slug()}/session/${session.id}`)}
                     >
                       <Show when={busy()} fallback={<Icon name="speech-bubble" size="small" class="shrink-0 text-icon-weak" />}>
@@ -171,18 +171,19 @@ function DandelionNewView() {
               </For>
               <Show when={sync.data.session.length > 3 && !sidebarVisible()}>
                 <button
-                  class="text-12-medium text-text-weak hover:text-text-base transition-colors cursor-default py-1 self-start px-1"
+                  class="w-full text-left px-4 py-1.5 rounded-lg hover:bg-surface-base-hover transition-colors flex items-center gap-3 cursor-default"
                   onClick={() => {
                     layout.sidebar.open()
                     layout.mobileSidebar.show()
                   }}
                 >
-                  {language.t("dandelion.home.recent.more")}
+                  <Icon name="chevron-right" size="small" class="shrink-0 text-icon-weak" />
+                  <span class="text-13-regular text-text-weak">{language.t("dandelion.home.recent.more")}</span>
                 </button>
               </Show>
             </div>
           </Show>
-          <div class="w-full grid grid-cols-3 gap-3">
+          <div class="w-full grid grid-cols-3 gap-2">
             <For each={items()}>
               {(item) => (
                 <StarterCard
@@ -199,15 +200,15 @@ function DandelionNewView() {
               return (
                 <Show when={skill()}>
                   {(s) => (
-                    <div class="w-full flex flex-col gap-2">
+                    <div class="w-full flex flex-col gap-1">
                       <For each={s().examples}>
                         {(key) => (
                           <button
-                            class="w-full text-left px-4 py-3 rounded-lg bg-surface-base hover:bg-surface-base-hover transition-colors flex items-center gap-3"
+                            class="w-full text-left px-4 py-1.5 rounded-lg hover:bg-surface-base-hover transition-colors flex items-center gap-3"
                             onClick={() => select(language.t(key))}
                           >
                             <Icon name="speech-bubble" size="small" class="shrink-0 text-icon-base" />
-                            <span class="text-14-regular text-text-base">{language.t(key)}</span>
+                            <span class="text-13-regular text-text-base">{language.t(key)}</span>
                           </button>
                         )}
                       </For>
@@ -227,7 +228,7 @@ function StarterCard(props: { starter: Starter; active: boolean; onClick: () => 
   const language = useLanguage()
   return (
     <button
-      class="flex flex-col gap-3 p-4 rounded-xl text-left transition-colors"
+      class="flex flex-col gap-2 p-3 rounded-xl text-left transition-colors"
       classList={{
         "bg-surface-raised-base hover:bg-surface-raised-base-hover": !props.starter.color && !props.active,
         "bg-surface-raised-base-hover ring-1 ring-border-base": !props.starter.color && props.active,
@@ -244,7 +245,7 @@ function StarterCard(props: { starter: Starter; active: boolean; onClick: () => 
       onClick={props.onClick}
     >
       <div
-        class="size-9 rounded-lg flex items-center justify-center"
+        class="size-8 rounded-lg flex items-center justify-center"
         classList={{ "bg-surface-base": !props.starter.color }}
         style={props.starter.color ? { background: props.starter.color.bg } : undefined}
       >
