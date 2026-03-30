@@ -2,6 +2,7 @@ import z from "zod"
 import { Tool } from "./tool"
 import DESCRIPTION from "./codesearch.txt"
 import { abortAfterAny } from "../util/abort"
+import { Auth } from "../auth"
 
 const API_CONFIG = {
   BASE_URL: "https://mcp.exa.ai",
@@ -77,9 +78,12 @@ export const CodeSearchTool = Tool.define("codesearch", {
     const { signal, clearTimeout } = abortAfterAny(30000, ctx.abort)
 
     try {
+      const stored = await Auth.get("exa")
+      const key = (stored?.type === "api" ? stored.key : undefined) || process.env["EXA_API_KEY"]
       const headers: Record<string, string> = {
         accept: "application/json, text/event-stream",
         "content-type": "application/json",
+        ...(key ? { authorization: `Bearer ${key}` } : {}),
       }
 
       const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CONTEXT}`, {

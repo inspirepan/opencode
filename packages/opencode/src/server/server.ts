@@ -191,6 +191,40 @@ export namespace Server {
           return c.json(true)
         },
       )
+      .get(
+        "/auth/:providerID/status",
+        describeRoute({
+          summary: "Check auth status",
+          description: "Check whether authentication credentials exist for a provider",
+          operationId: "auth.status",
+          responses: {
+            200: {
+              description: "Auth status",
+              content: {
+                "application/json": {
+                  schema: resolver(z.object({ configured: z.boolean(), mask: z.string().optional(), source: z.enum(["auth", "env"]).optional() })),
+                },
+              },
+            },
+          },
+        }),
+        validator(
+          "param",
+          z.object({
+            providerID: ProviderID.zod,
+          }),
+        ),
+        async (c) => {
+          const id = c.req.valid("param").providerID
+          const info = await Auth.get(id)
+          const stored = info?.type === "api" ? info.key : undefined
+          const env = id === "exa" ? process.env["EXA_API_KEY"] : undefined
+          const key = stored || env
+          const mask = key ? key.slice(-4) : undefined
+          const source = stored ? "auth" as const : env ? "env" as const : undefined
+          return c.json({ configured: !!key, mask, source })
+        },
+      )
       .use(async (c, next) => {
         if (c.req.path === "/log") return next()
         const rawWorkspaceID = c.req.query("workspace") || c.req.header("x-opencode-workspace")

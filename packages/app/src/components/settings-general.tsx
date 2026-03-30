@@ -4,10 +4,14 @@ import { Button } from "@opencode-ai/ui/button"
 import { Icon } from "@opencode-ai/ui/icon"
 import { Select } from "@opencode-ai/ui/select"
 import { Switch } from "@opencode-ai/ui/switch"
+import { Tag } from "@opencode-ai/ui/tag"
+import { TextField } from "@opencode-ai/ui/text-field"
 import { Tooltip } from "@opencode-ai/ui/tooltip"
 import { useTheme, type ColorScheme } from "@opencode-ai/ui/theme"
 import { showToast } from "@opencode-ai/ui/toast"
+import { useGlobalSDK } from "@/context/global-sdk"
 import { useLanguage } from "@/context/language"
+import { useServer } from "@/context/server"
 import { usePlatform } from "@/context/platform"
 import { useSettings, monoFontFamily } from "@/context/settings"
 import { playSound, SOUND_OPTIONS } from "@/utils/sound"
@@ -43,6 +47,8 @@ export const SettingsGeneral: Component = () => {
   const language = useLanguage()
   const platform = usePlatform()
   const settings = useSettings()
+  const globalSDK = useGlobalSDK()
+  const server = useServer()
 
   const [store, setStore] = createStore({
     checking: false,
@@ -435,6 +441,127 @@ export const SettingsGeneral: Component = () => {
     </div>
   )
 
+  const ToolsSection = () => {
+    const [toolStore, setToolStore] = createStore({
+      exa: "",
+      editing: false,
+    })
+
+    const [status, { refetch }] = createResource(async () => {
+      const http = server.current?.http
+      const headers: Record<string, string> = {}
+      if (http?.password) headers["Authorization"] = `Basic ${btoa(`${http.username ?? "opencode"}:${http.password}`)}`
+      const res = await fetch(`${globalSDK.url}/auth/exa/status`, { headers })
+      return (await res.json()) as { configured: boolean; mask?: string; source?: "auth" | "env" }
+    })
+
+    const configured = () => status()?.configured === true
+    const mask = () => status()?.mask
+    const source = () => status()?.source
+
+    async function saveExa(e: SubmitEvent) {
+      e.preventDefault()
+      if (!toolStore.exa.trim()) return
+      await globalSDK.client.auth.set({
+        providerID: "exa",
+        auth: { type: "api", key: toolStore.exa.trim() },
+      })
+      setToolStore("exa", "")
+      setToolStore("editing", false)
+      await refetch()
+      showToast({
+        variant: "success",
+        icon: "circle-check",
+        title: language.t("settings.general.row.exaApiKey.toast.saved"),
+      })
+    }
+
+    async function removeExa() {
+      await globalSDK.client.auth.remove({ providerID: "exa" })
+      setToolStore("editing", false)
+      setToolStore("exa", "")
+      await refetch()
+      showToast({
+        variant: "success",
+        icon: "circle-check",
+        title: language.t("settings.general.row.exaApiKey.toast.removed"),
+      })
+    }
+
+    return (
+      <div class="flex flex-col gap-1">
+        <h3 class="text-14-medium text-text-strong pb-2">{language.t("settings.general.section.tools")}</h3>
+        <SettingsList>
+          <div class="flex flex-col gap-3 py-3 border-b border-border-weak-base last:border-none">
+            <div class="flex items-center justify-between">
+              <div class="flex min-w-0 flex-col gap-0.5">
+                <div class="flex items-center gap-2">
+                  <span class="text-14-medium text-text-strong">
+                    {language.t("settings.general.row.exaApiKey.title")}
+                  </span>
+                  <Show when={configured()}>
+                    <Tag>
+                      {source() === "env"
+                        ? language.t("settings.general.row.exaApiKey.tag.env")
+                        : language.t("settings.general.row.exaApiKey.tag.configured")}
+                    </Tag>
+                  </Show>
+                  <Show when={mask()}>
+                    <code class="text-12-regular text-text-weak" style={{ "font-variant-ligatures": "none" }}>{"********" + mask()}</code>
+                  </Show>
+                </div>
+                <span class="text-12-regular text-text-weak">
+                  {language.t("settings.general.row.exaApiKey.description")}
+                  {" "}
+                  <Link href="https://dashboard.exa.ai/api-keys">
+                    {language.t("settings.general.row.exaApiKey.getKey")}
+                  </Link>
+                </span>
+              </div>
+              <Show when={configured() && !toolStore.editing && source() !== "env"}>
+                <div class="flex items-center gap-2 shrink-0">
+                  <Button size="small" variant="secondary" onClick={() => setToolStore("editing", true)}>
+                    {language.t("settings.general.row.exaApiKey.action.update")}
+                  </Button>
+                  <Button size="small" variant="ghost" onClick={() => void removeExa()}>
+                    {language.t("settings.general.row.exaApiKey.action.remove")}
+                  </Button>
+                </div>
+              </Show>
+            </div>
+            <Show when={(!configured() || toolStore.editing) && source() !== "env"}>
+              <form onSubmit={saveExa} class="flex items-end gap-2">
+                <div class="flex-1">
+                  <TextField
+                    type="text"
+                    placeholder={language.t("settings.general.row.exaApiKey.placeholder")}
+                    value={toolStore.exa}
+                    onChange={(v) => setToolStore("exa", v)}
+                  />
+                </div>
+                <Button type="submit" size="small" variant="secondary" disabled={!toolStore.exa.trim()}>
+                  {language.t("settings.general.row.exaApiKey.action.save")}
+                </Button>
+                <Show when={toolStore.editing}>
+                  <Button
+                    size="small"
+                    variant="ghost"
+                    onClick={() => {
+                      setToolStore("editing", false)
+                      setToolStore("exa", "")
+                    }}
+                  >
+                    {language.t("common.cancel")}
+                  </Button>
+                </Show>
+              </form>
+            </Show>
+          </div>
+        </SettingsList>
+      </div>
+    )
+  }
+
   const UpdatesSection = () => (
     <div class="flex flex-col gap-1">
       <h3 class="text-14-medium text-text-strong pb-2">{language.t("settings.general.section.updates")}</h3>
@@ -495,6 +622,8 @@ export const SettingsGeneral: Component = () => {
         <NotificationsSection />
 
         <SoundsSection />
+
+        <ToolsSection />
 
         {/*<Show when={platform.platform === "desktop" && platform.os === "windows" && platform.getWslEnabled}>
           {(_) => {

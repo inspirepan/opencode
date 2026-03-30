@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-03-30 — feat: Exa API key configuration for websearch/codesearch
+
+### feat(exa): support Exa API key configuration via settings UI and environment variable
+
+**Intent:** The upstream websearch and codesearch tools (powered by Exa) were gated behind `ProviderID.opencode` (Zen) or manual env flags. Users with their own Exa API key had no way to enable these tools. Now supports three sources: settings UI (stored in `auth.json`), `EXA_API_KEY` env var, and the existing flags. The settings page shows configuration status with masked key preview, source indicator ("Configured" vs "Environment variable"), and a link to the Exa dashboard for obtaining keys.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/flag/flag.ts` | `OPENCODE_ENABLE_EXA`: add `\|\| !!process.env["EXA_API_KEY"]` to auto-enable when env var is set |
+| `packages/opencode/src/tool/registry.ts` | Import `Auth`; pre-fetch `Auth.get("exa")` before tool filter; gate websearch/codesearch on stored key in addition to env flag |
+| `packages/opencode/src/tool/websearch.ts` | Import `Auth`; read key from `Auth.get("exa")` first, fallback to `process.env["EXA_API_KEY"]`; add `Authorization: Bearer` header |
+| `packages/opencode/src/tool/codesearch.ts` | Same as websearch.ts |
+| `packages/opencode/src/server/server.ts` | Add `GET /auth/:providerID/status` endpoint returning `{ configured, mask, source }` — checks both auth.json and env var for exa; returns last 4 chars as mask |
+| `packages/app/src/components/settings-general.tsx` | Add `ToolsSection` with Exa API Key configuration: `createResource` fetches status on mount; shows "Configured"/"Environment variable" tag + masked key; save/update/remove buttons; link to Exa dashboard |
+| `packages/app/src/i18n/en.ts` | Add `settings.general.section.tools` and all `exaApiKey.*` i18n keys |
+| `packages/app/src/i18n/zh.ts` | Add Chinese translations for all new keys |
+
+---
+
 ## 2026-03-30 — feat: save attached images to workspace for agent access
 
 ### feat(dandelion): persist user-attached images to workspace directory
@@ -174,8 +193,9 @@ Quick reference of all files modified from upstream, grouped by package:
 - `src/components/session/session-header.tsx` — hide status popover, shapes icon for side panel toggle
 - `src/pages/session/preview-tab.tsx` — iframe preview with PDF (pdf.js), Markdown, SVG, Mermaid support; image preview; directory gallery view
 - `src/pages/session/helpers.ts` — `activeTab` supports `preview://` tabs
-- `src/i18n/en.ts` — dandelion + variant i18n keys
-- `src/i18n/zh.ts` — dandelion + variant i18n keys (Chinese)
+- `src/components/settings-general.tsx` — Exa API Key configuration in Tools section
+- `src/i18n/en.ts` — dandelion + variant + exa i18n keys
+- `src/i18n/zh.ts` — dandelion + variant + exa i18n keys (Chinese)
 
 ### `packages/ui/`
 - `src/components/logo.tsx` — dandelion seed SVG
@@ -222,12 +242,15 @@ Quick reference of all files modified from upstream, grouped by package:
 - `src/session/processor.ts` — `file` event handler for model image output
 - `src/session/instruction.ts` — auto-load MEMORY.md from working directory
 - `src/server/routes/session.ts` — media file serving endpoint; session unarchive fix
-- `src/server/server.ts` — exempt media paths from basic auth
+- `src/server/server.ts` — exempt media paths from basic auth; `GET /auth/:providerID/status` endpoint
+- `src/flag/flag.ts` — `OPENCODE_ENABLE_EXA` auto-enable on `EXA_API_KEY` env var
 - `src/file/index.ts` — show files in @ autocomplete when query is empty
 - `src/tool/present.ts` — present_file tool (HTML, SVG, PDF, PPTX)
 - `src/tool/present.txt` — tool description
 - `src/tool/bash.ts` — inject provider API keys into spawned processes
-- `src/tool/registry.ts` — register PresentTool
+- `src/tool/registry.ts` — register PresentTool; Exa auth check for websearch/codesearch gate
+- `src/tool/websearch.ts` — Auth + env var key reading with Bearer header
+- `src/tool/codesearch.ts` — Auth + env var key reading with Bearer header
 
 ### Root
 - `.gitignore` — models-snapshot.js

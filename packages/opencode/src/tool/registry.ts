@@ -28,6 +28,7 @@ import { LspTool } from "./lsp"
 import { Truncate } from "./truncate"
 import { ApplyPatchTool } from "./apply_patch"
 import { PresentTool } from "./present"
+import { Auth } from "../auth"
 import { Glob } from "../util/glob"
 import { pathToFileURL } from "url"
 import { Effect, Layer, ServiceMap } from "effect"
@@ -160,13 +161,15 @@ export namespace ToolRegistry {
       ) {
         const state = yield* InstanceState.get(cache)
         const allTools = yield* Effect.promise(() => all(state.custom))
+        const exa = yield* Effect.promise(() => Auth.get("exa").catch(() => undefined))
+        const hasExa = Flag.OPENCODE_ENABLE_EXA || (exa?.type === "api" && !!exa.key)
         return yield* Effect.promise(() =>
           Promise.all(
             allTools
               .filter((tool) => {
-                // Enable websearch/codesearch for zen users OR via enable flag
+                // Enable websearch/codesearch for zen users, env flag, or stored exa key
                 if (tool.id === "codesearch" || tool.id === "websearch") {
-                  return model.providerID === ProviderID.opencode || Flag.OPENCODE_ENABLE_EXA
+                  return model.providerID === ProviderID.opencode || hasExa
                 }
 
                 // use apply tool in same format as codex
