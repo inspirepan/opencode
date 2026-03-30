@@ -229,13 +229,31 @@ function StarterCard(props: { starter: Starter; active: boolean; onClick: () => 
     <button
       class="flex flex-col gap-3 p-4 rounded-xl text-left transition-colors"
       classList={{
-        "bg-surface-raised-base hover:bg-surface-raised-base-hover": !props.active,
-        "bg-surface-raised-base-hover ring-1 ring-border-base": props.active,
+        "bg-surface-raised-base hover:bg-surface-raised-base-hover": !props.starter.color && !props.active,
+        "bg-surface-raised-base-hover ring-1 ring-border-base": !props.starter.color && props.active,
       }}
+      style={
+        props.starter.color
+          ? {
+              background: props.active
+                ? `color-mix(in srgb, ${props.starter.color.bg} 60%, white)`
+                : `color-mix(in srgb, ${props.starter.color.bg} 35%, white)`,
+            }
+          : undefined
+      }
       onClick={props.onClick}
     >
-      <div class="size-9 rounded-lg bg-surface-base flex items-center justify-center">
-        <Icon name={props.starter.icon} size="normal" class="text-icon-base" />
+      <div
+        class="size-9 rounded-lg flex items-center justify-center"
+        classList={{ "bg-surface-base": !props.starter.color }}
+        style={props.starter.color ? { background: props.starter.color.bg } : undefined}
+      >
+        <Icon
+          name={props.starter.icon}
+          size="normal"
+          class={props.starter.color ? "" : "text-icon-base"}
+          style={props.starter.color ? { color: props.starter.color.icon } : undefined}
+        />
       </div>
       <div class="flex flex-col gap-1">
         <div class="text-14-medium text-text-strong">{language.t(props.starter.title)}</div>

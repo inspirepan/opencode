@@ -6,6 +6,7 @@ export type Starter = {
   title: string
   description: string
   examples: string[]
+  color?: { icon: string; bg: string }
 }
 
 export type DandelionMode = "chat" | "agent" | "image"
@@ -15,6 +16,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "writing",
       icon: "pencil-line",
+      color: { icon: "#B45309", bg: "#FEF3C7" },
       title: "dandelion.starter.writing.title",
       description: "dandelion.starter.writing.description",
       examples: [
@@ -26,6 +28,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "analysis",
       icon: "glasses",
+      color: { icon: "#1D4ED8", bg: "#DBEAFE" },
       title: "dandelion.starter.analysis.title",
       description: "dandelion.starter.analysis.description",
       examples: [
@@ -37,6 +40,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "brainstorm",
       icon: "brain",
+      color: { icon: "#7C3AED", bg: "#EDE9FE" },
       title: "dandelion.starter.brainstorm.title",
       description: "dandelion.starter.brainstorm.description",
       examples: [
@@ -49,7 +53,8 @@ export const starters: Record<DandelionMode, Starter[]> = {
   agent: [
     {
       id: "pptx",
-      icon: "task",
+      icon: "presentation",
+      color: { icon: "#C43E1C", bg: "#FFF0EB" },
       title: "dandelion.starter.pptx.title",
       description: "dandelion.starter.pptx.description",
       examples: [
@@ -60,7 +65,8 @@ export const starters: Record<DandelionMode, Starter[]> = {
     },
     {
       id: "docx",
-      icon: "review",
+      icon: "document",
+      color: { icon: "#2B579A", bg: "#EBF0FA" },
       title: "dandelion.starter.docx.title",
       description: "dandelion.starter.docx.description",
       examples: [
@@ -71,7 +77,8 @@ export const starters: Record<DandelionMode, Starter[]> = {
     },
     {
       id: "xlsx",
-      icon: "checklist",
+      icon: "table",
+      color: { icon: "#217346", bg: "#E8F5ED" },
       title: "dandelion.starter.xlsx.title",
       description: "dandelion.starter.xlsx.description",
       examples: [
@@ -81,19 +88,9 @@ export const starters: Record<DandelionMode, Starter[]> = {
       ],
     },
     {
-      id: "pdf",
-      icon: "open-file",
-      title: "dandelion.starter.pdf.title",
-      description: "dandelion.starter.pdf.description",
-      examples: [
-        "dandelion.starter.pdf.example1",
-        "dandelion.starter.pdf.example2",
-        "dandelion.starter.pdf.example3",
-      ],
-    },
-    {
       id: "files",
       icon: "folder",
+      color: { icon: "#92400E", bg: "#FEF3C7" },
       title: "dandelion.starter.files.title",
       description: "dandelion.starter.files.description",
       examples: [
@@ -105,6 +102,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "infographic",
       icon: "shapes",
+      color: { icon: "#7C3AED", bg: "#EDE9FE" },
       title: "dandelion.starter.infographic.title",
       description: "dandelion.starter.infographic.description",
       examples: [
@@ -113,11 +111,24 @@ export const starters: Record<DandelionMode, Starter[]> = {
         "dandelion.starter.infographic.example3",
       ],
     },
+    {
+      id: "poster",
+      icon: "megaphone",
+      color: { icon: "#BE123C", bg: "#FFE4E6" },
+      title: "dandelion.starter.poster.title",
+      description: "dandelion.starter.poster.description",
+      examples: [
+        "dandelion.starter.poster.example1",
+        "dandelion.starter.poster.example2",
+        "dandelion.starter.poster.example3",
+      ],
+    },
   ],
   image: [
     {
       id: "photo",
       icon: "photo",
+      color: { icon: "#4338CA", bg: "#E0E7FF" },
       title: "dandelion.starter.photo.title",
       description: "dandelion.starter.photo.description",
       examples: [
@@ -127,19 +138,9 @@ export const starters: Record<DandelionMode, Starter[]> = {
       ],
     },
     {
-      id: "design",
-      icon: "models",
-      title: "dandelion.starter.design.title",
-      description: "dandelion.starter.design.description",
-      examples: [
-        "dandelion.starter.design.example1",
-        "dandelion.starter.design.example2",
-        "dandelion.starter.design.example3",
-      ],
-    },
-    {
       id: "remix",
       icon: "edit",
+      color: { icon: "#0D9488", bg: "#CCFBF1" },
       title: "dandelion.starter.remix.title",
       description: "dandelion.starter.remix.description",
       examples: [
