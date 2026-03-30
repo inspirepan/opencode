@@ -5,6 +5,19 @@
 
 ---
 
+## 2026-03-30 — feat: save attached images to workspace for agent access
+
+### feat(dandelion): persist user-attached images to workspace directory
+
+**Intent:** When a user attaches an image (paste/drag/file picker), the base64 data was only passed inline to the LLM and never saved to disk. The agent had no file path to operate on. Now, image attachments are saved to `Instance.directory` (the workspace) and a synthetic text part is injected telling the agent the file path, while the inline image data is still sent so the model can see it visually.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/session/prompt.ts` | In `createUserMessage`, `data:` case: for non-text image MIME types, extract base64, save to workspace via `Filesystem.write`, and prepend a synthetic text part with the saved file path. Import `Media` for extension lookup. |
+| `packages/opencode/src/session/media.ts` | Export `Media.ext(mime)` helper to map MIME type to file extension |
+
+---
+
 ## 2026-03-29 — chore: rename bundled baoyu-* skills to remove prefix
 
 ### chore(dandelion): remove `baoyu-` prefix from bundled system skills

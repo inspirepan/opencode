@@ -14,6 +14,10 @@ const MIME_EXT: Record<string, string> = {
 }
 
 export namespace Media {
+  export function ext(mime: string) {
+    return MIME_EXT[mime] ?? ".bin"
+  }
+
   export function dir(sessionID: SessionID) {
     return path.join(Global.Path.data, "media", sessionID)
   }

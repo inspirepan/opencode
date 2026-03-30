@@ -49,6 +49,7 @@ import { Shell } from "@/shell/shell"
 import { Truncate } from "@/tool/truncate"
 import { decodeDataUrl } from "@/util/data-url"
 import { Process } from "@/util/process"
+import { Media } from "./media"
 
 // @ts-ignore
 globalThis.AI_SDK_LOG_WARNINGS = false
@@ -1121,6 +1122,35 @@ export namespace SessionPrompt {
                     sessionID: input.sessionID,
                   },
                 ]
+              }
+              // Save image data URLs as files in workspace so the agent can access them by path
+              if (part.mime.startsWith("image/")) {
+                const comma = part.url.indexOf(",")
+                if (comma !== -1) {
+                  const base64 = part.url.slice(comma + 1)
+                  const ext = Media.ext(part.mime)
+                  const name = part.filename || `image-${Date.now()}${ext}`
+                  const dest = path.join(Instance.directory, "imgs", name)
+                  try {
+                    await Filesystem.write(dest, Buffer.from(base64, "base64"))
+                    return [
+                      {
+                        messageID: info.id,
+                        sessionID: input.sessionID,
+                        type: "text",
+                        synthetic: true,
+                        text: `User attached an image. The image has been saved to: ${dest}\nYou can see the image content above. You can also read or manipulate the file at the path above.`,
+                      },
+                      {
+                        ...part,
+                        messageID: info.id,
+                        sessionID: input.sessionID,
+                      },
+                    ]
+                  } catch (e) {
+                    log.warn("failed to save attached image to workspace", { dest, error: e })
+                  }
+                }
               }
               break
             case "file:":
