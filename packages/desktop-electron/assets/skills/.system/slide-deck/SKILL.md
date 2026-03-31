@@ -165,6 +165,7 @@ Copy this checklist and check off items as you complete them:
 
 ```
 Slide Deck Progress:
+- [ ] Step 0: Clarify intent (if ambiguous)
 - [ ] Step 1: Setup & Analyze
   - [ ] 1.1 Load preferences
   - [ ] 1.2 Analyze content
@@ -182,8 +183,31 @@ Slide Deck Progress:
 ### Flow
 
 ```
-Input → Preferences → Analyze → [Check Existing?] → Confirm (1-2 rounds) → Outline → [Review Outline?] → Prompts → [Review Prompts?] → Images → Merge → Complete
+Clarify Intent → Input → Preferences → Analyze → [Check Existing?] → Confirm (1-2 rounds) → Outline → [Review Outline?] → Prompts → [Review Prompts?] → Images → Merge → Complete
 ```
+
+### Step 0: Clarify Intent
+
+This skill generates **image-based** slide decks — each slide is an AI-generated image. The output looks visually impressive but slides are **not editable** in PowerPoint (each page is a picture).
+
+If the user needs an **editable** `.pptx` file (with text boxes, shapes, charts that can be modified in PowerPoint/Keynote), they should use the **pptx skill** instead.
+
+**Skip this step** if the user's request already makes the intent clear (e.g. explicitly asks for "image slides", "visual deck", or mentions this skill by name). Also skip if they explicitly asked for an editable `.pptx` — in that case, do not use this skill at all, use the **pptx skill**.
+
+**When the intent is ambiguous** (e.g. "make me a presentation", "create slides"), use AskUserQuestion to clarify:
+
+```
+header: "Format"
+question: "Would you like image-based slides (visually impressive, not editable) or an editable PowerPoint file?"
+options:
+  - label: "Image-based slides"
+    description: "Each slide is an AI-generated picture. Visually stunning, best for sharing. Not editable in Office."
+  - label: "Editable PowerPoint"
+    description: "Standard .pptx with text/shapes/charts. Editable in Office. (Will use pptx skill)"
+```
+
+- If "Image-based slides" → Continue to Step 1.
+- If "Editable PowerPoint" → **Stop this skill**. Tell the user you'll use the pptx skill instead, then load and follow the pptx skill.
 
 ### Step 1: Setup & Analyze
 
