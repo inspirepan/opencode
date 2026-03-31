@@ -1,3 +1,4 @@
+import { createSignal } from "solid-js"
 import type { IconProps } from "@opencode-ai/ui/icon"
 
 export type Example = { label: string; query: string }
@@ -12,6 +13,8 @@ export type Starter = {
 }
 
 export type DandelionMode = "chat" | "agent" | "image"
+
+export const [activeStarter, setActiveStarter] = createSignal<Starter | null>(null)
 
 export const starters: Record<DandelionMode, Starter[]> = {
   chat: [

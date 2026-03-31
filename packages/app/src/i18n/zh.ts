@@ -963,6 +963,8 @@ export const dict = {
 
   "dandelion.home.recent": "最近会话",
   "dandelion.home.recent.more": "查看全部对话",
+  "dandelion.home.starters": "试试这些场景",
+  "dandelion.home.starters.hint": "试试这些「{{name}}」提示词",
   "dandelion.home.chat.title": "随时提问",
   "dandelion.home.chat.subtitle": "你的全能 AI 助手，随时为你答疑解惑",
   "dandelion.home.agent.title": "高效行动",

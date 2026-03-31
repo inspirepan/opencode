@@ -981,6 +981,8 @@ export const dict = {
 
   "dandelion.home.recent": "Recent",
   "dandelion.home.recent.more": "View all sessions",
+  "dandelion.home.starters": "Try these scenarios",
+  "dandelion.home.starters.hint": "Try these \"{{name}}\" prompts",
   "dandelion.home.chat.title": "Ask anything",
   "dandelion.home.chat.subtitle": "Your versatile AI assistant, ready to help anytime",
   "dandelion.home.agent.title": "Get things done",

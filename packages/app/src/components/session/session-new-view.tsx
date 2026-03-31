@@ -1,4 +1,4 @@
-import { For, Show, createMemo, createSignal } from "solid-js"
+import { For, Show, createEffect, createMemo } from "solid-js"
 import { createMediaQuery } from "@solid-primitives/media"
 import { DateTime } from "luxon"
 import { useNavigate } from "@solidjs/router"
@@ -7,14 +7,13 @@ import { useSync } from "@/context/sync"
 import { useSDK } from "@/context/sdk"
 import { useLanguage } from "@/context/language"
 import { usePlatform } from "@/context/platform"
-import { usePrompt } from "@/context/prompt"
 import { useLayout } from "@/context/layout"
 
 import { Icon } from "@opencode-ai/ui/icon"
 import { Spinner } from "@opencode-ai/ui/spinner"
 import { Mark } from "@opencode-ai/ui/logo"
 import { getDirectory, getFilename } from "@opencode-ai/util/path"
-import { starters, type Starter, type DandelionMode } from "./starters"
+import { starters, activeStarter, setActiveStarter, type Starter, type DandelionMode } from "./starters"
 
 const MAIN_WORKTREE = "main"
 const CREATE_WORKTREE = "create"
@@ -107,12 +106,18 @@ function DandelionNewView() {
   const sync = useSync()
   const language = useLanguage()
   const platform = usePlatform()
-  const prompt = usePrompt()
   const layout = useLayout()
   const navigate = useNavigate()
-  const [active, setActive] = createSignal<string | null>(null)
+  let scrollRef!: HTMLDivElement
   const xl = createMediaQuery("(min-width: 1280px)")
   const sidebarVisible = createMemo(() => (xl() ? layout.sidebar.opened() : layout.mobileSidebar.opened()))
+
+  createEffect(() => {
+    if (!activeStarter()) return
+    requestAnimationFrame(() => {
+      scrollRef?.scrollTo({ top: scrollRef.scrollHeight, behavior: "smooth" })
+    })
+  })
 
   const mode = createMemo<DandelionMode>(() => {
     const ws = platform.dandelion?.workspaces
@@ -132,19 +137,15 @@ function DandelionNewView() {
 
   const slug = createMemo(() => base64Encode(sdk.directory))
 
-  const select = (text: string) => {
-    prompt.set([{ type: "text", content: text, start: 0, end: text.length }], text.length)
-  }
-
   return (
     <div class={ROOT_CLASS}>
       <div class="h-12 shrink-0" aria-hidden />
-      <div class="flex-1 px-6 pb-30 overflow-y-auto flex justify-center" style={{ "scrollbar-gutter": "stable" }}>
-        <div class="w-full max-w-180 flex flex-col items-center gap-5 pt-12">
-          <div class="flex flex-col items-center gap-3">
-            <Mark class="w-10" />
-            <div class="text-16-medium text-text-strong">{language.t(`dandelion.home.${mode()}.title`)}</div>
-            <div class="text-13-regular text-text-weak">{language.t(`dandelion.home.${mode()}.subtitle`)}</div>
+      <div ref={(el) => (scrollRef = el)} class="flex-1 px-6 overflow-y-auto flex justify-center" classList={{ "pb-60": !!activeStarter(), "pb-30": !activeStarter() }} style={{ "scrollbar-gutter": "stable" }}>
+        <div class="w-full max-w-180 flex flex-col items-center gap-3 pt-6">
+          <div class="flex flex-col items-center gap-2">
+            <Mark class="w-8" />
+            <div class="text-15-medium text-text-strong">{language.t(`dandelion.home.${mode()}.title`)}</div>
+            <div class="text-12-regular text-text-weak">{language.t(`dandelion.home.${mode()}.subtitle`)}</div>
           </div>
           <Show when={recent().length > 0}>
             <div class="w-full flex flex-col gap-0.5">
@@ -183,41 +184,20 @@ function DandelionNewView() {
               </Show>
             </div>
           </Show>
+          <div class="w-full px-1">
+            <span class="text-12-medium text-text-weak">{language.t("dandelion.home.starters")}</span>
+          </div>
           <div class="w-full grid grid-cols-3 gap-2">
             <For each={items()}>
               {(item) => (
                 <StarterCard
                   starter={item}
-                  active={active() === item.id}
-                  onClick={() => setActive(active() === item.id ? null : item.id)}
+                  active={activeStarter()?.id === item.id}
+                  onClick={() => setActiveStarter(activeStarter()?.id === item.id ? null : item)}
                 />
               )}
             </For>
           </div>
-          <Show when={active()}>
-            {(id) => {
-              const skill = () => items().find((s) => s.id === id())
-              return (
-                <Show when={skill()}>
-                  {(s) => (
-                    <div class="w-full flex flex-col gap-1">
-                      <For each={s().examples}>
-                        {(ex) => (
-                          <button
-                            class="w-full text-left px-4 py-1.5 rounded-lg hover:bg-surface-base-hover transition-colors flex items-center gap-3"
-                            onClick={() => select(language.t(ex.query))}
-                          >
-                            <Icon name="speech-bubble" size="small" class="shrink-0 text-icon-base" />
-                            <span class="text-13-regular text-text-base">{language.t(ex.label)}</span>
-                          </button>
-                        )}
-                      </For>
-                    </div>
-                  )}
-                </Show>
-              )
-            }}
-          </Show>
         </div>
       </div>
     </div>
@@ -228,7 +208,7 @@ function StarterCard(props: { starter: Starter; active: boolean; onClick: () => 
   const language = useLanguage()
   return (
     <button
-      class="flex flex-col gap-2 p-3 rounded-xl text-left transition-colors"
+      class="flex flex-col gap-1.5 p-2.5 rounded-xl text-left transition-colors"
       classList={{
         "bg-surface-raised-base hover:bg-surface-raised-base-hover": !props.starter.color && !props.active,
         "bg-surface-raised-base-hover ring-1 ring-border-base": !props.starter.color && props.active,
@@ -246,20 +226,20 @@ function StarterCard(props: { starter: Starter; active: boolean; onClick: () => 
       onClick={props.onClick}
     >
       <div
-        class="size-8 rounded-lg flex items-center justify-center"
+        class="size-7 rounded-md flex items-center justify-center"
         classList={{ "bg-surface-base": !props.starter.color }}
         style={props.starter.color ? { background: props.starter.color.bg } : undefined}
       >
         <Icon
           name={props.starter.icon}
-          size="normal"
+          size="small"
           class={props.starter.color ? "" : "text-icon-base"}
           style={props.starter.color ? { color: props.starter.color.icon } : undefined}
         />
       </div>
       <div class="flex flex-col gap-1">
-        <div class="text-14-medium text-text-strong">{language.t(props.starter.title)}</div>
-        <div class="text-12-regular text-text-weak">{language.t(props.starter.description)}</div>
+        <div class="text-13-medium text-text-strong">{language.t(props.starter.title)}</div>
+        <div class="text-11-regular text-text-weak">{language.t(props.starter.description)}</div>
       </div>
     </button>
   )

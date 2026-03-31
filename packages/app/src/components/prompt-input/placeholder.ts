@@ -9,8 +9,7 @@ type PromptPlaceholderInput = {
 
 export function promptPlaceholder(input: PromptPlaceholderInput) {
   if (input.dandelion) {
-    if (!input.suggest) return input.t(`dandelion.placeholder.${input.dandelion}.simple`)
-    return input.t(`dandelion.placeholder.${input.dandelion}.normal`, { example: input.example })
+    return input.t(`dandelion.placeholder.${input.dandelion}.simple`)
   }
   if (input.mode === "shell") return input.t("prompt.placeholder.shell")
   if (input.commentCount > 1) return input.t("prompt.placeholder.summarizeComments")

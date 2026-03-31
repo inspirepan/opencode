@@ -1,5 +1,30 @@
 @import "@opencode-ai/ui/styles/tailwind";
 
+@keyframes shimmer-text {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+[data-shimmer] {
+  background: linear-gradient(
+    90deg,
+    currentColor 0%,
+    currentColor 40%,
+    color-mix(in srgb, currentColor 60%, transparent) 50%,
+    currentColor 60%,
+    currentColor 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer-text 2s linear infinite;
+}
+
 @layer components {
   [data-component="getting-started"] {
     container-type: inline-size;

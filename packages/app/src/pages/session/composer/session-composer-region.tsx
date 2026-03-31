@@ -1,6 +1,7 @@
-import { Show, createEffect, createMemo, onCleanup } from "solid-js"
+import { For, Show, createEffect, createMemo, onCleanup } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useSpring } from "@opencode-ai/ui/motion-spring"
+import { Icon } from "@opencode-ai/ui/icon"
 import { PromptInput } from "@/components/prompt-input"
 import { useLanguage } from "@/context/language"
 import { usePrompt } from "@/context/prompt"
@@ -13,6 +14,7 @@ import { SessionRevertDock } from "@/pages/session/composer/session-revert-dock"
 import type { SessionComposerState } from "@/pages/session/composer/session-composer-state"
 import { SessionTodoDock } from "@/pages/session/composer/session-todo-dock"
 import type { FollowupDraft } from "@/components/prompt-input/submit"
+import { activeStarter, setActiveStarter } from "@/components/session/starters"
 
 export function SessionComposerRegion(props: {
   state: SessionComposerState
@@ -234,6 +236,33 @@ export function SessionComposerRegion(props: {
                   onSend={props.followup!.onSend}
                   onEdit={props.followup!.onEdit}
                 />
+              </Show>
+              <Show when={activeStarter()}>
+                {(starter) => (
+                  <div class="flex flex-col gap-0.5 pt-6 pb-1.5">
+                    <div class="px-3 pb-1 text-12-medium text-text-weak">
+                      {language.t("dandelion.home.starters.hint", { name: language.t(starter().title as Parameters<typeof language.t>[0]) })}
+                    </div>
+                    <For each={starter().examples}>
+                      {(ex) => {
+                        const text = () => language.t(ex.query as Parameters<typeof language.t>[0])
+                        return (
+                          <button
+                            class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-base-hover transition-colors flex items-center gap-2.5"
+                            onClick={() => {
+                              const t = text()
+                              prompt.set([{ type: "text", content: t, start: 0, end: t.length }], t.length)
+                              setActiveStarter(null)
+                            }}
+                          >
+                            <Icon name="speech-bubble" size="small" class="shrink-0 text-icon-weak" />
+                            <span data-shimmer class="text-13-regular text-text-base">{language.t(ex.label as Parameters<typeof language.t>[0])}</span>
+                          </button>
+                        )
+                      }}
+                    </For>
+                  </div>
+                )}
               </Show>
               <PromptInput
                 ref={props.inputRef}
