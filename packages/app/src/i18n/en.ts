@@ -71,6 +71,7 @@ export const dict = {
   "command.agent.cycle.reverse.description": "Switch to the previous agent",
   "command.model.variant.cycle": "Cycle thinking effort",
   "command.model.variant.cycle.description": "Switch to the next effort level",
+  "variant.default.label": "Default",
   "variant.default.description": "Use model default",
   "variant.none.description": "No reasoning",
   "variant.minimal.description": "Minimal reasoning",

@@ -1649,7 +1649,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                       size="normal"
                       options={variants()}
                       current={local.model.variant.current() ?? "default"}
-                      label={(x) => (x === "default" ? language.t("common.default") : x)}
+                      label={(x) => (x === "default" ? language.t("variant.default.label") : x)}
                       onSelect={(x) => local.model.variant.set(x === "default" ? undefined : x)}
                       class="capitalize max-w-[160px] text-text-base"
                       valueClass="truncate text-13-regular text-text-base"
@@ -1661,7 +1661,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                         const key = `variant.${x ?? "default"}.description` as Parameters<typeof language.t>[0]
                         return (
                           <div class="flex flex-col gap-0.5 py-0.5">
-                            <span class="capitalize">{x === "default" ? language.t("common.default") : x}</span>
+                            <span class="capitalize">{x === "default" ? language.t("variant.default.label") : x}</span>
                             <span class="text-[11px] leading-tight text-text-weak font-normal normal-case">{language.t(key)}</span>
                           </div>
                         )
