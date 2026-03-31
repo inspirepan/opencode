@@ -240,8 +240,13 @@ export function SessionComposerRegion(props: {
               <Show when={activeStarter()}>
                 {(starter) => (
                   <div class="flex flex-col gap-0.5 pt-6 pb-1.5">
-                    <div class="px-3 pb-1 text-12-medium text-text-weak">
-                      {language.t("dandelion.home.starters.hint", { name: language.t(starter().title as Parameters<typeof language.t>[0]) })}
+                    <div class="px-3 pb-1 flex items-center justify-between">
+                      <span class="text-12-medium text-text-weak">
+                        {language.t("dandelion.home.starters.hint", { name: language.t(starter().title as Parameters<typeof language.t>[0]) })}
+                      </span>
+                      <button class="flex items-center justify-center text-icon-weak hover:text-icon-base hover:bg-surface-base-hover transition-colors p-1 rounded" onClick={() => setActiveStarter(null)}>
+                        <Icon name="close" size="small" class="scale-75" />
+                      </button>
                     </div>
                     <For each={starter().examples}>
                       {(ex) => {
@@ -256,7 +261,7 @@ export function SessionComposerRegion(props: {
                             }}
                           >
                             <Icon name="speech-bubble" size="small" class="shrink-0 text-icon-weak" />
-                            <span data-shimmer class="text-13-regular text-text-base">{language.t(ex.label as Parameters<typeof language.t>[0])}</span>
+                            <span class="text-13-regular text-text-base">{language.t(ex.label as Parameters<typeof language.t>[0])}</span>
                           </button>
                         )
                       }}
