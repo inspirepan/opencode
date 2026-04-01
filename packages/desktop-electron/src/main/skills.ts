@@ -28,8 +28,8 @@ function fingerprint(dir: string): string {
 function source(): string {
   // In development, assets are relative to project root
   // In production, they're in process.resourcesPath
-  if (app.isPackaged) return join(process.resourcesPath, "skills", ".system")
-  return join(__dirname, "..", "..", "assets", "skills", ".system")
+  if (app.isPackaged) return join(process.resourcesPath, "skills")
+  return join(__dirname, "..", "..", "assets", "skills")
 }
 
 export function syncSystemSkills(agent: string) {
