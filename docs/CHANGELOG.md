@@ -5,6 +5,18 @@
 
 ---
 
+## 2026-04-01 — refactor: optimize dandy-agent prompt per Anthropic best practices
+
+### refactor(dandelion): rewrite dandy-agent.txt for clarity, conciseness, and best-practice alignment
+
+**Intent:** Rewrote the Dandy agent system prompt following Anthropic's prompt engineering best practices. Key changes: (1) emphasize Dandy runs on user's computer with boundless capabilities, (2) add Safety section requiring confirmation before high-risk actions, (3) merge Personality/Values/Tone into one section to reduce redundancy, (4) promote Language matching to its own top-level section, (5) reframe capability list as examples instead of exhaustive list, (6) add "why" context to rules, (7) use positive framing ("mirror emoji style") instead of negation, (8) trim question tool examples from 2 to 1, (9) add user-facing action guidance section, (10) remove redundant Guidelines section.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/agent/prompt/dandy-agent.txt` | Full rewrite: add Safety section, merge Personality/Values/Tone, add Language section, add boundless capability framing, add user-action guidance, trim examples, remove redundant Guidelines |
+
+---
+
 ## 2026-03-30 — fix: bash tool description not matching user language
 
 ### fix(bash): reinforce language-matching requirement for bash tool description
