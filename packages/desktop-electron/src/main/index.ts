@@ -9,17 +9,17 @@ import { app, BrowserWindow, dialog } from "electron"
 import pkg from "electron-updater"
 
 const APP_NAMES: Record<string, string> = {
-  dev: "Dandelion Dev",
-  beta: "Dandelion Beta",
-  prod: "Dandelion",
+  dev: "Coco Desktop Dev",
+  beta: "Coco Desktop Beta",
+  prod: "Coco Desktop",
 }
 const APP_IDS: Record<string, string> = {
-  dev: "ai.opencode.desktop.dev",
-  beta: "ai.opencode.desktop.beta",
-  prod: "ai.opencode.desktop",
+  dev: "app.coco.desktop.dev",
+  beta: "app.coco.desktop.beta",
+  prod: "app.coco.desktop",
 }
-app.setName(app.isPackaged ? APP_NAMES[CHANNEL] : "Dandelion Dev")
-app.setPath("userData", join(app.getPath("appData"), app.isPackaged ? APP_IDS[CHANNEL] : "ai.opencode.desktop.dev"))
+app.setName(app.isPackaged ? APP_NAMES[CHANNEL] : "Coco Desktop Dev")
+app.setPath("userData", join(app.getPath("appData"), app.isPackaged ? APP_IDS[CHANNEL] : "app.coco.desktop.dev"))
 const { autoUpdater } = pkg
 
 import type { InitStep, ServerReadyData, SqliteMigrationProgress, WslConfig } from "../preload/types"

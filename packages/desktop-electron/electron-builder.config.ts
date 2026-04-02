@@ -7,7 +7,7 @@ const channel = (() => {
 })()
 
 const getBase = (): Configuration => ({
-  artifactName: "opencode-electron-${os}-${arch}.${ext}",
+  artifactName: "coco-desktop-electron-${os}-${arch}.${ext}",
   directories: {
     output: "dist",
     buildResources: "resources",
@@ -43,7 +43,7 @@ const getBase = (): Configuration => ({
     sign: true,
   },
   protocols: {
-    name: "Dandelion",
+    name: "Coco Desktop",
     schemes: ["opencode"],
   },
   win: {
@@ -70,17 +70,17 @@ function getConfig() {
     case "dev": {
       return {
         ...base,
-        appId: "ai.opencode.desktop.dev",
-        productName: "Dandelion Dev",
+        appId: "app.coco.desktop.dev",
+        productName: "Coco Desktop Dev",
         rpm: { packageName: "opencode-dev" },
       }
     }
     case "beta": {
       return {
         ...base,
-        appId: "ai.opencode.desktop.beta",
-        productName: "Dandelion Beta",
-        protocols: { name: "Dandelion Beta", schemes: ["opencode"] },
+        appId: "app.coco.desktop.beta",
+        productName: "Coco Desktop Beta",
+        protocols: { name: "Coco Desktop Beta", schemes: ["opencode"] },
         publish: { provider: "github", owner: "anomalyco", repo: "opencode-beta", channel: "latest" },
         rpm: { packageName: "opencode-beta" },
       }
@@ -88,9 +88,9 @@ function getConfig() {
     case "prod": {
       return {
         ...base,
-        appId: "ai.opencode.desktop",
-        productName: "Dandelion",
-        protocols: { name: "Dandelion", schemes: ["opencode"] },
+        appId: "app.coco.desktop",
+        productName: "Coco Desktop",
+        protocols: { name: "Coco Desktop", schemes: ["opencode"] },
         publish: { provider: "github", owner: "anomalyco", repo: "opencode", channel: "latest" },
         rpm: { packageName: "opencode" },
       }

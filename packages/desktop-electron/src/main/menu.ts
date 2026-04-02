@@ -16,7 +16,7 @@ export function createMenu(deps: Deps) {
 
   const template: Electron.MenuItemConstructorOptions[] = [
     {
-      label: "Dandelion",
+      label: "Coco Desktop",
       submenu: [
         { role: "about" },
         {
@@ -101,7 +101,7 @@ export function createMenu(deps: Deps) {
     {
       label: "Help",
       submenu: [
-        { label: "Dandelion Documentation", click: () => shell.openExternal("https://opencode.ai/docs") },
+        { label: "Coco Desktop Documentation", click: () => shell.openExternal("https://opencode.ai/docs") },
         { label: "Support Forum", click: () => shell.openExternal("https://discord.com/invite/opencode") },
         { type: "separator" },
         { type: "separator" },
