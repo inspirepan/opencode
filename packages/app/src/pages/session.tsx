@@ -1195,7 +1195,7 @@ export default function Page() {
           if (seen.has(part.id)) continue
           seen.add(part.id)
 
-          const meta = part.state.metadata as { filepath?: string; content?: string; ext?: string; binary?: boolean; external?: boolean; directory?: boolean } | undefined
+          const meta = part.state.metadata as { filepath?: string; content?: string; ext?: string; binary?: boolean; external?: boolean; directory?: boolean; url?: string } | undefined
           if (!meta?.filepath) continue
 
           // External files: show card in preview panel instead of opening directly
@@ -1208,8 +1208,8 @@ export default function Page() {
             continue
           }
 
-          if (!meta.content) continue
-          preview.present({ path: meta.filepath, content: meta.content, ext: meta.ext ?? "", binary: meta.binary, directory: meta.directory })
+          if (!meta.content && !meta.url) continue
+          preview.present({ path: meta.filepath, content: meta.content ?? "", ext: meta.ext ?? "", binary: meta.binary, directory: meta.directory, url: meta.url })
           const tab = previewTab(meta.filepath)
           tabs().open(tab)
           tabs().setActive(tab)
@@ -1220,7 +1220,7 @@ export default function Page() {
 
     // Listen for clicks on present_file subtitle in tool display
     const handlePresentClick = (e: Event) => {
-      const detail = (e as CustomEvent).detail as { filepath?: string; content?: string; ext?: string; binary?: boolean; external?: boolean; directory?: boolean } | undefined
+      const detail = (e as CustomEvent).detail as { filepath?: string; content?: string; ext?: string; binary?: boolean; external?: boolean; directory?: boolean; url?: string } | undefined
       if (!detail?.filepath) return
       if (detail.external) {
         preview.present({ path: detail.filepath, content: "", ext: detail.ext ?? "", external: true })
@@ -1230,8 +1230,8 @@ export default function Page() {
         if (!view().reviewPanel.opened()) view().reviewPanel.open()
         return
       }
-      if (!detail.content) return
-      preview.present({ path: detail.filepath, content: detail.content, ext: detail.ext ?? "", binary: detail.binary, directory: detail.directory })
+      if (!detail.content && !detail.url) return
+      preview.present({ path: detail.filepath, content: detail.content ?? "", ext: detail.ext ?? "", binary: detail.binary, directory: detail.directory, url: detail.url })
       const tab = previewTab(detail.filepath)
       tabs().open(tab)
       tabs().setActive(tab)

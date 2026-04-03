@@ -18,7 +18,7 @@ When NOT to use the present_file tool:
 - For plain text or source code files that have no visual rendering
 
 How it works:
-- Accepts a file path (absolute or relative to the workspace) or a directory path
+- Accepts a file path (absolute or relative to the workspace), a directory path, or an http/https URL
 - The file must already exist on disk (use the Write tool first if needed)
 - The preview panel will open automatically and render the file content
 - For Markdown files, local image references (png, jpg, svg, gif, etc.) are automatically inlined for preview
@@ -30,6 +30,11 @@ How it works:
 Batch image generation tip:
 - Generate all images into a single directory, then present that directory to show them as a gallery
 - You can present the directory early (before all images are done), then re-present it after generating more images to update the gallery
+
+URL preview:
+- If you have started a local dev server (e.g. via `npx serve`, `python -m http.server`, `npm run dev`), pass its URL directly (e.g. `http://localhost:3000`) to present the live page
+- The URL is loaded in an iframe — all assets (CSS, JS, images, fonts) resolve naturally from the server
+- This is the recommended approach for complex HTML projects with multiple files, external stylesheets, JavaScript, or frameworks
 
 Supported file types:
 - .html, .htm — rendered as a live web page in the preview panel

@@ -198,6 +198,7 @@ export function PreviewTab(props: { path?: string; resizing?: Accessor<boolean> 
   const isExternal = createMemo(() => !!item()?.external)
   const isImage = createMemo(() => IMAGE_EXTS.has(item()?.ext ?? "") && item()?.binary)
   const isGallery = createMemo(() => !!item()?.directory)
+  const isUrl = createMemo(() => !!item()?.url)
 
   // PDF: render pages as images via pdf.js
   const [pdfSrcdoc, setPdfSrcdoc] = createSignal("")
@@ -264,7 +265,14 @@ export function PreviewTab(props: { path?: string; resizing?: Accessor<boolean> 
         <Show when={isExternal() && !isImage() && !isGallery()}>
           <ExternalCard path={item()!.path} ext={item()!.ext} />
         </Show>
-        <Show when={!isExternal() && !isImage() && !isGallery()}>
+        <Show when={isUrl()}>
+          <iframe
+            class="flex-1 w-full border-none bg-white"
+            classList={{ "pointer-events-none": !!props.resizing?.() }}
+            src={item()!.url}
+          />
+        </Show>
+        <Show when={!isExternal() && !isImage() && !isGallery() && !isUrl()}>
           <iframe
             class="flex-1 w-full border-none bg-white"
             classList={{ "pointer-events-none": !!props.resizing?.() }}

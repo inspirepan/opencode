@@ -147,10 +147,31 @@ async function gallery(dir: string) {
 export const PresentTool = Tool.define("present_file", {
   description: DESCRIPTION,
   parameters: z.object({
-    filePath: z.string().describe("The absolute path to the file or directory to present"),
+    filePath: z.string().describe("The absolute path to the file or directory to present, or an http/https URL to a running local server"),
   }),
   async execute(params, ctx) {
     let filepath = params.filePath
+
+    // URL mode: pass through to frontend for iframe src loading
+    if (/^https?:\/\//i.test(filepath)) {
+      const url = filepath
+      const title = url
+      return {
+        title,
+        output: `Presenting URL: ${url}`,
+        metadata: {
+          filepath: url,
+          content: "",
+          ext: ".html",
+          binary: false,
+          external: false,
+          directory: false,
+          truncated: false,
+          url,
+        },
+      }
+    }
+
     if (!path.isAbsolute(filepath)) {
       filepath = path.resolve(Instance.directory, filepath)
     }
@@ -176,6 +197,7 @@ export const PresentTool = Tool.define("present_file", {
           external: false,
           directory: true,
           truncated: omitted > 0,
+          url: "",
         },
       }
     }
@@ -202,6 +224,7 @@ export const PresentTool = Tool.define("present_file", {
           external: true,
           directory: false,
           truncated: false,
+          url: "",
         },
       }
     }
@@ -222,6 +245,7 @@ export const PresentTool = Tool.define("present_file", {
           external: false,
           directory: false,
           truncated: false,
+          url: "",
         },
       }
     }
@@ -249,6 +273,7 @@ export const PresentTool = Tool.define("present_file", {
         external: false,
         directory: false,
         truncated: false,
+        url: "",
       },
     }
   },

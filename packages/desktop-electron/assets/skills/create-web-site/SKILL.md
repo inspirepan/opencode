@@ -338,7 +338,7 @@ These defaults apply unless the user explicitly asks otherwise:
 After building the page, **immediately** use `present_file` to show it to the user:
 
 - Single HTML file: `present_file` the `.html` file directly
-- Hono + Workers project: run `bun run dev` first, then tell the user to open `http://localhost:8787` in their browser
+- Hono + Workers project: run `bun run dev` in the background first, then `present_file` with the URL (e.g. `http://localhost:8787`) to show the live page in the preview panel
 
 Ask if the user wants adjustments. Iterate until satisfied.
 
