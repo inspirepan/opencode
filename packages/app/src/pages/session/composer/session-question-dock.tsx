@@ -4,12 +4,13 @@ import { useMutation } from "@tanstack/solid-query"
 import { Button } from "@opencode-ai/ui/button"
 import { DockPrompt } from "@opencode-ai/ui/dock-prompt"
 import { Icon } from "@opencode-ai/ui/icon"
+import { Tooltip } from "@opencode-ai/ui/tooltip"
 import { showToast } from "@opencode-ai/ui/toast"
 import type { QuestionAnswer, QuestionRequest } from "@opencode-ai/sdk/v2"
 import { useLanguage } from "@/context/language"
 import { useSDK } from "@/context/sdk"
 
-const cache = new Map<string, { tab: number; answers: QuestionAnswer[]; custom: string[]; customOn: boolean[] }>()
+const cache = new Map<string, { answers: QuestionAnswer[]; custom: string[]; customOn: boolean[] }>()
 
 export const SessionQuestionDock: Component<{ request: QuestionRequest; onSubmit: () => void }> = (props) => {
   const sdk = useSDK()
@@ -20,48 +21,16 @@ export const SessionQuestionDock: Component<{ request: QuestionRequest; onSubmit
 
   const cached = cache.get(props.request.id)
   const [store, setStore] = createStore({
-    tab: cached?.tab ?? 0,
     answers: cached?.answers ?? ([] as QuestionAnswer[]),
     custom: cached?.custom ?? ([] as string[]),
     customOn: cached?.customOn ?? ([] as boolean[]),
-    editing: false,
+    editing: -1,
   })
 
   let root: HTMLDivElement | undefined
   let replied = false
 
-  const question = createMemo(() => questions()[store.tab])
-  const options = createMemo(() => question()?.options ?? [])
-  const input = createMemo(() => store.custom[store.tab] ?? "")
-  const on = createMemo(() => store.customOn[store.tab] === true)
-  const multi = createMemo(() => question()?.multiple === true)
-
-  const summary = createMemo(() => {
-    const n = Math.min(store.tab + 1, total())
-    return language.t("session.question.progress", { current: n, total: total() })
-  })
-
-  const last = createMemo(() => store.tab >= total() - 1)
-
-  const customUpdate = (value: string, selected: boolean = on()) => {
-    const prev = input().trim()
-    const next = value.trim()
-
-    setStore("custom", store.tab, value)
-    if (!selected) return
-
-    if (multi()) {
-      setStore("answers", store.tab, (current = []) => {
-        const removed = prev ? current.filter((item) => item.trim() !== prev) : current
-        if (!next) return removed
-        if (removed.some((item) => item.trim() === next)) return removed
-        return [...removed, next]
-      })
-      return
-    }
-
-    setStore("answers", store.tab, next ? [next] : [])
-  }
+  const summary = createMemo(() => `${total()} ${language.t("ui.tool.questions")}`)
 
   const measure = () => {
     if (!root) return
@@ -78,10 +47,9 @@ export const SessionQuestionDock: Component<{ request: QuestionRequest; onSubmit
     const dock = root.closest('[data-component="session-prompt-dock"]')
     if (!(dock instanceof HTMLElement)) return
 
-    const dockBottom = dock.getBoundingClientRect().bottom
-    const below = Math.max(0, dockBottom - root.getBoundingClientRect().bottom)
+    const below = Math.max(0, dock.getBoundingClientRect().bottom - root.getBoundingClientRect().bottom)
     const gap = 8
-    const max = Math.max(240, Math.floor(dockBottom - top - gap - below))
+    const max = Math.max(240, Math.floor(dock.getBoundingClientRect().bottom - top - gap - below))
     root.style.setProperty("--question-prompt-max-height", `${max}px`)
   }
 
@@ -114,7 +82,6 @@ export const SessionQuestionDock: Component<{ request: QuestionRequest; onSubmit
   onCleanup(() => {
     if (replied) return
     cache.set(props.request.id, {
-      tab: store.tab,
       answers: store.answers.map((a) => (a ? [...a] : [])),
       custom: store.custom.map((s) => s ?? ""),
       customOn: store.customOn.map((b) => b ?? false),
@@ -164,96 +131,76 @@ export const SessionQuestionDock: Component<{ request: QuestionRequest; onSubmit
 
   const submit = () => void reply(questions().map((_, i) => store.answers[i] ?? []))
 
-  const pick = (answer: string, custom: boolean = false) => {
-    setStore("answers", store.tab, [answer])
-    if (custom) setStore("custom", store.tab, answer)
-    if (!custom) setStore("customOn", store.tab, false)
-    setStore("editing", false)
+  const customUpdate = (idx: number, value: string, selected?: boolean) => {
+    const sel = selected ?? store.customOn[idx] === true
+    const prev = (store.custom[idx] ?? "").trim()
+    const next = value.trim()
+
+    setStore("custom", idx, value)
+    if (!sel) return
+
+    if (questions()[idx]?.multiple) {
+      setStore("answers", idx, (current = []) => {
+        const removed = prev ? current.filter((item) => item.trim() !== prev) : current
+        if (!next) return removed
+        if (removed.some((item) => item.trim() === next)) return removed
+        return [...removed, next]
+      })
+      return
+    }
+
+    setStore("answers", idx, next ? [next] : [])
   }
 
-  const toggle = (answer: string) => {
-    setStore("answers", store.tab, (current = []) => {
+  const pick = (idx: number, answer: string) => {
+    if (sending()) return
+    setStore("answers", idx, [answer])
+    setStore("customOn", idx, false)
+    if (store.editing === idx) setStore("editing", -1)
+  }
+
+  const toggle = (idx: number, answer: string) => {
+    if (sending()) return
+    setStore("answers", idx, (current = []) => {
       if (current.includes(answer)) return current.filter((item) => item !== answer)
       return [...current, answer]
     })
   }
 
-  const customToggle = () => {
+  const customOpen = (idx: number) => {
     if (sending()) return
+    if (!store.customOn[idx]) setStore("customOn", idx, true)
+    setStore("editing", idx)
+    customUpdate(idx, store.custom[idx] ?? "", true)
+  }
 
-    if (!multi()) {
-      setStore("customOn", store.tab, true)
-      setStore("editing", true)
-      customUpdate(input(), true)
+  const customToggle = (idx: number) => {
+    if (sending()) return
+    const multi = questions()[idx]?.multiple
+
+    if (!multi) {
+      setStore("customOn", idx, true)
+      setStore("editing", idx)
+      customUpdate(idx, store.custom[idx] ?? "", true)
       return
     }
 
-    const next = !on()
-    setStore("customOn", store.tab, next)
+    const next = !store.customOn[idx]
+    setStore("customOn", idx, next)
     if (next) {
-      setStore("editing", true)
-      customUpdate(input(), true)
+      setStore("editing", idx)
+      customUpdate(idx, store.custom[idx] ?? "", true)
       return
     }
 
-    const value = input().trim()
-    if (value) setStore("answers", store.tab, (current = []) => current.filter((item) => item.trim() !== value))
-    setStore("editing", false)
+    const value = (store.custom[idx] ?? "").trim()
+    if (value) setStore("answers", idx, (current = []) => current.filter((item) => item.trim() !== value))
+    if (store.editing === idx) setStore("editing", -1)
   }
 
-  const customOpen = () => {
-    if (sending()) return
-    if (!on()) setStore("customOn", store.tab, true)
-    setStore("editing", true)
-    customUpdate(input(), true)
-  }
-
-  const selectOption = (optIndex: number) => {
-    if (sending()) return
-
-    if (optIndex === options().length) {
-      customOpen()
-      return
-    }
-
-    const opt = options()[optIndex]
-    if (!opt) return
-    if (multi()) {
-      toggle(opt.label)
-      return
-    }
-    pick(opt.label)
-  }
-
-  const commitCustom = () => {
-    setStore("editing", false)
-    customUpdate(input())
-  }
-
-  const next = () => {
-    if (sending()) return
-    if (store.editing) commitCustom()
-
-    if (store.tab >= total() - 1) {
-      submit()
-      return
-    }
-
-    setStore("tab", store.tab + 1)
-    setStore("editing", false)
-  }
-
-  const back = () => {
-    if (sending()) return
-    if (store.tab <= 0) return
-    setStore("tab", store.tab - 1)
-    setStore("editing", false)
-  }
-
-  const jump = (tab: number) => {
-    if (sending()) return
-    setStore("tab", tab)
-    setStore("editing", false)
+  const commitCustom = (idx: number) => {
+    if (store.editing === idx) setStore("editing", -1)
+    customUpdate(idx, store.custom[idx] ?? "")
   }
 
   return (
@@ -261,188 +208,142 @@ export const SessionQuestionDock: Component<{ request: QuestionRequest; onSubmit
       kind="question"
       ref={(el) => (root = el)}
       header={
-        <>
-          <div data-slot="question-header-title">{summary()}</div>
-          <div data-slot="question-progress">
-            <For each={questions()}>
-              {(_, i) => (
-                <button
-                  type="button"
-                  data-slot="question-progress-segment"
-                  data-active={i() === store.tab}
-                  data-answered={
-                    (store.answers[i()]?.length ?? 0) > 0 ||
-                    (store.customOn[i()] === true && (store.custom[i()] ?? "").trim().length > 0)
-                  }
-                  disabled={sending()}
-                  onClick={() => jump(i())}
-                  aria-label={`${language.t("ui.tool.questions")} ${i() + 1}`}
-                />
-              )}
-            </For>
-          </div>
-        </>
+        <div data-slot="question-header-title">{summary()}</div>
       }
       footer={
         <>
           <Button variant="ghost" size="large" disabled={sending()} onClick={reject}>
             {language.t("ui.common.dismiss")}
           </Button>
-          <div data-slot="question-footer-actions">
-            <Show when={store.tab > 0}>
-              <Button variant="secondary" size="large" disabled={sending()} onClick={back}>
-                {language.t("ui.common.back")}
-              </Button>
-            </Show>
-            <Button variant={last() ? "primary" : "secondary"} size="large" disabled={sending()} onClick={next}>
-              {last() ? language.t("ui.common.submit") : language.t("ui.common.next")}
-            </Button>
-          </div>
+          <Button variant="primary" size="large" disabled={sending()} onClick={submit}>
+            {language.t("ui.common.submit")}
+          </Button>
         </>
       }
     >
-      <div data-slot="question-text">{question()?.question}</div>
-      <Show when={multi()} fallback={<div data-slot="question-hint">{language.t("ui.question.singleHint")}</div>}>
-        <div data-slot="question-hint">{language.t("ui.question.multiHint")}</div>
-      </Show>
-      <div data-slot="question-options">
-        <For each={options()}>
-          {(opt, i) => {
-            const picked = () => store.answers[store.tab]?.includes(opt.label) ?? false
+      <div data-slot="question-form">
+        <For each={questions()}>
+          {(q, i) => {
+            const multi = () => q.multiple === true
             return (
-              <button
-                data-slot="question-option"
-                data-picked={picked()}
-                role={multi() ? "checkbox" : "radio"}
-                aria-checked={picked()}
-                disabled={sending()}
-                onClick={() => selectOption(i())}
-              >
-                <span data-slot="question-option-check" aria-hidden="true">
-                  <span
-                    data-slot="question-option-box"
-                    data-type={multi() ? "checkbox" : "radio"}
-                    data-picked={picked()}
-                  >
-                    <Show when={multi()} fallback={<span data-slot="question-option-radio-dot" />}>
-                      <Icon name="check-small" size="small" />
-                    </Show>
-                  </span>
-                </span>
-                <span data-slot="question-option-main">
-                  <span data-slot="option-label">{opt.label}</span>
-                  <Show when={opt.description}>
-                    <span data-slot="option-description">{opt.description}</span>
+              <div data-slot="question-group">
+                <div data-slot="question-text">{q.question}</div>
+                <Show when={multi()} fallback={<div data-slot="question-hint">{language.t("ui.question.singleHint")}</div>}>
+                  <div data-slot="question-hint">{language.t("ui.question.multiHint")}</div>
+                </Show>
+                <div data-slot="question-pills">
+                  <For each={q.options}>
+                    {(opt) => {
+                      const picked = () => store.answers[i()]?.includes(opt.label) ?? false
+                      const pill = (
+                        <button
+                          type="button"
+                          data-slot="question-option"
+                          data-picked={picked()}
+                          role={multi() ? "checkbox" : "radio"}
+                          aria-checked={picked()}
+                          disabled={sending()}
+                          onClick={() => multi() ? toggle(i(), opt.label) : pick(i(), opt.label)}
+                        >
+                          <span
+                            data-slot="question-pill-dot"
+                            data-type={multi() ? "checkbox" : "radio"}
+                            data-picked={picked()}
+                          >
+                            <Show when={multi()} fallback={<span data-slot="question-pill-radio-dot" />}>
+                              <Icon name="check-small" size="small" />
+                            </Show>
+                          </span>
+                          <span data-slot="question-pill-label">{opt.label}</span>
+                        </button>
+                      )
+                      return (
+                        <Show when={opt.description} fallback={pill}>
+                          <Tooltip value={opt.description} placement="top">
+                            {pill}
+                          </Tooltip>
+                        </Show>
+                      )
+                    }}
+                  </For>
+
+                  {/* custom answer pill */}
+                  <Show when={store.editing !== i()}>
+                    <button
+                      type="button"
+                      data-slot="question-option"
+                      data-custom="true"
+                      data-picked={store.customOn[i()] === true}
+                      role={multi() ? "checkbox" : "radio"}
+                      aria-checked={store.customOn[i()] === true}
+                      disabled={sending()}
+                      onClick={() => customOpen(i())}
+                    >
+                      <span
+                        data-slot="question-pill-dot"
+                        data-type={multi() ? "checkbox" : "radio"}
+                        data-picked={store.customOn[i()] === true}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          customToggle(i())
+                        }}
+                      >
+                        <Show when={multi()} fallback={<span data-slot="question-pill-radio-dot" />}>
+                          <Icon name="check-small" size="small" />
+                        </Show>
+                      </span>
+                      <span data-slot="question-pill-label">
+                        {(store.custom[i()] ?? "").trim() || language.t("ui.messagePart.option.typeOwnAnswer")}
+                      </span>
+                    </button>
                   </Show>
-                </span>
-              </button>
+                </div>
+
+                {/* custom answer input */}
+                <Show when={store.editing === i()}>
+                  <form
+                    data-slot="question-custom-form"
+                    onSubmit={(e) => {
+                      e.preventDefault()
+                      commitCustom(i())
+                    }}
+                  >
+                    <textarea
+                      ref={(el) =>
+                        setTimeout(() => {
+                          el.focus()
+                          el.style.height = "0px"
+                          el.style.height = `${el.scrollHeight}px`
+                        }, 0)
+                      }
+                      data-slot="question-custom-input"
+                      placeholder={language.t("ui.question.custom.placeholder")}
+                      value={store.custom[i()] ?? ""}
+                      rows={1}
+                      disabled={sending()}
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") {
+                          e.preventDefault()
+                          commitCustom(i())
+                          return
+                        }
+                        if (e.key !== "Enter" || e.shiftKey) return
+                        e.preventDefault()
+                        commitCustom(i())
+                      }}
+                      onInput={(e) => {
+                        customUpdate(i(), e.currentTarget.value)
+                        e.currentTarget.style.height = "0px"
+                        e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
+                      }}
+                    />
+                  </form>
+                </Show>
+              </div>
             )
           }}
         </For>
-
-        <Show
-          when={store.editing}
-          fallback={
-            <button
-              data-slot="question-option"
-              data-custom="true"
-              data-picked={on()}
-              role={multi() ? "checkbox" : "radio"}
-              aria-checked={on()}
-              disabled={sending()}
-              onClick={customOpen}
-            >
-              <span
-                data-slot="question-option-check"
-                aria-hidden="true"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  customToggle()
-                }}
-              >
-                <span data-slot="question-option-box" data-type={multi() ? "checkbox" : "radio"} data-picked={on()}>
-                  <Show when={multi()} fallback={<span data-slot="question-option-radio-dot" />}>
-                    <Icon name="check-small" size="small" />
-                  </Show>
-                </span>
-              </span>
-              <span data-slot="question-option-main">
-                <span data-slot="option-label">{language.t("ui.messagePart.option.typeOwnAnswer")}</span>
-                <span data-slot="option-description">{input() || language.t("ui.question.custom.placeholder")}</span>
-              </span>
-            </button>
-          }
-        >
-          <form
-            data-slot="question-option"
-            data-custom="true"
-            data-picked={on()}
-            role={multi() ? "checkbox" : "radio"}
-            aria-checked={on()}
-            onMouseDown={(e) => {
-              if (sending()) {
-                e.preventDefault()
-                return
-              }
-              if (e.target instanceof HTMLTextAreaElement) return
-              const input = e.currentTarget.querySelector('[data-slot="question-custom-input"]')
-              if (input instanceof HTMLTextAreaElement) input.focus()
-            }}
-            onSubmit={(e) => {
-              e.preventDefault()
-              commitCustom()
-            }}
-          >
-            <span
-              data-slot="question-option-check"
-              aria-hidden="true"
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                customToggle()
-              }}
-            >
-              <span data-slot="question-option-box" data-type={multi() ? "checkbox" : "radio"} data-picked={on()}>
-                <Show when={multi()} fallback={<span data-slot="question-option-radio-dot" />}>
-                  <Icon name="check-small" size="small" />
-                </Show>
-              </span>
-            </span>
-            <span data-slot="question-option-main">
-              <span data-slot="option-label">{language.t("ui.messagePart.option.typeOwnAnswer")}</span>
-              <textarea
-                ref={(el) =>
-                  setTimeout(() => {
-                    el.focus()
-                    el.style.height = "0px"
-                    el.style.height = `${el.scrollHeight}px`
-                  }, 0)
-                }
-                data-slot="question-custom-input"
-                placeholder={language.t("ui.question.custom.placeholder")}
-                value={input()}
-                rows={1}
-                disabled={sending()}
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") {
-                    e.preventDefault()
-                    setStore("editing", false)
-                    return
-                  }
-                  if (e.key !== "Enter" || e.shiftKey) return
-                  e.preventDefault()
-                  commitCustom()
-                }}
-                onInput={(e) => {
-                  customUpdate(e.currentTarget.value)
-                  e.currentTarget.style.height = "0px"
-                  e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
-                }}
-              />
-            </span>
-          </form>
-        </Show>
       </div>
     </DockPrompt>
   )
