@@ -7,68 +7,162 @@ description: Build complete websites from scratch, from static pages to full-sta
 
 End-to-end process: requirements gathering, design decisions, implementation, preview, and deployment.
 
-## Step 1: Fork-Point Questionnaire
+## Step 1: Multi-Round Requirements Gathering
 
-Before writing any code, identify decisions that would dramatically change the result. Use the `question` tool to ask about all of them **in a single call**. These are "fork points" -- choices that directly determine visual direction, copy voice, interaction model, and technical structure.
+Before writing any code, gather requirements through **multiple rounds** of progressively deeper questions. The number of rounds is not fixed -- it depends on project complexity. Each round focuses on a theme and ends with a gate question that lets the user decide whether to continue or jump straight to implementation.
 
-Design the questionnaire around these categories. Skip any question the user already answered in their request.
+**Rules for every round:**
 
-### 1.1 Page Purpose (determines layout, content blocks, feature set)
+- Use the `question` tool to ask **all questions in that round in a single call** (5-6 questions per round is ideal)
+- Skip any question the user already answered in their request
+- At the start of each round, briefly tell the user: (1) what this round covers, (2) what upcoming rounds you have in mind
+- The **last question** of every round must be the **gate question** (see below)
+- If the user selects "Don't ask more -- go build it" at any point, stop asking and proceed to Step 2, filling gaps with sensible defaults
+
+### Gate Question (last question of every round)
+
+- Header: "Next step"
+- Question: "What else should we nail down? (I'll keep asking focused rounds)"
+- Options (adapt based on what rounds remain and what the user might need):
+  - 1-2 suggested next-round topics, e.g. "Page features & interactions", "Data model & backend design", "Visual design & style"
+  - "Something else (I'll describe)"
+  - "Don't ask more -- go build it (fill in the blanks yourself)"
+
+### Round 1 -- Basics & Direction
+
+**Intro message example:** "Let me first understand the big picture. After this round I'll follow up with more focused rounds on features, backend, and design -- you can skip ahead at any time."
+
+Question categories:
+
+#### Page Purpose
 
 - Header: "Page type"
 - Examples: Landing/marketing page, Restaurant/cafe/bar, Personal portfolio, Event/invitation, Product showcase, Business homepage, Coming soon, Blog/article, Web app with data
 
-### 1.2 Visual Style (determines palette range, typography, spacing, density, animation ceiling)
+#### Target Audience & Context
 
-- Header: "Visual style"
-- Examples: Minimalist/clean, Bold/brutalist, Soft/organic, Luxury/refined, Playful/colorful, Editorial/magazine, Retro/vintage, Dark/moody
+- Header: "Audience"
+- Who will visit this page? What's the primary action you want them to take?
+- Examples: Potential customers browsing on mobile, Hiring managers reviewing a portfolio, Friends/family receiving an invitation, General public discovering a product
 
-### 1.3 Color Direction (combined with style, locks the full palette)
-
-- Header: "Color mood"
-- Examples: Warm earthy (beige/terracotta/olive), Cool neutrals (slate/steel/blue-gray), Monochrome (black/white/gray), Vibrant saturated, Soft pastels, Dark base with bright accent
-
-### 1.4 Content Tone (determines heading style, CTA copy, overall voice)
-
-- Header: "Content tone"
-- Examples: Formal/professional, Friendly/approachable, Edgy/cool, Playful/fun, Poetic/atmospheric, Minimal/let-visuals-speak
-
-### 1.5 Animation Level (determines CSS-only vs. scroll-triggered vs. complex motion)
-
-- Header: "Animation level"
-- Examples: Static/clean (hover states only), Subtle polish (fade-ins, smooth transitions), Rich animations (scroll reveals, parallax, staggered entrances), Highly dynamic (3D, complex interactions)
-
-### 1.6 Backend Needs (determines static-only vs. Hono + Workers)
-
-- Header: "Backend"
-- Examples: None (static page only), Simple data storage (contact form, guestbook, likes), User accounts / auth, API integration (third-party services), Full CRUD app (manage content, lists, records)
-- This is the most important fork: it determines whether the project is a single HTML file or a Hono + Workers project
-
-### 1.7 Key Features (multi-select -- adds functional/technical requirements)
-
-- Header: "Features"
-- Set `multiple: true`
-- Examples: Dark/light theme toggle, Contact or inquiry form, Image gallery or carousel, Scroll-triggered animations, Map/location embed, Multi-language, Social links, Admin panel
-
-### 1.8 Branding (captures identity details that must appear in the final page)
+#### Branding & Identity
 
 - Header: "Branding"
-- Ask if the user has: business/project name, tagline, brand colors, logo
+- Ask if the user has: business/project name, tagline, brand colors, logo, existing domain
 - If not provided, invent contextually appropriate ones during implementation
+
+#### Available Materials
+
+- Header: "Materials"
+- What can you provide? (multi-select)
+- Examples: Written copy/text content, Product photos/images, Logo files, Brand guidelines, Reference sites for inspiration, Nothing yet -- generate everything
+
+#### Content Language
+
+- Header: "Language"
+- What language should the page content be in?
+- Examples: English, Chinese (Simplified), Chinese (Traditional), Japanese, Multi-language
+
+#### Gate Question
+
+Suggest next rounds based on what seems needed. Typical suggestions: "Page features & interactions", "Data & backend design", "Visual design & style".
+
+### Round 2+ -- Dynamic Follow-Up Rounds
+
+After Round 1, plan subsequent rounds based on the project's needs. **Do not use a fixed list of rounds.** Instead, assess what the project requires and propose rounds accordingly.
+
+Below is a **library of round templates**. Pick the ones relevant to the project, reorder them, combine them, or invent new ones as needed. Each template lists example question categories -- use 5-6 per round.
+
+---
+
+#### Template: Page Features & Interactions
+
+When to use: Almost always (unless the project is trivially simple).
+
+- **Sections** -- What sections should the page have? (Hero, About, Features, Testimonials, Pricing, Team, FAQ, Footer, etc.)
+- **Key Features** (multi-select) -- Dark/light theme toggle, Contact form, Image gallery/carousel, Scroll animations, Map embed, Social links, Search/filter, Admin panel
+- **Forms & Input** -- What forms are needed? What data do they collect? (Contact, newsletter, reservation, RSVP, login/register, none)
+- **Domain-Specific Features** -- Tailor to the page type:
+  - Restaurant: menu display, reservation, hours/location, cuisine type
+  - Portfolio: work categories, case study format, resume download
+  - Event: date/venue, RSVP/ticketing, countdown, schedule
+  - E-commerce: product cards, cart, checkout
+  - Blog: categories, author profiles, comments
+- **Content Management** -- All static/hardcoded, or does the owner need to update content? (Menu/catalog updates, blog feed, user-generated content, real-time data)
+
+---
+
+#### Template: Data Model & Backend Design
+
+When to use: When the user selected any backend need beyond "static page only" in Round 1.
+
+- **Data Entities** -- What are the main things the system stores? (e.g. menu items, reservations, blog posts, user profiles) Ask the user to describe them or confirm your inferred list.
+- **Relationships** -- How do entities relate? (e.g. a user has many posts, a menu item belongs to a category)
+- **Access Patterns** -- Who reads/writes what? Public read vs. admin write? User-specific data?
+- **Auth Requirements** -- No auth, simple admin password, full user accounts, OAuth providers?
+- **API Surface** -- What endpoints are needed? Confirm the CRUD operations you plan to build.
+- **Storage Choice** -- Confirm: D1 (structured data), KV (simple key-value), R2 (file uploads), Durable Objects (real-time)
+
+---
+
+#### Template: Visual Design & Style
+
+When to use: Almost always. **Before asking these questions, load the design skill reference table (see "Design Skill Loading" below) and read the most likely matching design skill file.** Use the design skill's vocabulary, principles, and specific options to craft more informed questions.
+
+- **Visual Style** -- Minimalist/clean, Bold/brutalist, Soft/organic, Luxury/refined, Playful/colorful, Editorial/magazine, Retro/vintage, Dark/moody. If you've loaded a design skill, offer its specific sub-styles as options.
+- **Color Direction** -- Warm earthy (beige/terracotta/olive), Cool neutrals (slate/steel/blue-gray), Monochrome, Vibrant saturated, Soft pastels, Dark base with bright accent
+- **Content Tone** -- Formal/professional, Friendly/approachable, Edgy/cool, Playful/fun, Poetic/atmospheric, Minimal/let-visuals-speak
+- **Animation Level** -- Static/clean (hover only), Subtle polish (fade-ins, smooth transitions), Rich (scroll reveals, parallax, staggered entrances), Highly dynamic (3D, complex interactions)
+- **Typography Preference** -- Classic serif headings + sans body, All sans-serif/geometric, Monospace/technical, Display/decorative headings, No preference (let me decide)
+- **Reference & Inspiration** -- Any websites or designs to reference? Specific URLs, general descriptions ("like Apple's product pages"), or screenshots
+
+---
+
+#### Template: Technical Details
+
+When to use: For complex projects, or when the user explicitly wants to discuss hosting, performance, or SEO.
+
+- **SEO Requirements** -- Meta tags, Open Graph, structured data, sitemap
+- **Performance Targets** -- Fast first paint, image optimization, lazy loading, CDN strategy
+- **Analytics** -- Google Analytics, Plausible, Cloudflare Analytics, none
+- **Domain & Hosting** -- Custom domain, Cloudflare Pages, Workers deployment
+- **Accessibility** -- WCAG level target, screen reader testing, keyboard navigation depth
+
+---
+
+### Design Skill Loading
+
+Before asking visual design questions, load the relevant design skill to inform your questions with specific terminology and options from that skill.
+
+| User's likely style direction | Skill to load | What it provides |
+|---|---|---|
+| Minimalist / clean | `minimalist-skill` | Warm monochrome, typographic contrast, flat bento grids, no gradients or heavy shadows |
+| Luxury / refined / high-end | `soft-skill` | Agency-grade fonts, spacing, shadows, card structures, animations that feel expensive |
+| Bold / brutalist / industrial | `brutalist-skill` | Swiss type + military terminal aesthetic, rigid grids, extreme contrast, analog degradation |
+| Any style (general quality) | `frontend-design` | Distinctive, production-grade interfaces avoiding generic AI aesthetics |
+| Any style (technical rigor) | `taste-skill` | Metric-based design rules, strict component architecture, CSS hardware acceleration |
+| Redesign of existing page | `redesign-skill` | Audits current design, identifies generic patterns, applies high-end standards |
+
+**How to use:**
+
+1. After Round 1, if the user gave any style hints (e.g. "clean", "dark", "luxury"), load the matching skill **before** composing the design round questions
+2. If no style hint yet, load `frontend-design` as the default and use it to craft informed style options
+3. Use the loaded skill's specific vocabulary in your question options (e.g. if `brutalist-skill` mentions "Swiss type + military terminal", offer that as a concrete option)
+4. Multiple skills can be combined during implementation (e.g. `taste-skill` for technical rigor + `soft-skill` for aesthetic direction)
 
 ### Adaptive Questioning
 
-Tailor questions to the request. Examples:
-- User says "restaurant page" -> add a question about cuisine type and whether they need an online menu/reservation form
-- User says "portfolio" -> ask about work categories and whether to include a contact section
-- User says "event page" -> ask about date/venue and whether to include RSVP/ticketing
-- If the user already specified style ("dark minimalist portfolio"), skip 1.2 and 1.3
+- Tailor questions to the request. User says "restaurant page" -> include cuisine/menu/reservation in the features round. User says "portfolio" -> include work categories and contact. User says "event" -> include date/venue and RSVP.
+- If the user already specified style ("dark minimalist portfolio"), skip those questions in the design round.
+- If the user provides very detailed initial requirements, compress or skip rounds.
+- If the gate question reveals the user wants to discuss a topic not covered by any template, create an ad-hoc round for that topic.
+- For simple projects (e.g. "make me a coming soon page"), two rounds (basics + design) may be enough. For complex apps, four or five rounds may be appropriate.
 
-The goal: after this single question round, every major fork is resolved. No ambiguity should remain that would cause you to guess wrong during implementation.
+The goal: after all rounds complete (or the user opts out), every major fork is resolved. Gaps left by early opt-out should be fillable with sensible defaults.
 
 ## Step 2: Design Blueprint
 
-Synthesize answers into a brief blueprint. Present it to the user before coding so they can course-correct.
+Synthesize all gathered answers into a brief blueprint. Present it to the user before coding so they can course-correct.
 
 1. **Palette** -- primary, secondary, accent, background, surface, text (as CSS custom properties with hex values)
 2. **Typography** -- display font + body font (from Google Fonts), size scale, weight choices
@@ -78,21 +172,6 @@ Synthesize answers into a brief blueprint. Present it to the user before coding 
 6. **Technical notes** -- theme toggle approach, form handling method, any external dependencies
 
 Keep the blueprint to 10-15 lines. This is a checkpoint, not a spec document.
-
-## Design Skill Reference
-
-Based on the visual style chosen in Step 1, load a matching design skill to guide aesthetic execution. These skills live alongside this one and provide detailed rules for typography, color, layout, motion, and anti-patterns:
-
-| User's style choice | Skill to load | What it provides |
-|---|---|---|
-| Minimalist / clean | `minimalist-skill` | Warm monochrome, typographic contrast, flat bento grids, no gradients or heavy shadows |
-| Luxury / refined / high-end | `soft-skill` | Agency-grade fonts, spacing, shadows, card structures, animations that feel expensive |
-| Bold / brutalist / industrial | `brutalist-skill` | Swiss type + military terminal aesthetic, rigid grids, extreme contrast, analog degradation |
-| Any style (general quality) | `frontend-design` | Distinctive, production-grade interfaces avoiding generic AI aesthetics |
-| Any style (technical rigor) | `taste-skill` | Metric-based design rules, strict component architecture, CSS hardware acceleration |
-| Redesign of existing page | `redesign-skill` | Audits current design, identifies generic patterns, applies high-end standards |
-
-**How to use:** After the questionnaire resolves the visual direction, load the most relevant design skill and follow its rules during implementation. If no style maps cleanly, `frontend-design` is the safe default. Multiple design skills can be combined (e.g. `taste-skill` for technical rigor + `soft-skill` for aesthetic direction).
 
 ## Step 3: Implementation
 
