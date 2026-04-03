@@ -617,7 +617,7 @@ export const dict = {
   "sidebar.archived": "已归档",
   "sidebar.archived.empty": "没有已归档的会话",
 
-  "app.name.desktop": "OpenCode Desktop",
+  "app.name.desktop": "Coco Desktop",
 
   "settings.section.desktop": "桌面",
   "settings.section.server": "服务器",
