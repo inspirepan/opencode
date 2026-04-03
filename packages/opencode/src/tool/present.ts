@@ -54,15 +54,64 @@ async function inlineMdImages(md: string, dir: string): Promise<string> {
   return result
 }
 
-async function inlineHtmlImages(html: string, dir: string): Promise<string> {
-  const regex = /<img\b([^>]*)\bsrc\s*=\s*"([^"]+)"([^>]*)>/gi
-  let result = html
+async function inlineCssUrls(css: string, dir: string): Promise<string> {
+  const regex = /url\(\s*["']?([^"')]+)["']?\s*\)/g
+  let result = css
   let match: RegExpExecArray | null
-  while ((match = regex.exec(html)) !== null) {
-    const [full, before, src, after] = match
+  while ((match = regex.exec(css)) !== null) {
+    const [full, src] = match
+    const data = await inlineLocal(src, dir)
+    if (data) result = result.replace(full, `url("${data}")`)
+  }
+  return result
+}
+
+async function inlineHtml(html: string, dir: string): Promise<string> {
+  let result = html
+
+  // inline <link rel="stylesheet" href="...">
+  const links = [...html.matchAll(/<link\b[^>]*>/gi)]
+  for (const m of links) {
+    const tag = m[0]
+    if (!/\brel\s*=\s*["']stylesheet["']/i.test(tag)) continue
+    const href = tag.match(/\bhref\s*=\s*["']([^"']+)["']/i)?.[1]
+    if (!href || /^https?:\/\//.test(href) || href.startsWith("data:")) continue
+    const abs = path.isAbsolute(href) ? href : path.resolve(dir, href)
+    try {
+      let css = await Filesystem.readText(abs)
+      css = await inlineCssUrls(css, path.dirname(abs))
+      result = result.replace(tag, `<style>${css}</style>`)
+    } catch {}
+  }
+
+  // inline url() inside <style> blocks
+  const styles = [...result.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)]
+  for (const m of styles) {
+    const [full, css] = m
+    const inlined = await inlineCssUrls(css, dir)
+    if (inlined !== css) result = result.replace(full, full.replace(css, inlined))
+  }
+
+  // inline <script src="...">
+  const scripts = [...result.matchAll(/<script\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>\s*<\/script>/gi)]
+  for (const m of scripts) {
+    const [full, src] = m
+    if (/^https?:\/\//.test(src) || src.startsWith("data:")) continue
+    const abs = path.isAbsolute(src) ? src : path.resolve(dir, src)
+    try {
+      const js = await Filesystem.readText(abs)
+      result = result.replace(full, `<script>${js}</script>`)
+    } catch {}
+  }
+
+  // inline <img src="...">
+  const imgs = [...result.matchAll(/<img\b([^>]*)\bsrc\s*=\s*"([^"]+)"([^>]*)>/gi)]
+  for (const m of imgs) {
+    const [full, before, src, after] = m
     const data = await inlineLocal(src, dir)
     if (data) result = result.replace(full, `<img${before}src="${data}"${after}>`)
   }
+
   return result
 }
 
@@ -186,7 +235,7 @@ export const PresentTool = Tool.define("present_file", {
     if (MD_EXTS.has(ext)) {
       content = await inlineMdImages(content, dir)
     } else if (ext === ".html" || ext === ".htm") {
-      content = await inlineHtmlImages(content, dir)
+      content = await inlineHtml(content, dir)
     }
 
     return {
