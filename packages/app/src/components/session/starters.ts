@@ -57,18 +57,6 @@ export const starters: Record<DandelionMode, Starter[]> = {
   ],
   agent: [
     {
-      id: "pptx",
-      icon: "presentation",
-      color: { icon: "#C43E1C", bg: "#FFF0EB" },
-      title: "dandelion.starter.pptx.title",
-      description: "dandelion.starter.pptx.description",
-      examples: [
-        { label: "dandelion.starter.pptx.label1", query: "dandelion.starter.pptx.query1" },
-        { label: "dandelion.starter.pptx.label2", query: "dandelion.starter.pptx.query2" },
-        { label: "dandelion.starter.pptx.label3", query: "dandelion.starter.pptx.query3" },
-      ],
-    },
-    {
       id: "webpage",
       icon: "window-cursor",
       color: { icon: "#0891B2", bg: "#CFFAFE" },
@@ -78,6 +66,18 @@ export const starters: Record<DandelionMode, Starter[]> = {
         { label: "dandelion.starter.webpage.label1", query: "dandelion.starter.webpage.query1" },
         { label: "dandelion.starter.webpage.label2", query: "dandelion.starter.webpage.query2" },
         { label: "dandelion.starter.webpage.label3", query: "dandelion.starter.webpage.query3" },
+      ],
+    },
+    {
+      id: "pptx",
+      icon: "presentation",
+      color: { icon: "#C43E1C", bg: "#FFF0EB" },
+      title: "dandelion.starter.pptx.title",
+      description: "dandelion.starter.pptx.description",
+      examples: [
+        { label: "dandelion.starter.pptx.label1", query: "dandelion.starter.pptx.query1" },
+        { label: "dandelion.starter.pptx.label2", query: "dandelion.starter.pptx.query2" },
+        { label: "dandelion.starter.pptx.label3", query: "dandelion.starter.pptx.query3" },
       ],
     },
     {

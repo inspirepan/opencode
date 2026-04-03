@@ -1,11 +1,11 @@
 ---
-name: web-page
-description: Build complete, standalone web pages from scratch. Use when the user asks to create a web page, website, landing page, portfolio, menu page, product page, event page, or any single-page web project. Triggers include "make a web page", "build a website", "create a landing page", "design a page for my restaurant/business/event/portfolio", "make me a homepage", or any request involving building a new HTML page. Do not use for modifying existing app code or building components within a framework project.
+name: create-web-site
+description: Build complete websites from scratch, from static pages to full-stack apps with backend. Use when the user asks to create a web page, website, landing page, portfolio, web app, or any web project. Triggers include "make a website", "build a web app", "create a landing page", "design a page for my restaurant/business/event/portfolio", "make me a homepage", or any request involving building a new web project. Do not use for modifying existing app code or building components within a framework project.
 ---
 
-# Web Page Creation Flow
+# Web Site Creation Flow
 
-End-to-end process: requirements gathering, design decisions, implementation, preview, and deployment suggestion.
+End-to-end process: requirements gathering, design decisions, implementation, preview, and deployment.
 
 ## Step 1: Fork-Point Questionnaire
 
@@ -16,7 +16,7 @@ Design the questionnaire around these categories. Skip any question the user alr
 ### 1.1 Page Purpose (determines layout, content blocks, feature set)
 
 - Header: "Page type"
-- Examples: Landing/marketing page, Restaurant/cafe/bar, Personal portfolio, Event/invitation, Product showcase, Business homepage, Coming soon, Blog/article
+- Examples: Landing/marketing page, Restaurant/cafe/bar, Personal portfolio, Event/invitation, Product showcase, Business homepage, Coming soon, Blog/article, Web app with data
 
 ### 1.2 Visual Style (determines palette range, typography, spacing, density, animation ceiling)
 
@@ -38,13 +38,19 @@ Design the questionnaire around these categories. Skip any question the user alr
 - Header: "Animation level"
 - Examples: Static/clean (hover states only), Subtle polish (fade-ins, smooth transitions), Rich animations (scroll reveals, parallax, staggered entrances), Highly dynamic (3D, complex interactions)
 
-### 1.6 Key Features (multi-select -- adds functional/technical requirements)
+### 1.6 Backend Needs (determines static-only vs. Hono + Workers)
+
+- Header: "Backend"
+- Examples: None (static page only), Simple data storage (contact form, guestbook, likes), User accounts / auth, API integration (third-party services), Full CRUD app (manage content, lists, records)
+- This is the most important fork: it determines whether the project is a single HTML file or a Hono + Workers project
+
+### 1.7 Key Features (multi-select -- adds functional/technical requirements)
 
 - Header: "Features"
 - Set `multiple: true`
-- Examples: Dark/light theme toggle, Contact or inquiry form, Image gallery or carousel, Scroll-triggered animations, Map/location embed, Multi-language, Social links
+- Examples: Dark/light theme toggle, Contact or inquiry form, Image gallery or carousel, Scroll-triggered animations, Map/location embed, Multi-language, Social links, Admin panel
 
-### 1.7 Branding (captures identity details that must appear in the final page)
+### 1.8 Branding (captures identity details that must appear in the final page)
 
 - Header: "Branding"
 - Ask if the user has: business/project name, tagline, brand colors, logo
@@ -68,7 +74,8 @@ Synthesize answers into a brief blueprint. Present it to the user before coding 
 2. **Typography** -- display font + body font (from Google Fonts), size scale, weight choices
 3. **Sections** -- ordered list of page sections with rough content description (e.g. "Hero: full-bleed image with overlaid headline and CTA")
 4. **Motion plan** -- specific techniques to use (e.g. "intersection-observer fade-up on scroll for feature cards")
-5. **Technical notes** -- theme toggle approach, form handling method, any external dependencies
+5. **Tech stack** -- static HTML or Hono + Workers; which CF bindings (D1/KV/DO) if any; data model summary
+6. **Technical notes** -- theme toggle approach, form handling method, any external dependencies
 
 Keep the blueprint to 10-15 lines. This is a checkpoint, not a spec document.
 
@@ -91,15 +98,125 @@ Based on the visual style chosen in Step 1, load a matching design skill to guid
 
 ### Format Decision
 
-Choose the lightest format that covers the complexity:
+Choose the format based on backend needs from the questionnaire:
 
-- **Single HTML file** -- for simple pages (landing, coming soon, event). All CSS/JS inline, Google Fonts via `<link>`. Preview and deploy are trivial.
-- **Multi-file project with UI library** -- for anything with forms, theme toggle, gallery, multiple sections with complex interactions. Use a mature UI component library to avoid hand-rolling fragile UI. Preferred stacks (pick one based on context):
-  - Tailwind CSS + vanilla JS/Alpine.js (lightweight, no build step needed)
-  - React/Next.js + Tailwind + shadcn/ui or Radix (when interactivity demands it)
-  - Vue + UnoCSS or Tailwind (if user prefers Vue)
+- **Single HTML file** -- for purely static pages with no data persistence (landing, coming soon, event). All CSS/JS inline, Google Fonts via `<link>`. Preview and deploy are trivial.
+- **Hono + Cloudflare Workers project** -- for anything requiring data storage, forms that persist, user accounts, or API calls. This is the default for any non-trivial site.
 
-When using a UI library, prefer its built-in components (form inputs, modals, selects, toasts) over hand-crafted equivalents -- they handle edge cases (a11y, keyboard, focus trap) that hand-rolled code misses.
+### Hono + Workers Project Structure
+
+When backend is needed, scaffold this structure:
+
+```
+project-name/
+  src/
+    index.ts          # Hono app entry point
+    routes/
+      api.ts          # API routes (CRUD, form handlers)
+    db/
+      schema.sql      # D1 schema (if using D1)
+  public/             # Static assets (HTML, CSS, JS, images)
+    index.html
+    styles.css
+    app.js
+  wrangler.jsonc      # Workers config with bindings
+  package.json
+```
+
+**wrangler.jsonc template:**
+
+```jsonc
+{
+  "name": "project-name",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-01-01",
+  "assets": { "directory": "./public" },
+  // Add bindings as needed:
+  "d1_databases": [
+    { "binding": "DB", "database_name": "project-db", "database_id": "local" }
+  ],
+  "kv_namespaces": [
+    { "binding": "KV", "id": "local" }
+  ]
+}
+```
+
+**Hono app template (src/index.ts):**
+
+```typescript
+import { Hono } from "hono"
+
+type Bindings = {
+  DB: D1Database
+  KV: KVNamespace
+}
+
+const app = new Hono<{ Bindings: Bindings }>()
+
+// API routes
+app.get("/api/items", async (c) => {
+  const result = await c.env.DB.prepare("SELECT * FROM items ORDER BY created_at DESC").all()
+  return c.json(result.results)
+})
+
+app.post("/api/items", async (c) => {
+  const body = await c.req.json()
+  await c.env.DB.prepare("INSERT INTO items (name, value) VALUES (?, ?)").bind(body.name, body.value).run()
+  return c.json({ ok: true })
+})
+
+export default app
+```
+
+**package.json template:**
+
+```json
+{
+  "name": "project-name",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute project-db --local --file=src/db/schema.sql"
+  },
+  "dependencies": {
+    "hono": "^4"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}
+```
+
+### Choosing CF Bindings
+
+Pick the simplest binding that covers the use case:
+
+| Need | Binding | When to use |
+|---|---|---|
+| Structured data, queries, relations | **D1** (SQLite) | Forms, CRUD, content management, anything with tables |
+| Simple key-value, config, cache | **KV** | Feature flags, settings, session tokens, counters |
+| Real-time state, WebSocket, coordination | **Durable Objects** | Chat rooms, collaborative editing, rate limiting |
+| File/blob storage | **R2** | Image uploads, file attachments, backups |
+
+**Prefer D1 as the default storage.** It covers most use cases (forms, lists, content) and is easiest to reason about. Only reach for KV/DO/R2 when D1 is a poor fit.
+
+### Local Development
+
+All Hono + Workers projects use `wrangler dev` for local testing:
+
+```bash
+# Install dependencies
+bun install  # or npm install
+
+# Initialize D1 locally (if using D1)
+bun run db:init
+
+# Start local dev server
+bun run dev
+# -> http://localhost:8787
+```
+
+`wrangler dev` runs miniflare locally, which simulates D1, KV, DO, and R2 with real local storage. No Cloudflare account needed for local development.
 
 ### Default Product Stance
 
@@ -108,8 +225,6 @@ These defaults apply unless the user explicitly asks otherwise:
 **Usability over spectacle.** The core path (read info -> interact -> submit) must be smooth and uninterrupted. Decorative effects should not compete with the primary flow.
 
 **Mobile-first.** Design for phone screens first, expand to desktop. Use `min-width` media queries. Full-height sections use `min-h-[100dvh]`, not `h-screen` (iOS Safari viewport bug).
-
-**No backend, graceful fallback.** When there's no server, use `localStorage` for persistence, front-end simulated submission with clear feedback (success toast / inline confirmation). Never fake an API endpoint.
 
 **Colors: restrained with a clear accent.** One primary accent color for key actions and states. Neutral base. Avoid rainbow palettes. Accent saturation < 80%.
 
@@ -132,30 +247,26 @@ These defaults apply unless the user explicitly asks otherwise:
 - Persist choice in `localStorage`; respect `prefers-color-scheme` as initial default
 - Place toggle in header/nav with sun/moon icon or similar
 
-### Form (if selected in Step 1)
+### Form Handling
 
-- Use UI library form components when available (input, select, textarea, validation)
+- **With backend (Hono + Workers):** POST to an API route, store in D1, return JSON response. Show success/error feedback inline.
+- **Static page:** `localStorage` save + success state, or `mailto:` link. Mention Cloudflare Workers as an upgrade path.
 - Client-side validation: required/format/range, with friendly inline error messages
 - Clear success feedback (in-page confirmation, not a redirect)
-- No backend: `localStorage` save + success state, or `mailto:` link, or mention Formspree/Cloudflare Workers
-- Ask during questionnaire how submissions should be handled if this is a key fork
 
 ## Step 4: Preview
 
 After building the page, **immediately** use `present_file` to show it to the user:
 
 - Single HTML file: `present_file` the `.html` file directly
-- Multi-file project: build first if needed, then `present_file` the output `index.html`
+- Hono + Workers project: run `bun run dev` first, then tell the user to open `http://localhost:8787` in their browser
 
-This renders a live preview in the preview panel. Ask if the user wants adjustments. Iterate until satisfied.
+Ask if the user wants adjustments. Iterate until satisfied.
 
-## Step 5: Deployment Suggestion
+## Step 5: Deployment
 
 Once the user approves the result:
 
-1. Mention the page can be opened locally in any browser
-2. Recommend deploying to **Cloudflare Pages** for a public URL -- use the `cloudflare-deploy` skill to handle it
-3. Prompt: "Want me to deploy this to Cloudflare Pages so you get a shareable URL?"
-
-For single HTML files: put the file in a directory as `index.html`, then `wrangler pages deploy <directory>`.
-For multi-file projects: deploy the build output directory directly.
+1. Mention the site works locally (`open index.html` for static, `bun run dev` for Workers)
+2. For deploying to Cloudflare, tell the user to activate the `cloudflare-deploy` skill for detailed deployment guidance
+3. Prompt: "Want to deploy this to Cloudflare for a public URL? Activate the `cloudflare-deploy` skill and I'll walk you through it."
