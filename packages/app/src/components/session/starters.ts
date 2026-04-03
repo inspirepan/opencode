@@ -69,15 +69,15 @@ export const starters: Record<DandelionMode, Starter[]> = {
       ],
     },
     {
-      id: "docx",
-      icon: "document",
-      color: { icon: "#2B579A", bg: "#EBF0FA" },
-      title: "dandelion.starter.docx.title",
-      description: "dandelion.starter.docx.description",
+      id: "webpage",
+      icon: "window-cursor",
+      color: { icon: "#0891B2", bg: "#CFFAFE" },
+      title: "dandelion.starter.webpage.title",
+      description: "dandelion.starter.webpage.description",
       examples: [
-        { label: "dandelion.starter.docx.label1", query: "dandelion.starter.docx.query1" },
-        { label: "dandelion.starter.docx.label2", query: "dandelion.starter.docx.query2" },
-        { label: "dandelion.starter.docx.label3", query: "dandelion.starter.docx.query3" },
+        { label: "dandelion.starter.webpage.label1", query: "dandelion.starter.webpage.query1" },
+        { label: "dandelion.starter.webpage.label2", query: "dandelion.starter.webpage.query2" },
+        { label: "dandelion.starter.webpage.label3", query: "dandelion.starter.webpage.query3" },
       ],
     },
     {
