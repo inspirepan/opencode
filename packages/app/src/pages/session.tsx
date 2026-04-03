@@ -29,6 +29,7 @@ import { showToast } from "@opencode-ai/ui/toast"
 import { base64Encode, checksum } from "@opencode-ai/util/encode"
 import { useNavigate, useSearchParams } from "@solidjs/router"
 import { NewSessionView, SessionHeader } from "@/components/session"
+import { setActiveStarter } from "@/components/session/starters"
 import { useComments } from "@/context/comments"
 import { getSessionPrefetch, SESSION_PREFETCH_TTL } from "@/context/global-sync/session-prefetch"
 import { useGlobalSync } from "@/context/global-sync"
@@ -1850,6 +1851,7 @@ export default function Page() {
             onSubmit={() => {
               comments.clear()
               resumeScroll()
+              setActiveStarter(null)
             }}
             onResponseSubmit={resumeScroll}
             followup={

@@ -965,12 +965,7 @@ export const dict = {
   "dandelion.home.recent.more": "查看全部对话",
   "dandelion.home.starters": "试试这些场景",
   "dandelion.home.starters.hint": "试试这些「{{name}}」提示词",
-  "dandelion.home.chat.title": "随时提问",
-  "dandelion.home.chat.subtitle": "你的全能 AI 助手，随时为你答疑解惑",
-  "dandelion.home.agent.title": "高效行动",
-  "dandelion.home.agent.subtitle": "创建文件、处理数据、用 AI 工具自动完成任务",
-  "dandelion.home.image.title": "让想法可见",
-  "dandelion.home.image.subtitle": "用文字描述生成照片、插画和设计作品",
+
 
   "dandelion.placeholder.chat.simple": "随便聊点什么...",
   "dandelion.placeholder.chat.normal": '随便聊点什么... "{{example}}"',

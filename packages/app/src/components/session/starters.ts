@@ -21,7 +21,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "writing",
       icon: "pencil-line",
-      color: { icon: "#B45309", bg: "#FEF3C7" },
+      color: { icon: "#9A6700", bg: "#FEF7E0" },
       title: "dandelion.starter.writing.title",
       description: "dandelion.starter.writing.description",
       examples: [
@@ -33,7 +33,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "analysis",
       icon: "glasses",
-      color: { icon: "#1D4ED8", bg: "#DBEAFE" },
+      color: { icon: "#3E63DD", bg: "#EDF2FE" },
       title: "dandelion.starter.analysis.title",
       description: "dandelion.starter.analysis.description",
       examples: [
@@ -45,7 +45,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "brainstorm",
       icon: "brain",
-      color: { icon: "#7C3AED", bg: "#EDE9FE" },
+      color: { icon: "#7048C6", bg: "#F0EDFE" },
       title: "dandelion.starter.brainstorm.title",
       description: "dandelion.starter.brainstorm.description",
       examples: [
@@ -59,7 +59,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "webpage",
       icon: "window-cursor",
-      color: { icon: "#0891B2", bg: "#CFFAFE" },
+      color: { icon: "#0A7EA4", bg: "#E8F8FB" },
       title: "dandelion.starter.webpage.title",
       description: "dandelion.starter.webpage.description",
       examples: [
@@ -71,7 +71,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "pptx",
       icon: "presentation",
-      color: { icon: "#C43E1C", bg: "#FFF0EB" },
+      color: { icon: "#C4432B", bg: "#FEEFEC" },
       title: "dandelion.starter.pptx.title",
       description: "dandelion.starter.pptx.description",
       examples: [
@@ -83,7 +83,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "xlsx",
       icon: "table",
-      color: { icon: "#217346", bg: "#E8F5ED" },
+      color: { icon: "#1A7F4B", bg: "#ECFAF1" },
       title: "dandelion.starter.xlsx.title",
       description: "dandelion.starter.xlsx.description",
       examples: [
@@ -95,7 +95,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "files",
       icon: "folder",
-      color: { icon: "#92400E", bg: "#FEF3C7" },
+      color: { icon: "#9A6700", bg: "#FEF7E0" },
       title: "dandelion.starter.files.title",
       description: "dandelion.starter.files.description",
       examples: [
@@ -107,7 +107,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "infographic",
       icon: "shapes",
-      color: { icon: "#7C3AED", bg: "#EDE9FE" },
+      color: { icon: "#7048C6", bg: "#F0EDFE" },
       title: "dandelion.starter.infographic.title",
       description: "dandelion.starter.infographic.description",
       examples: [
@@ -119,7 +119,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "poster",
       icon: "shopping-bag",
-      color: { icon: "#BE123C", bg: "#FFE4E6" },
+      color: { icon: "#C4255D", bg: "#FEECF0" },
       title: "dandelion.starter.poster.title",
       description: "dandelion.starter.poster.description",
       examples: [
@@ -133,7 +133,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "photo",
       icon: "photo",
-      color: { icon: "#4338CA", bg: "#E0E7FF" },
+      color: { icon: "#3E63DD", bg: "#EDF2FE" },
       title: "dandelion.starter.photo.title",
       description: "dandelion.starter.photo.description",
       examples: [
@@ -145,7 +145,7 @@ export const starters: Record<DandelionMode, Starter[]> = {
     {
       id: "remix",
       icon: "edit",
-      color: { icon: "#0D9488", bg: "#CCFBF1" },
+      color: { icon: "#12A594", bg: "#E7FAF4" },
       title: "dandelion.starter.remix.title",
       description: "dandelion.starter.remix.description",
       examples: [

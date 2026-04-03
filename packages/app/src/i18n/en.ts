@@ -983,12 +983,7 @@ export const dict = {
   "dandelion.home.recent.more": "View all sessions",
   "dandelion.home.starters": "Try these scenarios",
   "dandelion.home.starters.hint": "Try these \"{{name}}\" prompts",
-  "dandelion.home.chat.title": "Ask anything",
-  "dandelion.home.chat.subtitle": "Your versatile AI assistant, ready to help anytime",
-  "dandelion.home.agent.title": "Get things done",
-  "dandelion.home.agent.subtitle": "Create files, process data, automate tasks with AI tools",
-  "dandelion.home.image.title": "Visualize your ideas",
-  "dandelion.home.image.subtitle": "Generate photos, illustrations, and designs from text",
+
 
   "dandelion.placeholder.chat.simple": "Ask me anything...",
   "dandelion.placeholder.chat.normal": 'Ask me anything... "{{example}}"',
