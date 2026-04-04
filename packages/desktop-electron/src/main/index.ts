@@ -105,6 +105,11 @@ function setupApp() {
     })
   }
 
+  // last-resort cleanup: fires synchronously even on unexpected exit
+  process.on("exit", () => {
+    killSidecar()
+  })
+
   void app.whenReady().then(async () => {
     // migrate()
     app.setAsDefaultProtocolClient("opencode")
@@ -265,10 +270,13 @@ function killSidecar() {
   const pid = sidecar.pid
   sidecar.kill()
   sidecar = null
-  // tree-kill is async; also send process group signal as immediate fallback
+  // tree-kill is async; send synchronous signals as immediate fallback
   if (pid && process.platform !== "win32") {
     try {
       process.kill(-pid, "SIGTERM")
+    } catch {}
+    try {
+      process.kill(pid, "SIGTERM")
     } catch {}
   }
 }

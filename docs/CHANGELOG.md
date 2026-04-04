@@ -5,6 +5,19 @@
 
 ---
 
+## 2026-04-04 — fix: orphan sidecar processes after Electron dev exit
+
+### fix(desktop): ensure child processes are killed on exit
+
+**Intent:** After exiting `bun run dev`, sidecar processes (opencode-cli, workerd) remained alive consuming CPU/memory. Root cause: `detached: false` in dev mode prevented process-group kill, async `treeKill` didn't complete before exit, and no `process.on('exit')` fallback existed.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/src/main/cli.ts` | Always set `detached: true` on non-Windows (was only packaged mode), enabling process-group kill in dev |
+| `packages/desktop-electron/src/main/index.ts` | Add synchronous `process.kill(pid, "SIGTERM")` (positive pid) as direct fallback in `killSidecar()`; add `process.on("exit")` handler for last-resort cleanup |
+
+---
+
 ## 2026-04-04 — feat: add requirements-gathering flow for creative task starters
 
 ### feat(dandelion): shorten agent starter queries to trigger questionnaire flow

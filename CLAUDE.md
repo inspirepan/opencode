@@ -53,3 +53,15 @@ CSC_IDENTITY_AUTO_DISCOVERY=false bun run package:mac   # build dmg + zip withou
 ```
 
 Output goes to `packages/desktop-electron/dist/`. The ad-hoc signed app requires right-click -> Open on first launch (no Apple Developer certificate). Set `OPENCODE_CHANNEL=dev|beta|prod` to control productName and appId (defaults to `dev`).
+
+# Checking Orphan Child Processes
+
+After exiting Electron dev mode (`bun run dev`), check for leaked child processes:
+
+```bash
+ps aux | grep -E '(opencode-cli|workerd)' | grep -v grep
+```
+
+If any remain, kill them: `pkill -f opencode-cli && pkill -f workerd`
+
+The sidecar cleanup logic lives in `packages/desktop-electron/src/main/index.ts` (`killSidecar()`) and `packages/desktop-electron/src/main/cli.ts` (`spawnCommand()`, `detached` flag + `treeKill`).
