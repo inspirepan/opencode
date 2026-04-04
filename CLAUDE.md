@@ -25,6 +25,25 @@ After modifying shared UI files (layout.tsx, titlebar.tsx, etc.), always run at 
 
 All dandelion-specific UI is gated behind `platform.dandelion` (truthy only in Electron). The existing e2e tests run in Playwright (Chromium) where `platform.dandelion` is `undefined`, so they test the upstream code path only.
 
+# Starter & Skill Requirements Gathering
+
+Agent-mode starters use short, open-ended queries (defined in `packages/app/src/i18n/{en,zh}.ts`) that trigger a requirements-gathering flow before execution. The pattern:
+
+1. **System prompt** (`packages/opencode/src/agent/prompt/dandy-agent.txt`, "Creative tasks" section) defines the general principle: brief creative requests → ask 3-5 key dimensions via question tool before starting.
+2. **Each skill** has a "Handling Brief Requests" section listing its specific dimensions. When adding a new agent starter with a corresponding skill, add this section.
+3. **Starter queries** should be 1 sentence, not detailed specs — the skill's questionnaire handles the details.
+
+| Starter | Skill | Dimensions |
+|---------|-------|------------|
+| webpage | `create-web-site` | Multi-round adaptive questionnaire (already complete) |
+| pptx | `pptx` | purpose, audience, scope, style, content |
+| xlsx | `xlsx` | purpose, structure, data source, features |
+| infographic | `infographic` | topic, purpose, audience (skill Step 3-4 adds layout/style) |
+| poster | `product-ad-poster` | product, materials (skill Step 2 adds platform + 6 dimensions) |
+| files | _(none)_ | No questionnaire (tasks are concrete actions) |
+
+The question UI (`session-question-dock.tsx`) shows pill options with inline descriptions + a free-text input for supplementary notes. The input is NOT a mutually exclusive "custom answer" option — it supplements the pill selection.
+
 # Packaging (Electron DMG)
 
 ```bash

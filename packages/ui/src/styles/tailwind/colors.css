@@ -35,6 +35,7 @@
   --color-surface-brand-hover: var(--surface-brand-hover);
   --color-surface-interactive-base: var(--surface-interactive-base);
   --color-surface-interactive-hover: var(--surface-interactive-hover);
+  --color-surface-card: var(--surface-card);
   --color-surface-interactive-weak: var(--surface-interactive-weak);
   --color-surface-interactive-weak-hover: var(--surface-interactive-weak-hover);
   --color-surface-success-base: var(--surface-success-base);

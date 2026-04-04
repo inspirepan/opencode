@@ -5,6 +5,6 @@ Use this tool when you need to ask the user questions during execution. This all
 4. Offer choices to the user about what direction to take.
 
 Usage notes:
-- Every question automatically includes a free-text "Type your own answer" option in the UI. NEVER add your own "Other", "Custom", "Let me type", or any catch-all option — it would be redundant
+- Every question in the UI has a free-text input below the options where the user can add notes or type their own answer. NEVER add your own catch-all option — this includes "Other", "Custom", "Let me type", "I'll describe", "I'll provide details", "Something else", or ANY option whose purpose is to let the user type a free-form answer. All such options are redundant with the built-in input
 - Answers are returned as arrays of labels; set `multiple: true` to allow selecting more than one
 - If you recommend a specific option, make that the first option in the list and add "(Recommended)" at the end of the label

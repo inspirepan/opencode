@@ -158,8 +158,7 @@ function DandelionNewView() {
                     return (
                       <button
                         data-component="recent-card"
-                        class="w-full text-left px-4 py-2.5 rounded-xl flex items-center gap-3 cursor-default"
-                        style={{ background: "#fafafa" }}
+                        class="w-full text-left px-4 py-2.5 rounded-xl flex items-center gap-3 cursor-default bg-surface-card"
                         onClick={() => {
                           layout.sidebar.open()
                           navigate(`/${slug()}/session/${session.id}`)
@@ -177,8 +176,7 @@ function DandelionNewView() {
                 <Show when={sync.data.session.length > 3 && !sidebarVisible()}>
                   <button
                     data-component="recent-card"
-                    class="w-full text-left px-4 py-2.5 rounded-xl flex items-center gap-3 cursor-default"
-                    style={{ background: "#fafafa" }}
+                    class="w-full text-left px-4 py-2.5 rounded-xl flex items-center gap-3 cursor-default bg-surface-card"
                     onClick={() => {
                       layout.sidebar.open()
                       layout.mobileSidebar.show()
@@ -216,7 +214,7 @@ function StarterCard(props: { starter: Starter; active: boolean; onClick: () => 
   return (
     <button
       data-component="starter-card"
-      class="flex flex-col gap-1.5 p-2.5 rounded-xl text-left bg-[#fafafa]"
+      class="flex flex-col gap-1.5 p-2.5 rounded-xl text-left bg-surface-card"
       style={{
         "box-shadow": props.active
           ? `0 0 0 1px rgba(3, 7, 18, 0.1), 0 2px 4px rgba(3, 7, 18, 0.08), 0 1px 2px rgba(3, 7, 18, 0.06)`

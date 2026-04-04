@@ -117,6 +117,7 @@ export const dict = {
   "ui.tool.todos.active": "更新中",
   "ui.tool.todos.read": "讀取待辦",
   "ui.tool.questions": "問題",
+  "ui.question.summary": "{{count}} 個問題",
   "ui.tool.questions.active": "提問中",
   "ui.tool.agent": "{{type}} 代理程式",
   "ui.tool.agent.default": "代理程式",
@@ -161,7 +162,7 @@ export const dict = {
   "ui.question.review.notAnswered": "(未回答)",
   "ui.question.multiHint": "可多選",
   "ui.question.singleHint": "選擇一個答案",
-  "ui.question.custom.placeholder": "輸入你的答案...",
+  "ui.question.custom.placeholder": "補充說明（可選）...",
 
   "ui.fileSearch.placeholder": "搜尋",
   "ui.fileSearch.previousMatch": "上一個",

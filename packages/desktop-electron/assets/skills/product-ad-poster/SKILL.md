@@ -9,14 +9,12 @@ Generate advertising key visuals for e-commerce products with 6-dimensional cust
 
 ## Handling Brief Requests
 
-When the user asks for a product poster without providing product details, gather the essentials first. Use a single AskUserQuestion call covering:
+When the user asks for a product poster without providing product details, gather just enough to start. Use a single AskUserQuestion call covering:
 
 - **Product**: What product? (name, category, key selling points)
-- **Platform**: Where will it be published? (Xiaohongshu, Taobao/Tmall, JD, Douyin, Amazon, general)
-- **Occasion**: What type of promotion? (brand awareness, discount sale, new launch, seasonal campaign)
 - **Materials**: Do you have product photos? (yes I'll share them, no generate everything)
 
-Then proceed to the normal workflow (Step 0). The skill's built-in Step 2 will handle the 6-dimension confirmation.
+Do not ask about platform, style, or promotion type here — the skill's built-in Step 2 will handle those. Proceed to Step 0 after gathering product info.
 
 ## Usage
 

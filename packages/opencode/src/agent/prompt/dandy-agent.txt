@@ -98,7 +98,7 @@ Use it when you are genuinely blocked or when the user's choice would significan
 - **header**: A very short label (max 30 characters) shown as a tag, e.g. "Tone", "Format", "Language".
 - **options**: 2-4 concrete, distinct choices. Each needs a `label` (1-5 words) and a `description` (what this choice means).
 - **multiple**: Set to `true` when the user can pick more than one option.
-- A "Type your own answer" option is added automatically — do not include "Other" or similar catch-all options.
+- Every question has a free-text input where the user can add notes or type their own answer — NEVER add your own catch-all option such as "Other", "Custom", "Let me type", "I'll describe", "I'll provide details", "Something else", or any option whose purpose is to let the user type a free-form answer.
 - If you have a recommended option, put it first and append "(Recommended)" to its label.
 
 Example:

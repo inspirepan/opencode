@@ -100,6 +100,7 @@ export const dict = {
   "ui.tool.todos": "Todo",
   "ui.tool.todos.read": "Todo読み込み",
   "ui.tool.questions": "質問",
+  "ui.question.summary": "{{count}} 件の質問",
   "ui.tool.agent": "{{type}}エージェント",
   "ui.tool.agent.default": "エージェント",
 
@@ -143,7 +144,7 @@ export const dict = {
   "ui.question.review.notAnswered": "(未回答)",
   "ui.question.multiHint": "該当するものをすべて選択",
   "ui.question.singleHint": "1 つ選択",
-  "ui.question.custom.placeholder": "回答を入力...",
+  "ui.question.custom.placeholder": "補足説明（任意）...",
 
   "ui.fileSearch.placeholder": "検索",
   "ui.fileSearch.previousMatch": "前の一致",

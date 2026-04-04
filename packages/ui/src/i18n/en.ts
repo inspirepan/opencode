@@ -120,6 +120,7 @@ export const dict: Record<string, string> = {
   "ui.tool.todos.active": "Updating to-dos",
   "ui.tool.todos.read": "Read to-dos",
   "ui.tool.questions": "Questions",
+  "ui.question.summary": "{{count}} Questions",
   "ui.tool.questions.active": "Asking",
   "ui.tool.agent": "{{type}} Agent",
   "ui.tool.agent.default": "Agent",
@@ -174,5 +175,5 @@ export const dict: Record<string, string> = {
   "ui.question.review.notAnswered": "(not answered)",
   "ui.question.multiHint": "Select all answers that apply",
   "ui.question.singleHint": "Select one answer",
-  "ui.question.custom.placeholder": "Type your answer...",
+  "ui.question.custom.placeholder": "Additional notes (optional)...",
 }
