@@ -73,6 +73,17 @@ A user may ask you to create, edit, or analyze the contents of an .xlsx file. Yo
 
 **LibreOffice Required for Formula Recalculation**: You can assume LibreOffice is installed for recalculating formula values using the `scripts/recalc.py` script. The script automatically configures LibreOffice on first run, including in sandboxed environments where Unix sockets are restricted (handled by `scripts/office/soffice.py`)
 
+## Handling Brief Requests
+
+When the user's request is brief (e.g. "make me a spreadsheet for X"), gather key details before building. Use a single AskUserQuestion call covering:
+
+- **Purpose**: What is this for? (budget tracking, data analysis, financial model, inventory, project tracker, report template)
+- **Structure**: Complexity level? (single sheet, multi-sheet with summaries, full dashboard with charts)
+- **Data source**: Starting from scratch or processing existing data? (blank template, I'll paste data, I have a file)
+- **Key features**: What matters most? (formulas & auto-calculation, charts & visualization, data validation & dropdowns, conditional formatting)
+
+Include a skip option: "Go ahead with your best judgment." If the user already provided detailed specs, skip to creation.
+
 ## Reading and analyzing data
 
 ### Data analysis with pandas

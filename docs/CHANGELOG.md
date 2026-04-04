@@ -5,6 +5,38 @@
 
 ---
 
+## 2026-04-04 — feat: add requirements-gathering flow for creative task starters
+
+### feat(dandelion): shorten agent starter queries to trigger questionnaire flow
+
+**Intent:** Make agent-mode starter queries (pptx, xlsx, infographic, poster, files) short and open-ended like the webpage starter, so they trigger the skill's requirements-gathering flow instead of providing all specs upfront. This gives non-technical users a guided experience.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/i18n/zh.ts` | Shorten 15 starter queries (pptx x3, xlsx x3, infographic x3, poster x3, files x3) from detailed paragraphs to 1-sentence prompts |
+| `packages/app/src/i18n/en.ts` | Same, English translations |
+
+### feat(prompt): add creative task requirements-gathering principle
+
+**Intent:** Add a general instruction in the Dandelion agent system prompt to gather requirements before starting creative tasks when the request is brief.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/agent/prompt/dandy-agent.txt` | Add "Creative tasks" subsection under "Doing tasks" with requirements-gathering principle |
+
+### feat(skills): add "Handling Brief Requests" section to 4 skills
+
+**Intent:** Add a lightweight requirements-gathering entry point to skills that correspond to agent starters, so they know what to ask when requests are vague.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/pptx/SKILL.md` | Add "Handling Brief Requests" section with 5 key dimensions (purpose, audience, scope, style, content) |
+| `packages/desktop-electron/assets/skills/xlsx/SKILL.md` | Add "Handling Brief Requests" section with 4 key dimensions (purpose, structure, data source, features) |
+| `packages/desktop-electron/assets/skills/infographic/SKILL.md` | Add "Handling Brief Requests" section with 3 key dimensions (topic, purpose, audience) |
+| `packages/desktop-electron/assets/skills/product-ad-poster/SKILL.md` | Add "Handling Brief Requests" section with 4 key dimensions (product, platform, occasion, materials) |
+
+---
+
 ## 2026-04-03 — feat: create-web-site skill, question redesign, homepage polish
 
 ### feat(dandelion): replace docx starter with webpage in agent mode

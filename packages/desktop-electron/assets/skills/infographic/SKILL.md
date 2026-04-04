@@ -7,6 +7,16 @@ description: Generates professional infographics with 21 layout types and 20 vis
 
 Two dimensions: **layout** (information structure) × **style** (visual aesthetics). Freely combine any layout with any style.
 
+## Handling Brief Requests
+
+When the user asks for an infographic without providing source content or details, gather the essentials first. Use a single AskUserQuestion call covering:
+
+- **Topic & content**: What should it cover? (I have an article/data to convert, research this topic for me, I'll describe the key points)
+- **Purpose**: What's the goal? (education, social media sharing, business presentation, print material)
+- **Audience**: Who will see it? (students, professionals, general public)
+
+Then proceed to the normal workflow (Step 1). The skill's built-in Step 3-4 will handle layout, style, and aspect ratio confirmation.
+
 ## Usage
 
 ```bash

@@ -16,6 +16,20 @@ license: Proprietary. LICENSE.txt has complete terms
 
 ---
 
+## Handling Brief Requests
+
+When the user's request is brief (e.g. "make me a PPT about X"), gather key details before writing any slides. Use a single AskUserQuestion call covering:
+
+- **Purpose**: What kind of presentation? (investor pitch, project report, training material, class lecture, product intro, team update)
+- **Audience**: Who will view it? (investors, executives, colleagues, students, clients)
+- **Scope**: How many slides? (5-8 concise, 10-15 standard, 15+ detailed)
+- **Style**: Visual preference? (dark premium, clean minimal, colorful creative, corporate formal)
+- **Content**: Do you have content ready? (I'll provide an outline, I have a document to convert, generate everything from the topic)
+
+Include a skip option: "Go ahead with your best judgment." If the user already provided most details, skip to creation.
+
+---
+
 ## Reading Content
 
 ```bash
