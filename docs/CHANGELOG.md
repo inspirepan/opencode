@@ -5,6 +5,200 @@
 
 ---
 
+## 2026-04-03 — feat: create-web-site skill, question redesign, homepage polish
+
+### feat(dandelion): replace docx starter with webpage in agent mode
+
+**Commit:** `85f912f58`
+
+**Intent:** Replace the Word document starter card with a webpage creation card in agent mode, pointing users to the web-page skill.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/session/starters.ts` | Replace `docx` starter entry with `webpage` (new id, icon `window-cursor`, cyan color scheme) |
+| `packages/app/src/i18n/en.ts` | Replace `dandelion.starter.docx.*` keys with `dandelion.starter.webpage.*` |
+| `packages/app/src/i18n/zh.ts` | Same, Chinese translations |
+
+### feat(console): add web-page skill for guided page creation
+
+**Commit:** `f6ade4003`
+
+**Intent:** Add a bundled `web-page` skill (SKILL.md) that guides users through creating a web page with a multi-step questionnaire.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/web-page/SKILL.md` | Added: web-page skill with guided creation flow |
+
+### feat(question): redesign question dock as questionnaire form with pill options
+
+**Commit:** `610ba4e95`
+
+**Intent:** Replace the step-by-step wizard question UI with a single-page questionnaire form. Options are now pill-shaped buttons with tooltips instead of list items. Footer simplified to Dismiss + Submit.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/session/composer/session-question-dock.tsx` | Rewrite: show all questions at once, pill-shaped option buttons with Tooltip, simplified footer |
+| `packages/opencode/src/tool/question.txt` | Clarify that free-text option is auto-added, prevent agent from adding redundant "Other" choices |
+| `packages/ui/src/components/message-part.css` | Replace wizard/list styles with pill, form, and group styles |
+
+### chore(i18n): rename OpenCode Desktop to Coco Desktop
+
+**Commit:** `8d4069dd9`
+
+**Intent:** Rebrand "OpenCode Desktop" to "Coco Desktop" in all 16 locale files.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/i18n/*.ts` (all 16 locales) | `"OpenCode Desktop"` -> `"Coco Desktop"` in window title key |
+
+### feat(dandelion): rename web-page skill to create-web-site with Hono + Workers backend
+
+**Commit:** `ba938de66`
+
+**Intent:** Rename the `web-page` skill to `create-web-site` and expand it to support full-stack website creation with Hono backend on Cloudflare Workers. Update starter cards to reference the new skill.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/create-web-site/SKILL.md` | Renamed from `web-page/`; expanded with Hono + Workers backend guidance |
+| `packages/app/src/components/session/starters.ts` | Update starter references to new skill name |
+| `packages/app/src/i18n/en.ts` | Update starter i18n keys |
+| `packages/app/src/i18n/zh.ts` | Update starter i18n keys (Chinese) |
+
+### feat(skill): multi-round questionnaire for create-web-site skill
+
+**Commit:** `c0903c86f`
+
+**Intent:** Enhance the create-web-site skill with a multi-round questionnaire flow for gathering site requirements before building.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/create-web-site/SKILL.md` | Expand questionnaire flow with multi-round requirement gathering |
+
+### fix(present): inline CSS, JS, and CSS url() in HTML preview
+
+**Commit:** `51e366fd1`
+
+**Intent:** HTML previews in `present_file` only inlined `<img>` tags. External CSS (`<link>`), JS (`<script src>`), and CSS `url()` references (backgrounds, fonts) were broken in the srcdoc iframe. Now inlines all local asset types.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/tool/present.ts` | Replace `inlineHtmlImages` with `inlineHtml` that handles `<link>` -> `<style>`, `<script src>` -> inline `<script>`, CSS `url()` -> base64 data URIs |
+
+### feat(present): support URL mode in present_file for live server preview
+
+**Commit:** `9841ae439`
+
+**Intent:** Allow `present_file` to accept `http://` / `https://` URLs. The frontend renders URL-mode previews with `iframe src` instead of `srcdoc`, enabling live preview of running dev servers (e.g. Workers local dev).
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/tool/present.ts` | Accept URL input; return `url` field in metadata for URL mode |
+| `packages/opencode/src/tool/present.txt` | Document URL preview mode |
+| `packages/app/src/context/preview.tsx` | Add `url?: string` to `PreviewItem` type |
+| `packages/app/src/pages/session.tsx` | Pass `url` through present_file detection |
+| `packages/app/src/pages/session/preview-tab.tsx` | Use `iframe src` when `url` is present instead of `srcdoc` |
+| `packages/desktop-electron/assets/skills/create-web-site/SKILL.md` | Use `present_file` URL mode for Workers project preview |
+
+### feat(app): redesign dandelion homepage with modern card styling
+
+**Commit:** `676c3537f`
+
+**Intent:** Polish the dandelion homepage: remove mode title/subtitle text below logo, restyle session and starter cards with neutral `#fafafa` backgrounds, inset rings, hover effects, and concentric border radii (Schoger technique). Auto-open sidebar on recent session click; auto-close starter hint on message submit.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/session/session-new-view.tsx` | Restyle card layout; auto-open sidebar on session click |
+| `packages/app/src/components/session/starters.ts` | Update starter color palette to Radix-style neutral tones |
+| `packages/app/src/i18n/en.ts` | Remove unused `dandelion.home.{chat,agent,image}.{title,subtitle}` keys |
+| `packages/app/src/i18n/zh.ts` | Same |
+| `packages/app/src/index.css` | Add `data-component` hover transition rules for card types |
+| `packages/app/src/pages/session.tsx` | Auto-close starter hint panel on message submit |
+
+---
+
+## 2026-04-02 — chore: Electron rename and dev script
+
+### chore(electron): rename artifact to coco-desktop-electron
+
+**Commit:** `74f61c4d2`
+
+**Intent:** Rename the Electron build artifact from "Dandelion" to "Coco Desktop" to match the new branding.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/electron-builder.config.ts` | Update productName, appId, dmg title to Coco Desktop |
+| `packages/desktop-electron/src/main/index.ts` | Update app name references |
+| `packages/desktop-electron/src/main/menu.ts` | Update menu bar app name |
+| `packages/desktop-electron/src/main/windows.ts` | Update window title |
+| `packages/desktop-electron/src/renderer/i18n/*.ts` (4 files) | Update branding strings |
+| `packages/desktop-electron/src/renderer/index.html` | Update `<title>` |
+| `packages/desktop-electron/src/renderer/loading.html` | Update `<title>` |
+
+---
+
+## 2026-04-01 — chore: remove bundled skills and update dev script
+
+### chore: remove some bundled skills
+
+**Commit:** `300e329a3`
+
+**Intent:** Remove large/experimental bundled skills (comic, danger-gemini-web, danger-x-to-markdown) that are not ready for end users or have security concerns (browser cookie access).
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/comic/` | Removed: entire comic skill (SKILL.md, 30+ reference files, merge-to-pdf script) |
+| `packages/desktop-electron/assets/skills/danger-gemini-web/` | Removed: entire Gemini web API skill (SKILL.md, client library, scripts) |
+| `packages/desktop-electron/assets/skills/danger-x-to-markdown/` | Removed: entire X/Twitter scraper skill (SKILL.md, cookie/graphql/markdown scripts) |
+
+### chore: make root dev script launch Electron instead of CLI
+
+**Commit:** `fe598b2ba`
+
+**Intent:** Root `bun dev` now launches the Electron app instead of the CLI, matching the dandelion development workflow.
+
+| File | Change |
+|------|--------|
+| `package.json` | Update `dev` script to launch Electron desktop package |
+
+---
+
+## 2026-04-01 — refactor: optimize dandy-agent prompt per Anthropic best practices
+
+### feat(dandelion): add bundled frontend-design and cloudflare-deploy skills
+
+**Commit:** `7ed5681dc`
+
+**Intent:** Add two new bundled system skills for agent mode: `frontend-design` (UI/UX best practices for web page generation) and `cloudflare-deploy` (step-by-step Cloudflare Workers/Pages deployment guidance for non-technical users).
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/frontend-design/SKILL.md` | Added: frontend design skill with UI/UX guidelines |
+| `packages/desktop-electron/assets/skills/cloudflare-deploy/SKILL.md` | Added: Cloudflare deployment skill with guided flow |
+
+### refactor(dandelion): flatten assets/skills/.system into assets/skills
+
+**Commit:** `817c13767`
+
+**Intent:** Remove the `.system/` nesting level from bundled skills directory. Skills are now at `assets/skills/<name>/` instead of `assets/skills/.system/<name>/`.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/` | Move all skills from `.system/` subdirectory to top level |
+
+---
+
+## 2026-04-04 — feat: add skill installation path to dandy-agent prompt
+
+### feat(dandelion): tell Dandy where to install skills
+
+**Intent:** The dandy-agent prompt had no mention of skills or where to install them. Since the default working directory is `~/.dandelion/spaces/agent/`, skills should be installed to `~/.dandelion/spaces/agent/.agents/skills/<name>/SKILL.md` so the skill discovery logic (which scans `.agents/skills/**/SKILL.md` from cwd upward) can find them. Added a "Skills" subsection under "Tool usage" explaining available skills, the skill tool, and the installation path.
+
+| File | Change |
+|------|--------|
+| `packages/opencode/src/agent/prompt/dandy-agent.txt` | Add "Skills" subsection after tool usage rules, documenting skill loading and installation path |
+
+---
+
 ## 2026-04-01 — refactor: optimize dandy-agent prompt per Anthropic best practices
 
 ### refactor(dandelion): rewrite dandy-agent.txt for clarity, conciseness, and best-practice alignment
@@ -14,6 +208,132 @@
 | File | Change |
 |------|--------|
 | `packages/opencode/src/agent/prompt/dandy-agent.txt` | Full rewrite: add Safety section, merge Personality/Values/Tone, add Language section, add boundless capability framing, add user-action guidance, trim examples, remove redundant Guidelines |
+
+---
+
+## 2026-03-31 — UI refinements: theme, starters, i18n, pptx skill
+
+### fix(i18n): improve thinking effort labels in zh.ts
+
+**Commit:** `fc2d10f6e`
+
+**Intent:** The "Default" variant label in Chinese was a generic "默认" which didn't convey meaning. Replace with "自动思考". Unify all variant descriptions to use "思考" instead of "推理" for consistency.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/prompt-input.tsx` | Use `variant.default.label` i18n key instead of `common.default` |
+| `packages/app/src/i18n/en.ts` | Add `variant.default.label` |
+| `packages/app/src/i18n/zh.ts` | Add `variant.default.label: "自动思考"`; replace "推理" with "思考" in variant descriptions |
+
+### feat(dandelion): improve starter cards UX and prompt suggestions
+
+**Commit:** `48743e318`
+
+**Intent:** Move prompt suggestions from scroll area to above the input box. Add starter hint labels, shimmer animation, module-level signal for active starter state, auto-scroll on selection. Compact card layout with smaller icons and spacing. Fixed placeholder in dandelion mode.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/prompt-input/placeholder.ts` | Fixed placeholder in dandelion mode |
+| `packages/app/src/components/session/session-new-view.tsx` | Compact card layout, starter label, auto-scroll |
+| `packages/app/src/components/session/starters.ts` | Add module-level signal for active starter |
+| `packages/app/src/i18n/en.ts` | Add starters label and hint i18n keys |
+| `packages/app/src/i18n/zh.ts` | Same, Chinese |
+| `packages/app/src/index.css` | Add shimmer text animation keyframes |
+| `packages/app/src/components/session/composer/session-composer-region.tsx` | Render suggestion hints above input |
+
+### refine(dandelion): add close button to starter hints, remove shimmer
+
+**Commit:** `579756aa1`
+
+**Intent:** Add dismiss (x) button to starter suggestion list. Remove shimmer animation added in previous commit (too distracting).
+
+| File | Change |
+|------|--------|
+| `packages/app/src/index.css` | Remove shimmer keyframes |
+| `packages/app/src/components/session/composer/session-composer-region.tsx` | Add close button to suggestion hints |
+
+### feat(dandelion): change default theme from OC-2 to Cursor
+
+**Commit:** `b2e212bcc`
+
+**Intent:** Switch default theme from OC-2 to Cursor for a cleaner look in dandelion mode.
+
+| File | Change |
+|------|--------|
+| `packages/app/public/oc-theme-preload.js` | Default to cursor theme |
+| `packages/ui/src/theme/context.tsx` | Fallback from oc-2 to cursor |
+| `packages/ui/src/theme/loader.ts` | Treat cursor as default for caching |
+
+### refine(dandelion): update pptx prompts and add slide-deck intent clarification
+
+**Commit:** `cdfcf00da`
+
+**Intent:** PPTX starter queries now explicitly request the pptx skill. Slide-deck SKILL.md gets a "Step 0" to clarify intent when ambiguous (image-based slides vs editable .pptx).
+
+| File | Change |
+|------|--------|
+| `packages/app/src/i18n/en.ts` | Update pptx starter query to explicitly request skill |
+| `packages/app/src/i18n/zh.ts` | Same, Chinese |
+| `packages/desktop-electron/assets/skills/.system/slide-deck/SKILL.md` | Add Step 0 intent clarification |
+
+---
+
+## 2026-03-30 — UI polish: image preview, fonts, starter labels
+
+### feat(ui): image preview floating window with zoom/pan support
+
+**Commit:** `9404c0806`
+
+**Intent:** Convert the image preview from a fixed modal to a draggable, resizable floating window with zoom (wheel, pinch, double-click) and pan support.
+
+| File | Change |
+|------|--------|
+| `packages/ui/src/components/image-preview.css` | Floating window styles, resize handles, touch-action |
+| `packages/ui/src/components/image-preview.tsx` | Draggable/resizable window with zoom/pan; 8 resize handles; prevent Kobalte auto-dismiss |
+
+### style(dandelion): add border to starter cards
+
+**Commit:** `dad9ca015`
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/session/session-new-view.tsx` | Add border class to starter cards |
+
+### fix(dandelion): reset present_file seen set on session switch
+
+**Commit:** `1c5932e01`
+
+**Intent:** Re-visiting a session didn't re-process completed `present_file` parts because the `seen` Set was never reset (component stays mounted across route changes).
+
+| File | Change |
+|------|--------|
+| `packages/app/src/pages/session.tsx` | Reset seen Set when `params.id` changes |
+
+### feat(dandelion): switch default fonts to Geist Sans and Geist Mono
+
+**Commit:** `4ceeb2747`
+
+**Intent:** Replace Inter/IBM Plex Mono with Geist Sans/Geist Mono as default fonts for a more modern look.
+
+| File | Change |
+|------|--------|
+| `packages/app/e2e/settings/settings.spec.ts` | Update test assertions for new defaults |
+| `packages/app/src/components/settings-general.tsx` | Default mono to geist-mono |
+| `packages/app/src/context/settings.tsx` | Replace Inter with Geist in @font-face, CSS vars, preload |
+| `packages/app/src/pages/session/preview-tab.tsx` | Update hardcoded Inter refs to Geist |
+| `packages/ui/src/components/font.tsx` | Geist font options, fallback chain |
+| `packages/ui/src/styles/theme.css` | CSS variable defaults to Geist |
+
+### feat(i18n): make starter labels more descriptive for non-technical users
+
+**Commit:** `bfe69adb5`
+
+**Intent:** All 33 starter label texts rewritten as verb phrases describing what clicking does, so non-technical users understand at a glance.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/i18n/en.ts` | Rewrite all starter label texts as action verbs |
+| `packages/app/src/i18n/zh.ts` | Same, Chinese |
 
 ---
 
@@ -193,12 +513,15 @@ Quick reference of all files modified from upstream, grouped by package:
 ### `packages/app/`
 - `src/app.tsx` — `window.__OPENCODE__` type extension; `PreviewProvider`
 - `src/context/platform.tsx` — `Platform.dandelion` type; `showInFolder` method
-- `src/context/preview.tsx` — preview data store; `previewTab()`/`previewPath()` helpers
+- `src/context/preview.tsx` — preview data store; `previewTab()`/`previewPath()` helpers; `url` field
+- `src/context/settings.tsx` — Geist Sans/Geist Mono as default fonts
 - `src/components/titlebar.tsx` — dandelion tabs with sliding segmented control, hide portals, settings button
 - `src/components/session-context-usage.tsx` — unified context tab toggle (no dandelion branch)
-- `src/components/session/session-new-view.tsx` — running sessions section, per-mode starter cards in dandelion new session page
-- `src/components/session/starters.ts` — per-mode starter card metadata
-- `src/components/prompt-input.tsx` — chat mode detection, agent auto-switch, hide agent selector, variant descriptions, per-mode placeholders
+- `src/components/session/session-new-view.tsx` — running sessions section, per-mode starter cards, modern card styling
+- `src/components/session/starters.ts` — per-mode starter card metadata; webpage starter; module-level active signal
+- `src/components/session/composer/session-question-dock.tsx` — questionnaire form with pill options
+- `src/components/session/composer/session-composer-region.tsx` — starter hint suggestions above input
+- `src/components/prompt-input.tsx` — chat mode detection, agent auto-switch, hide agent selector, variant descriptions, per-mode placeholders, thinking effort label key
 - `src/components/prompt-input/placeholder.ts` — dandelion mode parameter for placeholder text
 - `src/components/dialog-select-model.tsx` — enlarged popover, provider icons, filter prop
 - `src/components/dialog-manage-models.tsx` — provider icons and tags (image/free/latest)
@@ -213,47 +536,56 @@ Quick reference of all files modified from upstream, grouped by package:
 - `src/pages/home.tsx` — auto-redirect to dandelion workspace
 - `src/pages/layout.tsx` — autoselect, sidebar rail skip, width adjustments, project header hide
 - `src/pages/directory-layout.tsx` — pass `serverUrl` to `DataProvider`
-- `src/pages/session.tsx` — present_file detection, preview+tab sync, mobile preview fallback, external file handling
+- `src/pages/session.tsx` — present_file detection, preview+tab sync, mobile preview fallback, external file handling, seen set reset on session switch
 - `src/pages/session/session-side-panel.tsx` — unified tab system for preview/context/review; auto-close empty panel; Finder reveal button
 - `src/components/session/session-header.tsx` — hide status popover, shapes icon for side panel toggle
-- `src/pages/session/preview-tab.tsx` — iframe preview with PDF (pdf.js), Markdown, SVG, Mermaid support; image preview; directory gallery view
+- `src/pages/session/preview-tab.tsx` — iframe preview with PDF (pdf.js), Markdown, SVG, Mermaid support; image preview; directory gallery view; URL mode
 - `src/pages/session/helpers.ts` — `activeTab` supports `preview://` tabs
-- `src/components/settings-general.tsx` — Exa API Key configuration in Tools section
-- `src/i18n/en.ts` — dandelion + variant + exa i18n keys
-- `src/i18n/zh.ts` — dandelion + variant + exa i18n keys (Chinese)
+- `src/components/settings-general.tsx` — Exa API Key configuration in Tools section; geist-mono default
+- `src/index.css` — hover transition rules for card types
+- `src/i18n/en.ts` — dandelion + variant + exa + starter + webpage + thinking effort i18n keys
+- `src/i18n/zh.ts` — dandelion + variant + exa + starter + webpage + thinking effort i18n keys (Chinese)
+- `src/i18n/*.ts` (all 16 locales) — "OpenCode Desktop" -> "Coco Desktop"
+- `e2e/settings/settings.spec.ts` — updated font default assertions
+- `public/oc-theme-preload.js` — default theme to cursor
 
 ### `packages/ui/`
 - `src/components/logo.tsx` — dandelion seed SVG
 - `src/components/icon.tsx` — `shapes`, `circle-plus`, `circle-plus-active` icons
 - `src/components/message-part.tsx` — `present_file` tool renderer with clickable filename; `file` part renderer for generated images; active form text for all tools
-- `src/components/message-part.css` — `file-part` image styles
+- `src/components/message-part.css` — `file-part` image styles; question pill/form/group styles
 - `src/components/basic-tool.tsx` — `activeTitle` support with `ToolStatusTitle`
-- `src/components/image-preview.tsx` — download button support
+- `src/components/image-preview.tsx` — download button; draggable/resizable floating window with zoom/pan
+- `src/components/image-preview.css` — floating window styles, resize handles, touch-action
 - `src/components/app-icon.tsx` — keynote/powerpoint app icons
 - `src/components/app-icons/types.ts` — app icon name registry
 - `src/components/tabs.css` — remove redundant tab underline
+- `src/components/font.tsx` — Geist font options, fallback chain
 - `src/context/data.tsx` — `serverUrl` prop for media URL resolution
 - `src/components/list.css` — sticky group header gradient fix
 - `src/components/select.css` — dropdown max-height increase
+- `src/styles/theme.css` — CSS variable defaults to Geist
+- `src/theme/context.tsx` — default theme fallback to cursor
+- `src/theme/loader.ts` — cursor as default theme for caching
 - `src/i18n/en.ts` — tool active form translations
 - `src/i18n/zh.ts` — tool active form translations (Chinese)
 - `src/i18n/zht.ts` — tool active form translations (Traditional Chinese)
 
 ### `packages/desktop-electron/`
-- `src/main/index.ts` — workspace creation (chat/agent/image), globals, IPC, Dandelion branding
+- `src/main/index.ts` — workspace creation (chat/agent/image), globals, IPC, Coco Desktop branding
 - `src/main/ipc.ts` — getDandelionWorkspace handler; `show-in-folder` IPC
 - `src/main/windows.ts` — globals type and injection
 - `src/main/skills.ts` — system skills sync on startup
-- `src/main/menu.ts` — Dandelion branding
+- `src/main/menu.ts` — Coco Desktop branding
 - `src/preload/index.ts` — synchronous workspace path exposure (3 modes); `showInFolder` bridge
 - `src/preload/types.ts` — ElectronAPI type; `showInFolder`
 - `src/renderer/env.d.ts` — window type declarations
 - `src/renderer/index.tsx` — platform dandelion setup; `showInFolder` wiring
-- `src/renderer/index.html` — Dandelion title
-- `src/renderer/loading.html` — Dandelion title
-- `src/renderer/i18n/*.ts` — Dandelion branding in all 14 locales
-- `electron-builder.config.ts` — Dandelion product name; skills extraResources
-- `assets/skills/.system/` — bundled system skills (pptx, docx, xlsx, pdf, infographic, baoyu-skills suite)
+- `src/renderer/index.html` — Coco Desktop title
+- `src/renderer/loading.html` — Coco Desktop title
+- `src/renderer/i18n/*.ts` — Coco Desktop branding in all locales
+- `electron-builder.config.ts` — Coco Desktop product name, appId; skills extraResources
+- `assets/skills/` — bundled skills: create-web-site, frontend-design, cloudflare-deploy, pptx, slide-deck, etc. (flattened from `.system/`)
 
 ### `packages/opencode/`
 - `src/agent/agent.ts` — chat, dandy, image-gen agent definitions
@@ -270,8 +602,9 @@ Quick reference of all files modified from upstream, grouped by package:
 - `src/server/server.ts` — exempt media paths from basic auth; `GET /auth/:providerID/status` endpoint
 - `src/flag/flag.ts` — `OPENCODE_ENABLE_EXA` auto-enable on `EXA_API_KEY` env var
 - `src/file/index.ts` — show files in @ autocomplete when query is empty
-- `src/tool/present.ts` — present_file tool (HTML, SVG, PDF, PPTX)
-- `src/tool/present.txt` — tool description
+- `src/tool/present.ts` — present_file tool (HTML, SVG, PDF, PPTX, images, directories, URLs); inline CSS/JS/url()
+- `src/tool/present.txt` — tool description; URL preview mode
+- `src/tool/question.txt` — clarify auto free-text option
 - `src/tool/bash.ts` — inject provider API keys into spawned processes
 - `src/tool/registry.ts` — register PresentTool; Exa auth check for websearch/codesearch gate
 - `src/tool/websearch.ts` — Auth + env var key reading with Bearer header
@@ -279,6 +612,7 @@ Quick reference of all files modified from upstream, grouped by package:
 
 ### Root
 - `.gitignore` — models-snapshot.js
+- `package.json` — dev script launches Electron
 - `Makefile` — test orchestration targets
 - `CLAUDE.md` — testing commands, dandelion mode notes
 - `docs/plans/2026-03-25-simple-ai-desktop.md` — transformation plan
