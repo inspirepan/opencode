@@ -5,6 +5,18 @@
 
 ---
 
+## 2026-04-05 — feat: image-gen skill discovers third-party providers from opencode config
+
+### feat(skill): teach image-gen to discover API keys and base URLs from opencode.jsonc
+
+**Intent:** The image-gen script needs `GOOGLE_API_KEY` + `GOOGLE_BASE_URL` (or OpenAI equivalents) as environment variables. Native Google keys get injected via `Provider.envKeys()`, but third-party providers (e.g. 101AI, shubiaobiao) configured in `opencode.jsonc` have `"env": []` so their keys are never injected, and base URLs are never injected for any provider. Instead of hardcoding per-provider logic in bash.ts, use prompt engineering: teach the agent to read `~/.config/opencode/opencode.jsonc`, find providers with image-capable models (`modalities.output` includes `"image"`), and pass their `apiKey`/`baseURL` as inline env vars when calling the script.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/image-gen/SKILL.md` | Add "Discovering Providers from OpenCode Config" section with step-by-step instructions for reading config, mapping npm packages to script providers/env vars, and passing credentials inline |
+
+---
+
 ## 2026-04-04 — fix: orphan sidecar processes after Electron dev exit
 
 ### fix(desktop): ensure child processes are killed on exit

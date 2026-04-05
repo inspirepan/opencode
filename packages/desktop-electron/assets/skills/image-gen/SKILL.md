@@ -115,6 +115,37 @@ npx -y bun ${SKILL_DIR}/scripts/main.ts --prompt "A cat" --image out.png --provi
 
 **Load Priority**: CLI args > EXTEND.md > env vars > `<cwd>/.dandelion/skill-configs/.env` > `~/.dandelion/skill-configs/.env`
 
+## Discovering Providers from OpenCode Config
+
+When the required API keys are not set in the environment, discover them from OpenCode's configuration. This supports any third-party provider (not just native Google/OpenAI).
+
+**Step 1**: Read the config file (strip JSONC comments when parsing):
+
+```bash
+cat ~/.config/opencode/opencode.jsonc
+```
+
+**Step 2**: Find providers with image-capable models — look for models whose `modalities.output` includes `"image"`.
+
+**Step 3**: Map the provider's `npm` package to the script's `--provider` flag and env vars:
+
+| Config `npm` value | Script `--provider` | API key env var | Base URL env var |
+|---|---|---|---|
+| `@ai-sdk/google` | `google` | `GOOGLE_API_KEY` | `GOOGLE_BASE_URL` |
+| `@ai-sdk/openai` or `@ai-sdk/openai-compatible` | `openai` | `OPENAI_API_KEY` | `OPENAI_BASE_URL` |
+
+Extract from the provider config object:
+- `options.apiKey` → set as the API key env var
+- `options.baseURL` or `api` → set as the base URL env var
+
+**Step 4**: Pass as inline env vars when calling the script:
+
+```bash
+GOOGLE_API_KEY=<key> GOOGLE_BASE_URL=<url> npx -y bun ${SKILL_DIR}/scripts/main.ts --provider google --model <model-id> ...
+```
+
+**Multiple providers available**: If multiple image-capable providers are found, prefer whichever has a native API key already set in the environment. If none do, ask the user which provider to use.
+
 ## Replicate Model Configuration
 
 When using `--provider replicate`, the model can be configured in the following ways (highest priority first):
