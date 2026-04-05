@@ -54,6 +54,28 @@ CSC_IDENTITY_AUTO_DISCOVERY=false bun run package:mac   # build dmg + zip withou
 
 Output goes to `packages/desktop-electron/dist/`. The ad-hoc signed app requires right-click -> Open on first launch (no Apple Developer certificate). Set `OPENCODE_CHANNEL=dev|beta|prod` to control productName and appId (defaults to `dev`).
 
+## Cross-arch packaging (e.g. building x64 on Apple Silicon)
+
+The `opencode-cli` sidecar in `resources/` is a platform-native binary. When cross-compiling (e.g. `--x64` on an arm64 host), you **must** replace it with the correct architecture before packaging, otherwise the app will hang on the loading screen because the sidecar cannot execute.
+
+```bash
+cd packages/opencode
+# Cross-compile the CLI for x64 (Bun supports cross-compilation via compile target)
+# Use the build script or a targeted Bun.build() with target "bun-darwin-x64-baseline"
+bun run build    # builds all targets; grab dist/opencode-darwin-x64-baseline/bin/opencode
+
+cd ../desktop-electron
+cp ../opencode/dist/opencode-darwin-x64-baseline/bin/opencode resources/opencode-cli
+codesign --force --sign - resources/opencode-cli
+CSC_IDENTITY_AUTO_DISCOVERY=false bunx electron-builder --mac --x64 --config electron-builder.config.ts
+```
+
+After packaging, restore the arm64 sidecar for local dev: `cp ../opencode/dist/opencode-darwin-arm64/bin/opencode resources/opencode-cli`
+
+Checklist for cross-arch builds:
+- `resources/opencode-cli` must match the target arch (`file resources/opencode-cli` to verify)
+- The `@electron/rebuild` step in electron-builder handles most native `.node` modules, but verify with `find dist/mac/*.app -name '*.node' -exec file {} \;`
+
 # Checking Orphan Child Processes
 
 After exiting Electron dev mode (`bun run dev`), check for leaked child processes:
