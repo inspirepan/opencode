@@ -67,7 +67,7 @@ bun run build    # builds all targets; grab dist/opencode-darwin-x64-baseline/bi
 cd ../desktop-electron
 cp ../opencode/dist/opencode-darwin-x64-baseline/bin/opencode resources/opencode-cli
 codesign --force --sign - resources/opencode-cli
-CSC_IDENTITY_AUTO_DISCOVERY=false bunx electron-builder --mac --x64 --config electron-builder.config.ts
+CSC_IDENTITY_AUTO_DISCOVERY=false bunx electron-builder --mac --x64 --config electron-builder.config.ts -c.mac.identity=-
 ```
 
 After packaging, restore the arm64 sidecar for local dev: `cp ../opencode/dist/opencode-darwin-arm64/bin/opencode resources/opencode-cli`

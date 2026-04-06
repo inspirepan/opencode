@@ -15,6 +15,18 @@
 |------|--------|
 | `packages/desktop-electron/assets/skills/image-gen/SKILL.md` | Add "Discovering Providers from OpenCode Config" section with step-by-step instructions for reading config, mapping npm packages to script providers/env vars, and passing credentials inline |
 
+### fix(desktop): use channel-aware DB path for migration marker
+
+**Commit:** `279074b73`
+
+**Intent:** Upstream added channel-based DB naming (`opencode-{channel}.db`) but electron and sidecar marker still checked hardcoded `opencode.db`, causing loading screen to hang and migration to re-run on every startup. Fix: `sqliteFileExists()` now checks for any `opencode*.db` file, and sidecar uses `Database.Path` instead of hardcoded name. Also add `--skip-install` to dev build script since deps are already installed.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/scripts/predev.ts` | Add `--skip-install` to dev build |
+| `packages/desktop-electron/src/main/index.ts` | `sqliteFileExists()` checks for any `opencode*.db` file instead of hardcoded `opencode.db` |
+| `packages/opencode/src/index.ts` | Use `Database.Path` instead of hardcoded `opencode.db` as migration marker |
+
 ---
 
 ## 2026-04-04 — fix: orphan sidecar processes after Electron dev exit
@@ -27,6 +39,29 @@
 |------|--------|
 | `packages/desktop-electron/src/main/cli.ts` | Always set `detached: true` on non-Windows (was only packaged mode), enabling process-group kill in dev |
 | `packages/desktop-electron/src/main/index.ts` | Add synchronous `process.kill(pid, "SIGTERM")` (positive pid) as direct fallback in `killSidecar()`; add `process.on("exit")` handler for last-resort cleanup |
+
+### feat(app): redesign question dock UI and interaction model
+
+**Commit:** `db4c5ed27`
+
+**Intent:** Second major redesign of the question dock. Pill options now show inline descriptions (replacing tooltip hover). Input field is supplementary notes, not mutually exclusive with pills. Inline section headings (header tag + question text on same line). Outer ring / inset ring replaces solid borders (dock shell, tray, options, input). Add `--surface-card` CSS variable (`#fafafa`) to unify starter and question card backgrounds. Max height capped at 80vh so footer stays visible. Tool result format distinguishes selected options from notes. Updated `question.txt` and `dandy-agent.txt` to prevent catch-all options. Trimmed redundant dimensions from product-ad-poster brief request flow. Documented starter & skill requirements gathering pattern in CLAUDE.md.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/pages/session/composer/session-question-dock.tsx` | Inline descriptions on pills, supplementary input, ring borders, 80vh cap |
+| `packages/app/src/components/session/session-new-view.tsx` | Use `--surface-card` for card backgrounds |
+| `packages/opencode/src/tool/question.ts` | Update tool result format to distinguish options from notes |
+| `packages/opencode/src/tool/question.txt` | Prevent catch-all options |
+| `packages/opencode/src/agent/prompt/dandy-agent.txt` | Prevent catch-all options in question instructions |
+| `packages/desktop-electron/assets/skills/product-ad-poster/SKILL.md` | Trim redundant dimensions from brief request flow |
+| `packages/ui/src/components/dock-surface.css` | Ring border styles for dock shell and tray |
+| `packages/ui/src/components/message-part.css` | Ring border styles for pill options |
+| `packages/ui/src/styles/theme.css` | Add `--surface-card` CSS variable |
+| `packages/ui/src/styles/tailwind/colors.css` | Map `--surface-card` to Tailwind |
+| `packages/ui/src/i18n/en.ts` | Question summary i18n template |
+| `packages/ui/src/i18n/zh.ts` | Question summary i18n template (Chinese) |
+| `packages/ui/src/i18n/ja.ts` | Question summary i18n template (Japanese) |
+| `packages/ui/src/i18n/zht.ts` | Question summary i18n template (Traditional Chinese) |
 
 ---
 
@@ -392,6 +427,74 @@
 | `packages/app/src/i18n/en.ts` | Rewrite all starter label texts as action verbs |
 | `packages/app/src/i18n/zh.ts` | Same, Chinese |
 
+### fix(dandelion): always start on new session page instead of restoring last session
+
+**Commit:** `1f707ae03`
+
+**Intent:** After mode switch via titlebar tabs, the app would navigate to the last-visited session instead of the new-session page. Replace `openProject(target, true)` (which called `navigateToProject` and restored `lastProjectSession`) with direct navigation to `/<dir>/session`.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/pages/layout.tsx` | Replace `openProject` with direct navigation; register all workspaces via `layout.projects.open` without restoring last session |
+
+### feat(dandelion): split starter examples into label + query with enriched prompts
+
+**Commit:** `b5e5ccc51`
+
+**Intent:** Change starter `Example` type from `string[]` to `{ label, query }[]`. UI shows the short label; clicking sends the detailed query. Edit/analyze examples instruct AI to ask user for files first; create examples are self-contained.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/session/starters.ts` | Change `Example` type to `{ label, query }[]` for all 11 starters |
+| `packages/app/src/components/session/session-new-view.tsx` | Render label in UI, send query on click |
+| `packages/app/src/components/prompt-input.tsx` | Extract `.label` for rotating placeholder text |
+| `packages/app/src/i18n/en.ts` | Replace example keys with label/query pairs; expand queries to detailed multi-sentence briefs |
+| `packages/app/src/i18n/zh.ts` | Same, Chinese |
+| `packages/desktop-electron/assets/skills/.system/image-gen/SKILL.md` | Update for enriched prompts |
+| `packages/desktop-electron/assets/skills/.system/image-gen/references/config/preferences-schema.md` | Update for enriched prompts |
+
+### style(dandelion): polish starter card layout and compact home view
+
+**Commit:** `7a38d187b`
+
+**Intent:** Reduce spacing (gap-8->5, p-4->3, size-9->8), remove list background, fix scroll jump with `scrollbar-gutter: stable` and `pt-12`. Unify font size to `text-13`, restyle "view all" as inline list item. Switch poster icon from megaphone to shopping-bag.
+
+| File | Change |
+|------|--------|
+| `packages/app/src/components/session/session-new-view.tsx` | Compact spacing, scroll fix, font unification |
+| `packages/app/src/components/session/starters.ts` | Switch poster icon to `shopping-bag` |
+| `packages/ui/src/components/icon.tsx` | Add `shopping-bag` icon |
+
+### feat(skills): add bundled Sora video generation skill
+
+**Commit:** `129dbd46f`
+
+**Intent:** Add a bundled Sora video generation skill with SKILL.md, reference docs (prompting guide, cinematic shots, social ads, troubleshooting), OpenAI agent config, and Python helper script.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/sora/` | **Added:** entire skill directory (SKILL.md, agents/openai.yaml, assets/, references/, scripts/sora.py) |
+
+### fix(electron): prevent orphaned sidecar processes in dev mode
+
+**Commit:** `9bc05702c`
+
+**Intent:** In dev mode, sidecar processes (opencode-cli) were orphaned on exit because `detached: true` put them in a separate process group. Fix: only detach when app is packaged; in dev mode keep sidecar in same process group so Ctrl+C kills it. (Later superseded by `e43cf2048` which always detaches but adds explicit kill logic.)
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/src/main/cli.ts` | Only set `detached: true` when app is packaged |
+
+### fix(ui): show bash description during command execution
+
+**Commit:** `67b3bb043`
+
+**Intent:** The bash tool's description (e.g. "执行命令中 安装依赖") was hidden while the command was running because `ShellSubmessage` was gated behind `!pending()`. Remove the gate so description is visible during execution.
+
+| File | Change |
+|------|--------|
+| `packages/ui/src/components/message-part.tsx` | Remove `!pending()` gate on `ShellSubmessage` |
+
 ---
 
 ## 2026-03-30 — fix: bash tool description not matching user language
@@ -437,6 +540,21 @@
 | `packages/opencode/src/session/prompt.ts` | In `createUserMessage`, `data:` case: for non-text image MIME types, extract base64, save to workspace via `Filesystem.write`, and prepend a synthetic text part with the saved file path. Import `Media` for extension lookup. |
 | `packages/opencode/src/session/media.ts` | Export `Media.ext(mime)` helper to map MIME type to file extension |
 
+### feat(skill): add product-ad-poster skill for e-commerce ad key visual generation
+
+**Commit:** `d33875b75`
+
+**Intent:** Add a comprehensive product-ad-poster skill with a 6-dimension system (category, layout, scene, promotion, mood, text), 7 platform presets (taobao, jd, douyin, xiaohongshu, amazon, shopee, generic), 8 category visual guides, 6 layout composition guides, and a workflow for confirming options and generating prompts via gpt-image-gen. Also add "poster" starter card to agent mode.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/.system/product-ad-poster/` | **Added:** entire skill directory (SKILL.md, references/base-prompt.md, auto-selection.md, platforms.md, visual-elements.md, categories/\*, layouts/\*, config/\*, workflow/\*) |
+| `packages/app/src/components/session/starters.ts` | Add poster starter card |
+| `packages/app/src/components/session/session-new-view.tsx` | Render poster starter |
+| `packages/app/src/i18n/en.ts` | Add poster starter i18n keys |
+| `packages/app/src/i18n/zh.ts` | Same, Chinese |
+| `packages/ui/src/components/icon.tsx` | Add icon for poster starter |
+
 ---
 
 ## 2026-03-29 — chore: rename bundled baoyu-* skills to remove prefix
@@ -449,6 +567,20 @@
 |------|--------|
 | `packages/desktop-electron/assets/skills/.system/baoyu-*/` | Rename all 13 directories: remove `baoyu-` prefix (e.g. `baoyu-comic/` -> `comic/`) |
 | `*/SKILL.md` (all 13 files) | Update frontmatter `name:`, slash commands (`/baoyu-X` -> `/X`), EXTEND.md skill subdirectory paths, relative script paths; rename `.baoyu-skills/` -> `.dandelion/skill-configs/` in all extension/config paths |
+
+---
+
+## 2026-03-29 — fix: correct image output file extension
+
+### fix(skill): correct output file extension to match actual image format
+
+**Commit:** `1f9b8931b`
+
+**Intent:** Gemini sometimes returns JPEG data when the output path has a `.png` extension. Add magic-byte detection (`detectMime`) for JPEG/PNG/WebP/GIF and a `fixExtension` function to adjust the output path when the extension mismatches the actual content.
+
+| File | Change |
+|------|--------|
+| `packages/desktop-electron/assets/skills/.system/baoyu-image-gen/scripts/main.ts` | Add `detectMime()` and `fixExtension()`; call after image write to correct mismatched extensions |
 
 ---
 
@@ -641,8 +773,9 @@ Quick reference of all files modified from upstream, grouped by package:
 - `src/renderer/index.html` — Coco Desktop title
 - `src/renderer/loading.html` — Coco Desktop title
 - `src/renderer/i18n/*.ts` — Coco Desktop branding in all locales
+- `scripts/predev.ts` — `--skip-install` for dev build
 - `electron-builder.config.ts` — Coco Desktop product name, appId; skills extraResources
-- `assets/skills/` — bundled skills: create-web-site, frontend-design, cloudflare-deploy, pptx, slide-deck, etc. (flattened from `.system/`)
+- `assets/skills/` — bundled skills: create-web-site, frontend-design, cloudflare-deploy, pptx, slide-deck, sora, product-ad-poster, etc. (flattened from `.system/`)
 
 ### `packages/opencode/`
 - `src/agent/agent.ts` — chat, dandy, image-gen agent definitions
@@ -661,11 +794,18 @@ Quick reference of all files modified from upstream, grouped by package:
 - `src/file/index.ts` — show files in @ autocomplete when query is empty
 - `src/tool/present.ts` — present_file tool (HTML, SVG, PDF, PPTX, images, directories, URLs); inline CSS/JS/url()
 - `src/tool/present.txt` — tool description; URL preview mode
-- `src/tool/question.txt` — clarify auto free-text option
+- `src/tool/question.ts` — tool result format for options vs notes
+- `src/tool/question.txt` — clarify auto free-text option; prevent catch-all options
 - `src/tool/bash.ts` — inject provider API keys into spawned processes
 - `src/tool/registry.ts` — register PresentTool; Exa auth check for websearch/codesearch gate
 - `src/tool/websearch.ts` — Auth + env var key reading with Bearer header
 - `src/tool/codesearch.ts` — Auth + env var key reading with Bearer header
+- `src/index.ts` — use `Database.Path` for migration marker instead of hardcoded name
+
+### `packages/ui/` (additional)
+- `src/components/dock-surface.css` — ring border styles for question dock
+- `src/styles/tailwind/colors.css` — `--surface-card` Tailwind mapping
+- `src/i18n/ja.ts` — question summary i18n template (Japanese)
 
 ### Root
 - `.gitignore` — models-snapshot.js
